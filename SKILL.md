@@ -64,7 +64,7 @@ A Cortex paper is a single self-contained HTML file that embeds:
 ```
 User: "Generate a Cortex paper on the metabolic cost of consciousness"
 -> Invokes Generate workflow
--> 5-phase pipeline: Research → Outline → Write → Verify → Assemble
+-> 6-phase pipeline: Research → Outline → Write → Ground → Verify → Assemble
 -> Returns self-contained HTML with embedded evidence store
 ```
 
@@ -93,16 +93,16 @@ User: "Write a thorough Cortex paper on Buddhist theories of consciousness"
 
 ## Architecture
 
-### The 5-Phase Pipeline
+### The 6-Phase Pipeline
 
 ```
-Topic/Outline → Research → Outline → Write → Verify → Assemble → .html
-                   │          │         │        │         │
-              Find real    Map claims  Write +   Check    Package
-              sources      to sources  capture   claims   into one
-              FIRST        BEFORE      reasoning ADVERSA- self-
-                           writing     LIVE      RIALLY   contained
-                                                          file
+Topic/Outline → Research → Outline → Write → Ground → Verify → Assemble → .html
+                   │          │         │       │        │         │
+              Find real    Map claims  Write + Fetch    Check    Package
+              sources      to sources  capture content  claims   into one
+              FIRST        BEFORE      reasoning hash   ADVERSA- self-
+                           writing     LIVE     verify  RIALLY   contained
+                                               excerpts          file
 ```
 
 ### Key Design Decisions
@@ -111,6 +111,7 @@ Topic/Outline → Research → Outline → Write → Verify → Assemble → .ht
 2. **Live reasoning capture** — The AI writes and reflects simultaneously. Not reconstructed after.
 3. **Adversarial verification** — A separate agent tries to find problems. Scored on what it catches.
 4. **Self-contained output** — Single HTML file with embedded JSON evidence store. No server needed.
+5. **Grounding terminates recursion** — Mechanical checks (content hashes, excerpt matching, CrossRef validation) provide facts that are verifiable by anyone. The adversarial agent's scope narrows to interpretation quality — the only thing AI judgment is actually needed for.
 
 ### Evidence Store Schema
 
@@ -120,9 +121,13 @@ Full TypeScript types: `Schema/cortex-schema.ts`
 CortexDocument
 ├── meta (title, authors, generator info, content hash)
 ├── sections[] (document structure with HTML content)
-├── claims{} (every claim with confidence, type, source refs)
+├── claims{} (every claim with confidence, type, source refs, grounding)
+│   └── grounding? { assumptions[], mechanical_facts[] }
 ├── reasoning{} (step-by-step chains captured during writing)
 ├── sources{} (citations with excerpts, DOIs, content hashes)
+│   ├── excerpt_verification? { found, match_score, context }
+│   ├── retrieved_content_hash? (sha256 of fetched content)
+│   └── crossref_metadata? { metadata_matches, verified_title, verified_year }
 └── validations[] (independent verification results)
 ```
 
@@ -136,6 +141,8 @@ CortexDocument
 | synthesis | Combining multiple sources | 55-85% |
 | methodological | About process/approach | 70-95% |
 | normative | Value judgment (flagged) | 40-70% |
+
+Evidence tiers: primary (direct quote), secondary (paraphrase), synthesis (multi-source), analytical (inference), speculative (unsupported)
 
 ## File Organization
 
@@ -163,9 +170,16 @@ CortexDocument
 
 ## Changelog
 
+### 2026-03-23
+- Added mechanical grounding phase (Phase 3.5) -- fetches sources, verifies excerpts, validates CrossRef
+- Added evidence tiers on claims (primary/secondary/synthesis/analytical/speculative)
+- Added "Mechanical Facts" section to HTML reader panel
+- Adversarial verification now receives grounding facts, narrows scope to interpretation quality
+- Schema v1.1: GroundingFact, GroundingResult, ClaimGrounding types
+
 ### 2026-03-10
 - Initial skill creation
-- 5-phase pipeline: Research → Outline → Write → Verify → Assemble
+- 6-phase pipeline: Research → Outline → Write → Verify → Assemble
 - Self-contained HTML output with embedded evidence store
 - Dark mode, responsive layout, print export
 - 7 claim types with confidence scoring

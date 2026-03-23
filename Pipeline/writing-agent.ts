@@ -156,6 +156,14 @@ Return JSON:
       "content": "What I found and how I assessed it",
       "parent_id": "r001",
       "source_refs": ["src001"]
+    },
+    "r003": {
+      "claim_id": "c001",
+      "step_number": 3,
+      "type": "grounding_check",
+      "content": "Verified source alignment and flagged assumptions",
+      "parent_id": "r002",
+      "source_refs": ["src001"]
     }
   }
 }
@@ -165,7 +173,12 @@ CRITICAL:
 - Each paragraph should contain 1-3 claims woven into readable text
 - Reasoning chains should be HONEST — show real thought process
 - Confidence must reflect actual certainty (don't inflate)
-- Normative claims must be explicitly typed and have lower confidence`,
+- Normative claims must be explicitly typed and have lower confidence
+
+For each claim, also specify:
+- evidence_tier: "primary" (directly quoted from source), "secondary" (paraphrased from source), "synthesis" (combines multiple sources), "analytical" (logical inference), or "speculative" (partially/un-supported)
+- grounding.assumptions: list any assumptions that are NOT grounded in a source
+- Include "grounding_check" as a reasoning step type when documenting how you verified source alignment`,
       },
     ],
   });
@@ -207,6 +220,8 @@ CRITICAL:
       alternatives_considered: c.alternatives_considered ?? [],
       unsupported: c.unsupported ?? false,
       synthesis: c.synthesis ?? false,
+      evidence_tier: (c as any).evidence_tier ?? "speculative",
+      grounding: (c as any).grounding ?? { direct_excerpts: [], assumptions: ["(not captured)"] },
     };
   }
 

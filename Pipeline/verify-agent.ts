@@ -22,12 +22,14 @@ import type {
   ValidationRun,
   ValidationCheck,
   ValidationSummary,
+  GroundingFact,
 } from "../schema/cortex-schema.ts";
 
 export interface VerifyOptions {
   claims: Record<string, Claim>;
   sources: Record<string, Source>;
   reasoning: Record<string, ReasoningStep>;
+  groundingFacts?: GroundingFact[];
   model: string;
 }
 
@@ -71,6 +73,32 @@ export async function verifyClaims(options: VerifyOptions): Promise<ValidationRu
     }
   }
 
+  // ─── Pre-checks from Mechanical Grounding ─────────────
+  if (options.groundingFacts) {
+    for (const fact of options.groundingFacts) {
+      if (fact.type === "excerpt_missing") {
+        checks.push({
+          check_id: `chk${String(checkIdx++).padStart(3, "0")}`,
+          type: "excerpt_accurate",
+          target_id: fact.source_id,
+          result: "fail",
+          detail: `MECHANICAL: ${fact.detail}`,
+          suggestion: "This excerpt was not found in the source content. The citation may be fabricated.",
+        });
+      }
+      if (fact.type === "crossref_mismatch") {
+        checks.push({
+          check_id: `chk${String(checkIdx++).padStart(3, "0")}`,
+          type: "content_matches",
+          target_id: fact.source_id,
+          result: "warn",
+          detail: `MECHANICAL: ${fact.detail}`,
+          suggestion: "CrossRef metadata doesn't match citation. Verify authors, year, and publication.",
+        });
+      }
+    }
+  }
+
   // ─── Tier 2-4: AI-Driven Verification ────────────────
   // Package everything for the adversarial review agent
   const claimsSummary = Object.entries(options.claims)
@@ -102,6 +130,17 @@ Unsupported: ${c.unsupported} | Synthesis: ${c.synthesis}`;
       {
         role: "user",
         content: `You are an adversarial academic reviewer. Your job is to find problems, NOT to confirm. You are scored on what you catch.
+
+MECHANICAL GROUNDING RESULTS (already verified -- do NOT re-check these):
+${options.groundingFacts?.map((f) => `[${f.type}] ${f.source_id}: ${f.detail} (result: ${f.result})`).join("\n") ?? "No mechanical grounding facts available."}
+
+Focus your review on:
+- Interpretation quality: Does the AI's interpretation of the source match what the source actually says?
+- Inference soundness: Are the logical steps from evidence to claim valid?
+- Fairness: Were alternatives fairly represented?
+- Confidence calibration: Given the evidence tier, is confidence appropriate?
+
+Do NOT check: source existence, excerpt presence, citation metadata -- these are already mechanically verified above.
 
 Review these claims from a Cortex paper. For each claim, check:
 

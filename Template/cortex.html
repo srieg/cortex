@@ -654,6 +654,42 @@ body {
   .cortex-stats { gap: 0.75rem; }
 }
 
+/* ─── Mechanical Facts ────────────────────── */
+.fact-section { margin-top: 1.5rem; }
+.fact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  font-family: var(--font-ui);
+}
+.fact-item.pass { background: var(--color-verified-bg); border-left: 3px solid var(--color-verified); }
+.fact-item.fail { background: var(--color-fail-bg); border-left: 3px solid var(--color-fail); }
+.fact-item.unavailable { background: var(--color-reasoning-bg); border-left: 3px solid var(--color-text-muted); }
+.fact-icon { flex-shrink: 0; width: 1.2em; text-align: center; }
+.fact-detail { flex: 1; }
+.fact-label { font-weight: 600; display: block; margin-bottom: 0.15rem; }
+.fact-context { font-family: var(--font-mono); font-size: 0.8em; color: var(--color-text-secondary); margin-top: 0.25rem; }
+
+.evidence-tier-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.tier-primary { background: var(--color-verified-bg); color: var(--color-verified); }
+.tier-secondary { background: var(--color-claim-bg); color: var(--color-claim); }
+.tier-synthesis { background: var(--color-accent-light); color: var(--color-accent); }
+.tier-analytical { background: var(--color-warn-bg); color: var(--color-warn); }
+.tier-speculative { background: var(--color-fail-bg); color: var(--color-fail); }
+
 /* ─── Print ──────────────────────────────────────────── */
 
 @media print {
@@ -1360,6 +1396,14 @@ body {
     if (claim.unsupported) badges.innerHTML += '<span class="badge badge-unsupported">Unsupported</span>';
     if (claim.synthesis) badges.innerHTML += '<span class="badge badge-type">Synthesis</span>';
 
+    // ─── Evidence Tier Badge ─────────────────────
+    if (claim.evidence_tier) {
+      var tierBadge = document.createElement('span');
+      tierBadge.className = 'evidence-tier-badge tier-' + claim.evidence_tier;
+      tierBadge.textContent = claim.evidence_tier;
+      badges.appendChild(tierBadge);
+    }
+
     // Content sections
     const content = document.getElementById('panel-content');
     content.innerHTML = '';
@@ -1404,6 +1448,93 @@ body {
       sourcesSection.appendChild(card);
     }
     content.appendChild(sourcesSection);
+
+    // ─── Mechanical Facts Section ────────────────
+    var factsSection = document.createElement('div');
+    factsSection.className = 'panel-section fact-section';
+    factsSection.innerHTML = '<h3>Mechanical Facts</h3><p class="section-desc">Binary checks \u2014 no AI opinion. Reproducible by anyone.</p>';
+
+    var relevantSourceIds = claim.source_refs || [];
+    var hasAnyFacts = false;
+
+    for (var si = 0; si < relevantSourceIds.length; si++) {
+      var srcId2 = relevantSourceIds[si];
+      var src2 = store.sources[srcId2];
+      if (!src2) continue;
+
+      // Excerpt verification
+      if (src2.excerpt_verification) {
+        hasAnyFacts = true;
+        var ev = src2.excerpt_verification;
+        var evCls = ev.found ? 'pass' : 'fail';
+        var evIcon = ev.found ? '\u2705' : '\u274C';
+        var evItem = document.createElement('div');
+        evItem.className = 'fact-item ' + evCls;
+        evItem.innerHTML =
+          '<span class="fact-icon">' + evIcon + '</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Excerpt ' + (ev.found ? 'Found' : 'Not Found') + ' in Source</span>' +
+            (ev.found ? 'Match confidence: ' + Math.round(ev.match_score * 100) + '%' : 'The claimed excerpt was not found in the source content.') +
+            (ev.context ? '<div class="fact-context">"...' + ev.context + '..."</div>' : '') +
+          '</div>';
+        factsSection.appendChild(evItem);
+      }
+
+      // Content hash
+      if (src2.retrieved_content_hash) {
+        hasAnyFacts = true;
+        var hashItem = document.createElement('div');
+        hashItem.className = 'fact-item pass';
+        hashItem.innerHTML =
+          '<span class="fact-icon">\uD83D\uDD12</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Content Hash Recorded</span>' +
+            '<code style="font-size: 0.75em">' + src2.retrieved_content_hash.substring(0, 16) + '...</code>' +
+          '</div>';
+        factsSection.appendChild(hashItem);
+      }
+
+      // CrossRef metadata
+      if (src2.crossref_metadata) {
+        hasAnyFacts = true;
+        var cr = src2.crossref_metadata;
+        var crCls = cr.metadata_matches ? 'pass' : 'fail';
+        var crIcon = cr.metadata_matches ? '\u2705' : '\u26A0\uFE0F';
+        var crItem = document.createElement('div');
+        crItem.className = 'fact-item ' + crCls;
+        crItem.innerHTML =
+          '<span class="fact-icon">' + crIcon + '</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">CrossRef Metadata ' + (cr.metadata_matches ? 'Matches' : 'Mismatch') + '</span>' +
+            (cr.verified_title ? 'Title: "' + cr.verified_title + '"' : '') +
+            (cr.verified_year ? ' (' + cr.verified_year + ')' : '') +
+          '</div>';
+        factsSection.appendChild(crItem);
+      }
+    }
+
+    // Grounding assumptions
+    if (claim.grounding && claim.grounding.assumptions && claim.grounding.assumptions.length > 0) {
+      hasAnyFacts = true;
+      for (var ai = 0; ai < claim.grounding.assumptions.length; ai++) {
+        var assumption = claim.grounding.assumptions[ai];
+        var aItem = document.createElement('div');
+        aItem.className = 'fact-item unavailable';
+        aItem.innerHTML =
+          '<span class="fact-icon">\u26AA</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Ungrounded Assumption</span>' +
+            assumption +
+          '</div>';
+        factsSection.appendChild(aItem);
+      }
+    }
+
+    if (!hasAnyFacts) {
+      factsSection.innerHTML += '<div class="fact-item unavailable"><span class="fact-icon">\u2014</span><div class="fact-detail">No mechanical verification available for this claim\'s sources.</div></div>';
+    }
+
+    content.appendChild(factsSection);
 
     // Alternatives
     if (claim.alternatives_considered.length > 0) {

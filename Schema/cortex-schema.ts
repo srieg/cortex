@@ -14,6 +14,7 @@ export interface CortexDocument {
   claims: Record<string, Claim>;
   reasoning: Record<string, ReasoningStep>;
   sources: Record<string, Source>;
+  grounding?: GroundingResult;
   validations: ValidationRun[];
 }
 
@@ -72,11 +73,23 @@ export interface Claim {
   section_id: string;
   claim_type: ClaimType;
   confidence: number; // 0.0 - 1.0
+  evidence_tier: "primary" | "secondary" | "synthesis" | "analytical" | "speculative";
+  grounding: ClaimGrounding;
   reasoning_chain: string[]; // ordered IDs into reasoning store
   source_refs: string[]; // IDs into source store
   alternatives_considered: Alternative[];
   unsupported: boolean; // true if no source backs this claim
   synthesis: boolean; // true if this is analytical synthesis, not direct citation
+}
+
+export interface ClaimGrounding {
+  direct_excerpts: Array<{
+    source_id: string;
+    excerpt: string;
+    found_in_source: boolean;
+    match_confidence: number; // 0.0-1.0, fuzzy match score
+  }>;
+  assumptions: string[]; // What's assumed, not grounded in any source
 }
 
 export type ClaimType =
@@ -112,7 +125,8 @@ export type ReasoningType =
   | "inference" // Drawing a conclusion from evidence
   | "synthesis" // Combining multiple pieces
   | "decision" // Choosing between alternatives
-  | "caveat"; // Noting a limitation or uncertainty
+  | "caveat" // Noting a limitation or uncertainty
+  | "grounding_check"; // Mechanical verification of sources/excerpts
 
 // ─── Sources ─────────────────────────────────────────────
 
@@ -137,6 +151,20 @@ export interface Source {
   relevant_excerpt: string; // The specific text that supports the claim
   excerpt_location: string; // Where in the source (page, paragraph, etc.)
   reliability_rating: number; // 0.0 - 1.0 based on source type and quality
+  retrieved_content_hash?: string; // SHA-256 computed when content fetched
+  crossref_metadata?: {
+    verified_title?: string;
+    verified_authors?: string[];
+    verified_year?: number;
+    verified_publication?: string;
+    metadata_matches: boolean;
+  };
+  excerpt_verification?: {
+    found: boolean;
+    match_score: number; // 0.0-1.0 fuzzy match
+    context: string; // surrounding text in source
+    location_verified: boolean;
+  };
 }
 
 export type SourceType =
@@ -159,6 +187,27 @@ export type VerificationMethod =
   | "content_hash_matched"
   | "manual_verification"
   | "archive_snapshot";
+
+// ─── Grounding ──────────────────────────────────────────
+
+export interface GroundingFact {
+  id: string;
+  source_id: string;
+  type: "excerpt_found" | "excerpt_missing" | "content_hash_computed" | "crossref_verified" | "crossref_mismatch" | "url_content_fetched" | "url_content_failed";
+  detail: string;
+  mechanical: true; // Always true — these are not AI opinions
+  verified_at: string; // ISO 8601
+}
+
+export interface GroundingResult {
+  facts: GroundingFact[];
+  sources_fetched: number;
+  excerpts_verified: number;
+  excerpts_found: number;
+  excerpts_missing: number;
+  crossref_checked: number;
+  crossref_matched: number;
+}
 
 // ─── Validations ─────────────────────────────────────────
 
