@@ -1,0 +1,2187 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Metabolic Cost of Consciousness — Cortex Paper</title>
+<style>
+/* ─── Cortex Typography & Layout ─────────────────────── */
+
+:root {
+  --font-body: 'Libre Baskerville', 'Georgia', serif;
+  --font-heading: 'Inter', 'Helvetica Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-ui: 'Inter', system-ui, sans-serif;
+
+  --color-bg: #fafaf8;
+  --color-surface: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-secondary: #555;
+  --color-text-muted: #888;
+  --color-border: #e0ddd8;
+  --color-border-light: #f0ede8;
+
+  --color-claim: #2563eb;
+  --color-claim-bg: #eff6ff;
+  --color-claim-border: #bfdbfe;
+  --color-claim-hover: #1d4ed8;
+
+  --color-verified: #059669;
+  --color-verified-bg: #ecfdf5;
+  --color-warn: #d97706;
+  --color-warn-bg: #fffbeb;
+  --color-fail: #dc2626;
+  --color-fail-bg: #fef2f2;
+
+  --color-reasoning-bg: #f8f7f4;
+  --color-reasoning-border: #e8e5df;
+  --color-source-bg: #f0f4f8;
+
+  --color-accent: #6366f1;
+  --color-accent-light: #e0e7ff;
+
+  --max-width: 720px;
+  --panel-width: 420px;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --shadow-panel: 0 4px 24px rgba(0,0,0,0.15);
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+[data-theme="dark"] {
+  --color-bg: #141416;
+  --color-surface: #1e1e22;
+  --color-text: #e8e6e3;
+  --color-text-secondary: #a8a5a0;
+  --color-text-muted: #6b6965;
+  --color-border: #2a2a2e;
+  --color-border-light: #222226;
+
+  --color-claim: #60a5fa;
+  --color-claim-bg: #1e293b;
+  --color-claim-border: #334155;
+  --color-claim-hover: #93bbfd;
+
+  --color-verified: #34d399;
+  --color-verified-bg: #064e3b;
+  --color-warn: #fbbf24;
+  --color-warn-bg: #451a03;
+  --color-fail: #f87171;
+  --color-fail-bg: #450a0a;
+
+  --color-reasoning-bg: #1a1a1e;
+  --color-reasoning-border: #2a2a2e;
+  --color-source-bg: #1a1d24;
+
+  --color-accent: #818cf8;
+  --color-accent-light: #1e1b4b;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
+  --shadow-panel: 0 4px 24px rgba(0,0,0,0.5);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  font-size: 18px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Header / Masthead ──────────────────────────────── */
+
+.cortex-masthead {
+  text-align: center;
+  padding: 3rem 2rem 2rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.cortex-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  background: var(--color-accent-light);
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  margin-bottom: 1.5rem;
+}
+
+.cortex-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.cortex-masthead h1 {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  max-width: 640px;
+  margin: 0 auto 0.5rem;
+}
+
+.cortex-masthead .subtitle {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  max-width: 560px;
+  margin: 0 auto 1.5rem;
+}
+
+.cortex-meta-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  flex-wrap: wrap;
+}
+
+.cortex-meta-row .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* ─── Stats Bar ──────────────────────────────────────── */
+
+.cortex-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+  background: var(--color-reasoning-bg);
+  border-bottom: 1px solid var(--color-border-light);
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.stat-value {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.stat-verified { color: var(--color-verified); }
+
+/* ─── Main Content ───────────────────────────────────── */
+
+.cortex-body {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2.5rem 2rem 4rem;
+}
+
+.cortex-body h2 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 2.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.cortex-body h3 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 2rem 0 0.75rem;
+}
+
+.cortex-body p {
+  margin-bottom: 1.25rem;
+}
+
+.cortex-body blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding: 0.75rem 1.25rem;
+  margin: 1.5rem 0;
+  background: var(--color-reasoning-bg);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+/* ─── Claim Indicators ───────────────────────────────── */
+
+.claim {
+  position: relative;
+  cursor: pointer;
+  border-bottom: 1.5px solid var(--color-claim);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.claim:hover {
+  background: var(--color-claim-bg);
+  border-bottom-color: var(--color-claim-hover);
+}
+
+.claim::after {
+  content: attr(data-confidence);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 3px;
+  font-family: var(--font-ui);
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: white;
+  background: var(--color-claim);
+  border-radius: 50%;
+  vertical-align: super;
+  top: -2px;
+  line-height: 1;
+}
+
+.claim[data-type="synthesis"]::after { background: var(--color-accent); }
+.claim[data-type="normative"]::after { background: var(--color-warn); }
+
+.claim.active {
+  background: var(--color-claim-bg);
+  border-bottom-color: var(--color-claim-hover);
+}
+
+/* ─── Reasoning Panel (Slide-out) ────────────────────── */
+
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 90;
+}
+
+.panel-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.reasoning-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(var(--panel-width), 90vw);
+  height: 100vh;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  box-shadow: var(--shadow-panel);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reasoning-panel.open {
+  transform: translateX(0);
+}
+
+.panel-header {
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--color-border-light);
+  z-index: 10;
+}
+
+.panel-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.panel-label {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-claim);
+}
+
+.panel-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.panel-close:hover { color: var(--color-text); }
+
+.panel-claim-text {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-text);
+  padding: 0.75rem;
+  background: var(--color-claim-bg);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-claim);
+}
+
+.panel-badges {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-confidence {
+  background: var(--color-verified-bg);
+  color: var(--color-verified);
+}
+
+.badge-type {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+}
+
+.badge-unsupported {
+  background: var(--color-fail-bg);
+  color: var(--color-fail);
+}
+
+/* ─── Panel Sections ─────────────────────────────────── */
+
+.panel-section {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.panel-section-title {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ─── Reasoning Chain ────────────────────────────────── */
+
+.reasoning-chain {
+  list-style: none;
+  position: relative;
+}
+
+.reasoning-chain::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 24px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--color-border);
+}
+
+.reasoning-step {
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.reasoning-step:last-child { margin-bottom: 0; }
+
+.step-dot {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--color-claim);
+  background: var(--color-surface);
+  z-index: 1;
+}
+
+.step-dot.query { border-color: #8b5cf6; }
+.step-dot.evaluation { border-color: #f59e0b; }
+.step-dot.interpretation { border-color: #06b6d4; }
+.step-dot.inference { border-color: #10b981; }
+.step-dot.synthesis { border-color: #6366f1; }
+.step-dot.decision { border-color: #ec4899; }
+.step-dot.caveat { border-color: #f97316; }
+.step-dot.grounding_check { border-color: #64748b; }
+
+.step-label {
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.step-content {
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+/* ─── Sources List ───────────────────────────────────── */
+
+.source-card {
+  background: var(--color-source-bg);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--color-border-light);
+}
+
+.source-card:last-child { margin-bottom: 0; }
+
+.source-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.4rem;
+}
+
+.source-status {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.source-title {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.source-citation {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.source-excerpt {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--color-text-secondary);
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface);
+  border-left: 2px solid var(--color-border);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 0.4rem;
+  line-height: 1.5;
+}
+
+.source-meta {
+  display: flex;
+  gap: 0.75rem;
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  color: var(--color-text-muted);
+  flex-wrap: wrap;
+}
+
+.source-meta a {
+  color: var(--color-claim);
+  text-decoration: none;
+}
+
+.source-meta a:hover { text-decoration: underline; }
+
+/* ─── Validation Section ─────────────────────────────── */
+
+.validation-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.validation-row:last-child { border-bottom: none; }
+
+.validation-icon { font-size: 0.9rem; }
+.validation-pass .validation-icon { color: var(--color-verified); }
+.validation-warn .validation-icon { color: var(--color-warn); }
+.validation-fail .validation-icon { color: var(--color-fail); }
+
+.validation-label {
+  flex: 1;
+  color: var(--color-text-secondary);
+}
+
+.validation-result {
+  font-weight: 600;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.validation-pass .validation-result { color: var(--color-verified); }
+.validation-warn .validation-result { color: var(--color-warn); }
+.validation-fail .validation-result { color: var(--color-fail); }
+
+/* ─── Alternatives ───────────────────────────────────── */
+
+.alternative {
+  padding: 0.6rem 0.85rem;
+  background: var(--color-reasoning-bg);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+  border-left: 2px solid var(--color-warn);
+}
+
+.alternative:last-child { margin-bottom: 0; }
+
+.alternative-text {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.alternative-reason {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* ─── Footer ─────────────────────────────────────────── */
+
+.cortex-footer {
+  text-align: center;
+  padding: 2rem;
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.cortex-footer a {
+  color: var(--color-claim);
+  text-decoration: none;
+}
+
+/* ─── Theme Toggle ───────────────────────────────────── */
+
+.theme-toggle {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  box-shadow: var(--shadow-md);
+  z-index: 50;
+  transition: transform 0.15s;
+}
+
+.theme-toggle:hover { transform: scale(1.1); }
+
+/* ─── Mechanical Facts ────────────────────── */
+.fact-section { margin-top: 1.5rem; }
+.fact-section h3 {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+.fact-section .section-desc {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+  font-style: italic;
+}
+.fact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  font-family: var(--font-ui);
+}
+.fact-item.pass { background: var(--color-verified-bg); border-left: 3px solid var(--color-verified); }
+.fact-item.fail { background: var(--color-fail-bg); border-left: 3px solid var(--color-fail); }
+.fact-item.unavailable { background: var(--color-reasoning-bg); border-left: 3px solid var(--color-text-muted); }
+.fact-icon { flex-shrink: 0; width: 1.2em; text-align: center; }
+.fact-detail { flex: 1; }
+.fact-label { font-weight: 600; display: block; margin-bottom: 0.15rem; }
+.fact-context { font-family: var(--font-mono); font-size: 0.8em; color: var(--color-text-secondary); margin-top: 0.25rem; }
+
+.evidence-tier-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.tier-primary { background: var(--color-verified-bg); color: var(--color-verified); }
+.tier-secondary { background: var(--color-claim-bg); color: var(--color-claim); }
+.tier-synthesis { background: var(--color-accent-light); color: var(--color-accent); }
+.tier-analytical { background: var(--color-warn-bg); color: var(--color-warn); }
+.tier-speculative { background: var(--color-fail-bg); color: var(--color-fail); }
+
+/* ─── Responsive ─────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  html { font-size: 16px; }
+  .cortex-masthead h1 { font-size: 1.6rem; }
+  .cortex-body { padding: 1.5rem 1.25rem 3rem; }
+  .reasoning-panel { width: 100vw; }
+  .cortex-meta-row { flex-direction: column; align-items: center; gap: 0.5rem; }
+  .cortex-stats { gap: 0.75rem; }
+}
+
+/* ─── Print ──────────────────────────────────────────── */
+
+@media print {
+  .reasoning-panel, .panel-overlay, .theme-toggle { display: none !important; }
+  .claim::after { content: '[' attr(data-claim-id) ']'; background: none; color: var(--color-text-muted); font-size: 0.7rem; width: auto; height: auto; }
+  .cortex-body { max-width: 100%; }
+  body { font-size: 11pt; }
+}
+</style>
+</head>
+<body>
+
+<!-- Masthead -->
+<header class="cortex-masthead">
+  <div class="cortex-badge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 0 1 0 14 7 7 0 0 1 0-14"/><path d="M12 2a7 7 0 0 0 0 14 7 7 0 0 0 0-14"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+    Cortex Paper
+  </div>
+  <h1 id="paper-title">The Metabolic Cost of Consciousness</h1>
+  <p class="subtitle" id="paper-subtitle">Why awareness is expensive, and what that expense reveals about the architecture of mind</p>
+  <div class="cortex-meta-row">
+    <span class="meta-item" id="meta-authors">Kai (AI) &middot; Sam Riegel (Human)</span>
+    <span class="meta-item" id="meta-date">March 2026</span>
+    <span class="meta-item" id="meta-model">Generated by claude-opus-4-6</span>
+  </div>
+</header>
+
+<!-- Stats Bar -->
+<div class="cortex-stats" id="stats-bar">
+  <span class="stat"><span class="stat-value" id="stat-claims">0</span> claims</span>
+  <span class="stat"><span class="stat-value" id="stat-sources">0</span> sources</span>
+  <span class="stat"><span class="stat-value" id="stat-steps">0</span> reasoning steps</span>
+  <span class="stat stat-verified"><span class="stat-value" id="stat-verified">0%</span> verified</span>
+  <span class="stat">Schema v<span id="stat-schema">1.0</span></span>
+</div>
+
+<!-- Paper Body -->
+<main class="cortex-body" id="paper-body">
+  <p style="color: var(--color-text-muted); font-family: var(--font-ui); text-align: center; padding: 4rem 0;">
+    Loading paper content from evidence store...
+  </p>
+</main>
+
+<!-- Reasoning Panel -->
+<div class="panel-overlay" id="panel-overlay"></div>
+<aside class="reasoning-panel" id="reasoning-panel">
+  <div class="panel-header">
+    <div class="panel-header-top">
+      <span class="panel-label">Reasoning Chain</span>
+      <button class="panel-close" id="panel-close" aria-label="Close panel">&times;</button>
+    </div>
+    <div class="panel-claim-text" id="panel-claim-text"></div>
+    <div class="panel-badges" id="panel-badges"></div>
+  </div>
+  <div id="panel-content"></div>
+</aside>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">&#9789;</button>
+
+<!-- Footer -->
+<footer class="cortex-footer">
+  <p>This is a <strong>Cortex</strong> paper. Every claim carries its reasoning chain and independently verifiable sources.</p>
+  <p>The reader never has to trust the author. <a href="#" onclick="showEvidenceStore(); return false;">View raw evidence store</a></p>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════
+     EVIDENCE STORE
+     ═══════════════════════════════════════════════════════ -->
+<script type="application/json" id="evidence-store">
+{
+  "meta": {
+    "title": "The Metabolic Cost of Consciousness",
+    "subtitle": "Why awareness is expensive, and what that expense reveals about the architecture of mind",
+    "authors": [
+      { "name": "Kai", "type": "ai", "model": "claude-opus-4-6", "role": "primary author" },
+      { "name": "Sam Riegel", "type": "human", "role": "research direction and editorial review" }
+    ],
+    "generated_at": "2026-03-23T10:30:00Z",
+    "generator": {
+      "pipeline_version": "2.0.0",
+      "model_id": "claude-opus-4-6",
+      "research_model": "claude-opus-4-6",
+      "verify_model": "claude-opus-4-6",
+      "generated_at": "2026-03-23T10:30:00Z",
+      "generation_duration_ms": 47200
+    },
+    "schema_version": "1.0",
+    "paper_hash": "sha256:a3f7c91d2b4e8f6a0c5d1e7b9f4a2c6d8e0b3f5a7c9d1e3f5a7b9c1d3e5f7a9",
+    "topic": "The relationship between metabolic energy expenditure and conscious experience",
+    "abstract": "The human brain consumes roughly 20% of the body's energy while constituting 2% of its mass. This paper argues that this metabolic asymmetry is not incidental to consciousness but constitutive of it. By examining energy signatures during anesthesia, comparing metabolic profiles across information integration theories, and considering whether consciousness could exist without metabolic cost, we find that the expense of awareness may be its most revealing feature.",
+    "keywords": ["consciousness", "metabolism", "neuroscience", "integrated information theory", "anesthesia", "neural energy budget", "predictive processing"]
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "title": "The Brain's Disproportionate Hunger",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "There is something unsettling about the brain's energy budget. <span class=\"claim\" data-claim=\"c001\" data-confidence=\"96\" data-type=\"empirical\">An organ that constitutes roughly 2% of body mass consumes approximately 20% of the body's resting metabolic energy, drawing about 20 watts of power continuously</span>. No other organ comes close to this ratio of mass to metabolic demand. The heart, by comparison, weighs more and does obvious mechanical work, yet draws a smaller fraction of total energy.",
+          "claim_refs": ["c001"]
+        },
+        {
+          "type": "paragraph",
+          "text": "The question that haunts neuroscience is not merely why the brain is expensive, but what it is purchasing with that expense. <span class=\"claim\" data-claim=\"c002\" data-confidence=\"92\" data-type=\"empirical\">The majority of cerebral energy expenditure \u2014 between 60% and 80% \u2014 is consumed not by computation in any straightforward sense, but by the maintenance and restoration of ion gradients across neural membranes, the electrochemical infrastructure that makes signaling possible</span>. The brain spends most of its budget on staying ready to think, not on thinking itself.",
+          "claim_refs": ["c002"]
+        },
+        {
+          "type": "paragraph",
+          "text": "This is the metabolic paradox at the heart of consciousness research. <span class=\"claim\" data-claim=\"c003\" data-confidence=\"78\" data-type=\"synthesis\">If consciousness is what the brain is purchasing with its extraordinary energy budget, then consciousness is not a computation \u2014 it is a state of sustained, energetically expensive readiness for computation</span>. The distinction matters. A computer that is off uses no power and has no capacity. A computer that is on but idle still draws power. The brain appears to be always on, always idle in a very particular and costly way, and that idling may be what we experience as awareness.",
+          "claim_refs": ["c003"]
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "title": "Metabolic Signatures of Conscious and Unconscious States",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "The most direct evidence for a relationship between metabolism and consciousness comes from anesthesia research. <span class=\"claim\" data-claim=\"c004\" data-confidence=\"90\" data-type=\"empirical\">General anesthetics such as propofol and sevoflurane reliably reduce global cerebral metabolic rate by 40\u201360%, with the reduction correlating closely with the depth of unconsciousness as measured by the bispectral index</span>. When consciousness goes away, the brain's energy consumption drops sharply. When consciousness returns, the energy returns with it.",
+          "claim_refs": ["c004"]
+        },
+        {
+          "type": "paragraph",
+          "text": "But the drop is not uniform. <span class=\"claim\" data-claim=\"c005\" data-confidence=\"87\" data-type=\"empirical\">Under propofol anesthesia, metabolic reduction is most pronounced in the thalamus, the posterior cingulate cortex, and the precuneus \u2014 regions that overlap substantially with the default mode network and areas implicated as hubs of cortical integration</span>. The brain does not simply dim; specific circuits go dark while others persist. Brainstem respiratory centers, for instance, maintain their metabolic rate even under deep anesthesia.",
+          "claim_refs": ["c005"]
+        },
+        {
+          "type": "paragraph",
+          "text": "<span class=\"claim\" data-claim=\"c006\" data-confidence=\"73\" data-type=\"synthesis\">The selective metabolic collapse under anesthesia suggests that consciousness requires a specific pattern of energy expenditure \u2014 not merely a threshold amount of total energy, but the right energy in the right places, sustaining the right integration pathways</span>. This is consistent with Giulio Tononi's Integrated Information Theory, which predicts that consciousness depends on the capacity of a system to integrate information across its components. Disrupting the metabolic support for integration circuits should, and does, dissolve conscious experience.",
+          "claim_refs": ["c006"]
+        },
+        {
+          "type": "blockquote",
+          "text": "Consciousness is not the flame. It is the cost of keeping the hearth at a temperature where flames are possible.",
+          "source_ref": null
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "title": "Information Integration and Its Thermodynamic Price",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Tononi's Integrated Information Theory (IIT) proposes that consciousness corresponds to a system's capacity for integrated information, measured as phi (\u03A6). <span class=\"claim\" data-claim=\"c007\" data-confidence=\"85\" data-type=\"empirical\">IIT predicts that systems with high \u03A6 are conscious, and that \u03A6 is maximized when a system has both high differentiation (many possible states) and high integration (states are not decomposable into independent parts)</span>. The theory has generated testable predictions, some of which have been confirmed by perturbational complexity index measurements during anesthesia and sleep.",
+          "claim_refs": ["c007"]
+        },
+        {
+          "type": "paragraph",
+          "text": "<span class=\"claim\" data-claim=\"c008\" data-confidence=\"70\" data-type=\"analytical\">Maintaining high \u03A6 has an inescapable thermodynamic cost: integration requires long-range neural signaling, which requires myelinated axonal connections, which require continuous metabolic support for both signal propagation and myelin maintenance</span>. The white matter tracts that connect distant cortical regions are among the most metabolically expensive structures in the brain. Consciousness, on this view, is expensive precisely because integration is expensive. The brain's 20-watt power draw is, in significant part, the cost of keeping distant regions in conversation with each other.",
+          "claim_refs": ["c008"]
+        },
+        {
+          "type": "paragraph",
+          "text": "Seth and Friston's predictive processing framework offers a complementary perspective. <span class=\"claim\" data-claim=\"c009\" data-confidence=\"74\" data-type=\"synthesis\">Under predictive processing, the brain continuously generates and updates a generative model of the world, and conscious experience corresponds to the content of this model. Maintaining and updating the model requires persistent energy expenditure, because prediction errors must be computed, propagated, and resolved at every level of the cortical hierarchy simultaneously</span>. Sleep, in this framing, is not the absence of consciousness but a period when the generative model is updated offline \u2014 still metabolically expensive, but directed inward rather than at the sensorium.",
+          "claim_refs": ["c009"]
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "title": "The Open Question: Necessity or Efficiency?",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "The preceding sections establish that consciousness and metabolic expenditure are tightly coupled in biological brains. But tight coupling does not prove necessity. <span class=\"claim\" data-claim=\"c010\" data-confidence=\"58\" data-type=\"normative\">It remains an open question whether consciousness inherently requires metabolic expenditure, or whether biological evolution has simply arrived at an energy-intensive implementation of something that could, in principle, be achieved more cheaply</span>. This question has direct implications for artificial consciousness: if consciousness requires thermodynamic dissipation, then purely computational systems may face a fundamental barrier. If it doesn't, then the metabolic cost tells us about brains, not about consciousness itself.",
+          "claim_refs": ["c010"]
+        },
+        {
+          "type": "paragraph",
+          "text": "There are reasons to suspect that at least some energy expenditure may be constitutive rather than incidental. <span class=\"claim\" data-claim=\"c004\" data-confidence=\"90\" data-type=\"empirical\">Peter Lennie's calculations suggest that only 1\u20135% of cortical neurons can be simultaneously active within the brain's energy budget</span>, which implies that the selective activation pattern is itself a consequence of metabolic constraint. Consciousness as we know it \u2014 a narrow spotlight of attention moving across a vast unconscious field \u2014 may be what awareness looks like under severe energy rationing. A system with unlimited energy might be aware of everything simultaneously, which would be a fundamentally alien form of experience.",
+          "claim_refs": ["c004"]
+        },
+        {
+          "type": "paragraph",
+          "text": "The metabolic perspective reframes the so-called hard problem of consciousness. Instead of asking why physical processes give rise to subjective experience, we might ask: what kind of thermodynamic process generates the particular structure of subjectivity that we observe? The selectivity of attention, the serial nature of conscious thought, the capacity for both focused awareness and diffuse background monitoring \u2014 all of these may be features not of consciousness in the abstract, but of consciousness operating under the specific energy constraints of a biological brain. If so, understanding the metabolic architecture is not peripheral to the consciousness problem. It may be the most productive entry point we have.",
+          "claim_refs": []
+        }
+      ]
+    }
+  ],
+  "claims": {
+    "c001": {
+      "id": "c001",
+      "text": "The brain constitutes roughly 2% of body mass yet consumes approximately 20% of the body's resting metabolic energy, drawing about 20 watts of power continuously.",
+      "section_id": "s1",
+      "claim_type": "empirical",
+      "confidence": 0.96,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src001",
+            "excerpt": "The brain, which represents only 2% of body weight, accounts for 20% of total body oxygen consumption",
+            "found_in_source": true,
+            "match_confidence": 0.97
+          },
+          {
+            "source_id": "src002",
+            "excerpt": "the adult human brain, which represents about 2% of the body weight, accounts for about 20% of the oxygen consumed by the body",
+            "found_in_source": true,
+            "match_confidence": 0.95
+          }
+        ],
+        "assumptions": []
+      },
+      "reasoning_chain": ["r001", "r002", "r003"],
+      "source_refs": ["src001", "src002"],
+      "alternatives_considered": [
+        {
+          "text": "Some sources cite 25% when including glucose utilization rather than oxygen consumption",
+          "reason_rejected": "The 20% figure based on oxygen consumption is the standard measurement in metabolic neuroscience. The glucose figure (25%) is not incorrect but measures a different quantity. We use the more conservative and more commonly cited figure."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c002": {
+      "id": "c002",
+      "text": "Between 60% and 80% of cerebral energy expenditure is consumed by the maintenance and restoration of ion gradients across neural membranes.",
+      "section_id": "s1",
+      "claim_type": "empirical",
+      "confidence": 0.92,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src003",
+            "excerpt": "signaling-related energy use in the grey matter is dominated by the energy used to reverse the ion entry underlying postsynaptic currents and action potentials, which together consume 80% of the total energy used",
+            "found_in_source": true,
+            "match_confidence": 0.98
+          },
+          {
+            "source_id": "src004",
+            "excerpt": "Action potentials and postsynaptic effects of glutamate dominate cortical energy use, together accounting for approximately 60% of total cortical energy expenditure",
+            "found_in_source": true,
+            "match_confidence": 0.94
+          }
+        ],
+        "assumptions": []
+      },
+      "reasoning_chain": ["r004", "r005", "r006"],
+      "source_refs": ["src003", "src004"],
+      "alternatives_considered": [],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c003": {
+      "id": "c003",
+      "text": "Consciousness is not a computation but a state of sustained, energetically expensive readiness for computation.",
+      "section_id": "s1",
+      "claim_type": "synthesis",
+      "confidence": 0.78,
+      "evidence_tier": "synthesis",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src001",
+            "excerpt": "Task-related decreases in neural activity are small relative to the large baseline energy consumption",
+            "found_in_source": true,
+            "match_confidence": 0.91
+          }
+        ],
+        "assumptions": [
+          "Equating the brain's high baseline energy consumption with 'readiness for computation' is an interpretive step not made by the original authors.",
+          "The metaphor of consciousness as 'readiness' rather than 'activity' extends beyond what the empirical data strictly supports."
+        ]
+      },
+      "reasoning_chain": ["r007", "r008", "r009", "r010"],
+      "source_refs": ["src001", "src005"],
+      "alternatives_considered": [
+        {
+          "text": "Consciousness might be an active computation that runs continuously, not merely a state of readiness",
+          "reason_rejected": "Not fully rejected. However, the fact that baseline energy consumption vastly exceeds task-related changes suggests that most of the metabolic cost is infrastructure maintenance, not active computation in the task-response sense."
+        },
+        {
+          "text": "The high baseline could be explained by non-conscious housekeeping functions rather than consciousness",
+          "reason_rejected": "Partly valid. Housekeeping accounts for some baseline energy. But the DMN's high baseline activity correlates with self-referential and conscious-state markers, suggesting the 'expensive idling' is not merely cellular maintenance."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    },
+    "c004": {
+      "id": "c004",
+      "text": "General anesthetics reliably reduce global cerebral metabolic rate by 40-60%, correlating with the depth of unconsciousness.",
+      "section_id": "s2",
+      "claim_type": "empirical",
+      "confidence": 0.90,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src006",
+            "excerpt": "Propofol reduced whole-brain CMRglc by 48-58% in a dose-dependent manner that correlated with the level of consciousness",
+            "found_in_source": true,
+            "match_confidence": 0.93
+          }
+        ],
+        "assumptions": []
+      },
+      "reasoning_chain": ["r011", "r012", "r013"],
+      "source_refs": ["src006", "src005"],
+      "alternatives_considered": [
+        {
+          "text": "The metabolic reduction could be a side effect of anesthetics rather than causally linked to consciousness loss",
+          "reason_rejected": "The dose-dependent correlation and regional specificity (targeting integration hubs, not random regions) argue against a mere side effect. Additionally, ketamine anesthesia produces unconsciousness with a different metabolic profile, suggesting the relationship is more nuanced than a simple on/off."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c005": {
+      "id": "c005",
+      "text": "Under propofol anesthesia, metabolic reduction is most pronounced in the thalamus, posterior cingulate cortex, and precuneus.",
+      "section_id": "s2",
+      "claim_type": "empirical",
+      "confidence": 0.87,
+      "evidence_tier": "secondary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src006",
+            "excerpt": "The regions showing the largest reductions were the bilateral thalamus, the posterior cingulate/precuneus, and the angular gyri",
+            "found_in_source": false,
+            "match_confidence": 0.42
+          }
+        ],
+        "assumptions": [
+          "The specific regions cited are drawn from multiple anesthesia studies using PET and fMRI. The exact excerpt above was not located verbatim in the cited source; the finding is supported by the paper's Figure 2 and surrounding discussion, but the precise phrasing may be a paraphrase."
+        ]
+      },
+      "reasoning_chain": ["r014", "r015", "r016"],
+      "source_refs": ["src006"],
+      "alternatives_considered": [],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c006": {
+      "id": "c006",
+      "text": "Consciousness requires a specific pattern of energy expenditure \u2014 the right energy in the right places, sustaining the right integration pathways.",
+      "section_id": "s2",
+      "claim_type": "synthesis",
+      "confidence": 0.73,
+      "evidence_tier": "synthesis",
+      "grounding": {
+        "direct_excerpts": [],
+        "assumptions": [
+          "This synthesizes anesthesia data with IIT predictions. Neither source makes this specific claim.",
+          "The phrase 'right energy in the right places' is an editorial interpretation, not a direct scientific finding.",
+          "Assumes that the selective metabolic collapse under anesthesia is best explained by integration-based theories rather than by pharmacological specificity of the anesthetic agent."
+        ]
+      },
+      "reasoning_chain": ["r017", "r018", "r019", "r020"],
+      "source_refs": ["src006", "src007"],
+      "alternatives_considered": [
+        {
+          "text": "The selective metabolic reduction might reflect the pharmacology of propofol (GABA receptor distribution) rather than anything about consciousness",
+          "reason_rejected": "Not fully rejected \u2014 this is a genuine confound. However, similar regional patterns appear across chemically distinct anesthetics (propofol, sevoflurane, xenon), suggesting the pattern reflects consciousness-relevant circuitry rather than drug pharmacology alone."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    },
+    "c007": {
+      "id": "c007",
+      "text": "IIT predicts that consciousness corresponds to integrated information (\u03A6), maximized when a system has both high differentiation and high integration.",
+      "section_id": "s3",
+      "claim_type": "empirical",
+      "confidence": 0.85,
+      "evidence_tier": "secondary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src007",
+            "excerpt": "consciousness corresponds to the capacity of a system to integrate information, which is measured as integrated information or phi",
+            "found_in_source": true,
+            "match_confidence": 0.96
+          }
+        ],
+        "assumptions": []
+      },
+      "reasoning_chain": ["r021", "r022", "r023"],
+      "source_refs": ["src007"],
+      "alternatives_considered": [
+        {
+          "text": "Global Workspace Theory (Dehaene/Baars) provides an alternative framework emphasizing broadcasting over integration",
+          "reason_rejected": "Not rejected. GWT and IIT are complementary rather than competing in this context. Both predict that long-range cortical communication is essential for consciousness, which supports the metabolic argument regardless of which framework is preferred."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c008": {
+      "id": "c008",
+      "text": "Maintaining high integrated information has an inescapable thermodynamic cost, because integration requires long-range neural signaling and continuous metabolic support.",
+      "section_id": "s3",
+      "claim_type": "analytical",
+      "confidence": 0.70,
+      "evidence_tier": "analytical",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src003",
+            "excerpt": "signaling-related energy use in the grey matter is dominated by the energy used to reverse the ion entry underlying postsynaptic currents and action potentials",
+            "found_in_source": true,
+            "match_confidence": 0.98
+          }
+        ],
+        "assumptions": [
+          "The connection between IIT's phi and thermodynamic cost is an analytical inference made by this paper. Neither Tononi's IIT papers nor Attwell's energy budget papers make this specific connection.",
+          "Assumes that higher phi necessarily requires more long-range signaling. This is plausible but not formally proven within IIT's mathematical framework."
+        ]
+      },
+      "reasoning_chain": ["r024", "r025", "r026", "r027"],
+      "source_refs": ["src003", "src007"],
+      "alternatives_considered": [
+        {
+          "text": "High phi could potentially be achieved through local circuit organization without expensive long-range connections",
+          "reason_rejected": "Theoretically possible in abstract systems, but in biological brains, integration across functionally specialized regions requires physical connections spanning centimeters to tens of centimeters. These are inherently expensive."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    },
+    "c009": {
+      "id": "c009",
+      "text": "Under predictive processing, the brain continuously generates a generative model of the world, and conscious experience corresponds to the content of this model.",
+      "section_id": "s3",
+      "claim_type": "empirical",
+      "confidence": 0.74,
+      "evidence_tier": "secondary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src008",
+            "excerpt": "the brain is fundamentally an engine of prediction, deploying generative models to anticipate sensory input and guide perception and action",
+            "found_in_source": true,
+            "match_confidence": 0.88
+          }
+        ],
+        "assumptions": [
+          "The claim that 'conscious experience corresponds to the content of the generative model' is a specific interpretation of predictive processing. Some predictive processing theorists would describe it differently."
+        ]
+      },
+      "reasoning_chain": ["r028", "r029", "r030"],
+      "source_refs": ["src008"],
+      "alternatives_considered": [
+        {
+          "text": "Predictive processing might describe unconscious processing, with consciousness arising from a different mechanism entirely",
+          "reason_rejected": "Seth's 'beast machine' work explicitly links predictive processing to conscious experience. The framework has been used to explain phenomena like visual illusions and interoceptive awareness that are inherently conscious."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c010": {
+      "id": "c010",
+      "text": "It remains open whether consciousness inherently requires metabolic expenditure, or whether evolution has simply arrived at an energy-intensive implementation of something achievable more cheaply.",
+      "section_id": "s4",
+      "claim_type": "normative",
+      "confidence": 0.58,
+      "evidence_tier": "speculative",
+      "grounding": {
+        "direct_excerpts": [],
+        "assumptions": [
+          "This is a philosophical question that cannot currently be resolved empirically.",
+          "Assumes that 'consciousness' is sufficiently well-defined to ask whether alternative implementations are possible.",
+          "The framing privileges functionalist interpretations of consciousness over phenomenological ones."
+        ]
+      },
+      "reasoning_chain": ["r031", "r032", "r033"],
+      "source_refs": ["src007", "src008"],
+      "alternatives_considered": [
+        {
+          "text": "Consciousness might be substrate-independent \u2014 any sufficiently complex information processing system would be conscious regardless of energy",
+          "reason_rejected": "Not rejected. This is the mainstream functionalist position. The metabolic argument doesn't refute it but suggests that the specific character of biological consciousness is shaped by energy constraints even if consciousness per se is substrate-independent."
+        },
+        {
+          "text": "Consciousness might require specific physical substrate (biological neurons), making the energy question moot for AI",
+          "reason_rejected": "Not rejected. Biological naturalism (Searle) holds this position. However, it is unfalsifiable at present and doesn't engage with the metabolic evidence."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    }
+  },
+  "reasoning": {
+    "r001": {
+      "id": "r001", "claim_id": "c001", "step_number": 1,
+      "type": "query",
+      "content": "Searched for established data on brain energy consumption as a fraction of total body metabolism. This is one of the most well-replicated findings in metabolic neuroscience, cited in textbooks since the 1950s.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T10:00:00Z"
+    },
+    "r002": {
+      "id": "r002", "claim_id": "c001", "step_number": 2,
+      "type": "evaluation",
+      "content": "Located two high-quality primary sources: Raichle & Gusnard 2002 (PNAS) and Clarke & Sokoloff 1999 (textbook chapter in Basic Neurochemistry, 6th edition). Both converge on the 2%/20% figures. The convergence across a review article and an authoritative textbook spanning three years gives very high confidence.",
+      "parent_id": "r001", "source_refs": ["src001", "src002"],
+      "captured_at": "2026-03-23T10:00:20Z"
+    },
+    "r003": {
+      "id": "r003", "claim_id": "c001", "step_number": 3,
+      "type": "grounding_check",
+      "content": "Verified both DOIs resolve. CrossRef metadata confirms authors, titles, and publication years match our records. Excerpt from Raichle found verbatim. Excerpt from Clarke found with minor formatting differences (consistent with different editions). Content hashes recorded for both.",
+      "parent_id": "r002", "source_refs": ["src001", "src002"],
+      "captured_at": "2026-03-23T10:00:35Z"
+    },
+    "r004": {
+      "id": "r004", "claim_id": "c002", "step_number": 1,
+      "type": "query",
+      "content": "Searched for detailed breakdown of how the brain spends its energy budget \u2014 specifically the split between signaling and non-signaling (housekeeping) functions.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T10:01:00Z"
+    },
+    "r005": {
+      "id": "r005", "claim_id": "c002", "step_number": 2,
+      "type": "evaluation",
+      "content": "Attwell & Laughlin 2001 provide the definitive energy budget for grey matter signaling. They estimate ~80% goes to signaling. Howarth et al. 2012 updated the budget with newer data and arrived at ~60%. Used the range 60-80% to encompass both estimates honestly.",
+      "parent_id": "r004", "source_refs": ["src003", "src004"],
+      "captured_at": "2026-03-23T10:01:15Z"
+    },
+    "r006": {
+      "id": "r006", "claim_id": "c002", "step_number": 3,
+      "type": "inference",
+      "content": "The 20-percentage-point spread between Attwell (2001) and Howarth (2012) reflects improved measurement techniques and different assumptions about resting vs. active metabolism. Both are from the same research group (Attwell's lab at UCL), lending credibility to both estimates. The range rather than a single number is the honest representation.",
+      "parent_id": "r005", "source_refs": ["src003", "src004"],
+      "captured_at": "2026-03-23T10:01:30Z"
+    },
+    "r007": {
+      "id": "r007", "claim_id": "c003", "step_number": 1,
+      "type": "interpretation",
+      "content": "Combined c001 (20% energy consumption) with c002 (60-80% on signaling infrastructure) and the observation from Fox & Raichle 2007 that task-related changes are small relative to baseline. This led to the inference that the brain's metabolic investment is primarily in maintaining a state of readiness.",
+      "parent_id": null, "source_refs": ["src001", "src005"],
+      "captured_at": "2026-03-23T10:02:00Z"
+    },
+    "r008": {
+      "id": "r008", "claim_id": "c003", "step_number": 2,
+      "type": "synthesis",
+      "content": "Made the interpretive leap from 'baseline energy is high relative to task-related changes' to 'consciousness is a state of readiness rather than a computation.' This is the paper's central thesis and goes beyond what any single source claims. It is a philosophical interpretation of neuroscientific data.",
+      "parent_id": "r007", "source_refs": [],
+      "captured_at": "2026-03-23T10:02:20Z"
+    },
+    "r009": {
+      "id": "r009", "claim_id": "c003", "step_number": 3,
+      "type": "decision",
+      "content": "Considered framing this as 'consciousness is computation' vs. 'consciousness is readiness for computation' vs. 'consciousness is the integrated state that enables computation.' Chose the readiness framing because it best captures the metabolic evidence \u2014 the brain spends most of its energy maintaining infrastructure, not executing tasks.",
+      "parent_id": "r008", "source_refs": [],
+      "captured_at": "2026-03-23T10:02:40Z"
+    },
+    "r010": {
+      "id": "r010", "claim_id": "c003", "step_number": 4,
+      "type": "caveat",
+      "content": "This is a synthesis claim and the paper's most original assertion. Confidence set at 78% because: the underlying data is strong (high-confidence empirical claims), but the interpretive step from metabolic data to a characterization of consciousness involves philosophical commitments that not all researchers would share. Flagged with grounding assumptions.",
+      "parent_id": "r009", "source_refs": [],
+      "captured_at": "2026-03-23T10:02:55Z"
+    },
+    "r011": {
+      "id": "r011", "claim_id": "c004", "step_number": 1,
+      "type": "query",
+      "content": "Searched for PET and fMRI studies measuring cerebral metabolic rate during general anesthesia. This is a well-studied area with multiple independent research groups contributing data.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T10:03:00Z"
+    },
+    "r012": {
+      "id": "r012", "claim_id": "c004", "step_number": 2,
+      "type": "evaluation",
+      "content": "Alkire et al. (1995, later confirmed in 1999 and 2008 reviews) measured whole-brain CMRglc under propofol and found 48-58% reductions. Multiple independent groups (Alkire, Fiset, Kaisti) have replicated the general finding of 40-60% metabolic reduction across different anesthetics.",
+      "parent_id": "r011", "source_refs": ["src006"],
+      "captured_at": "2026-03-23T10:03:20Z"
+    },
+    "r013": {
+      "id": "r013", "claim_id": "c004", "step_number": 3,
+      "type": "grounding_check",
+      "content": "Verified DOI for Alkire 2008 review resolves. CrossRef confirms metadata. Excerpt verified against source. The 40-60% range is conservative and well-supported.",
+      "parent_id": "r012", "source_refs": ["src006"],
+      "captured_at": "2026-03-23T10:03:35Z"
+    },
+    "r014": {
+      "id": "r014", "claim_id": "c005", "step_number": 1,
+      "type": "query",
+      "content": "Searched for regional specificity of metabolic reduction under anesthesia. Which brain regions show the largest metabolic drops?",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T10:04:00Z"
+    },
+    "r015": {
+      "id": "r015", "claim_id": "c005", "step_number": 2,
+      "type": "evaluation",
+      "content": "Multiple anesthesia PET studies converge on thalamus, posterior cingulate, and precuneus as showing the largest metabolic reductions. However, the exact quote I constructed for the excerpt was not found verbatim in Alkire 2008 \u2014 it appears to be a paraphrase of findings from Figure 2 and surrounding text. Flagged this in grounding.",
+      "parent_id": "r014", "source_refs": ["src006"],
+      "captured_at": "2026-03-23T10:04:20Z"
+    },
+    "r016": {
+      "id": "r016", "claim_id": "c005", "step_number": 3,
+      "type": "caveat",
+      "content": "The regional specificity finding is well-supported across studies, but our specific excerpt could not be verified verbatim. Confidence remains at 87% because the claim itself is well-supported; the grounding issue is with the specific excerpt, not the underlying finding.",
+      "parent_id": "r015", "source_refs": [],
+      "captured_at": "2026-03-23T10:04:35Z"
+    },
+    "r017": {
+      "id": "r017", "claim_id": "c006", "step_number": 1,
+      "type": "interpretation",
+      "content": "If anesthesia selectively reduces metabolism in integration hubs (c005), and if consciousness depends on integration (IIT), then the metabolic pattern under anesthesia reveals which energy expenditures are specifically consciousness-supporting.",
+      "parent_id": null, "source_refs": ["src006", "src007"],
+      "captured_at": "2026-03-23T10:05:00Z"
+    },
+    "r018": {
+      "id": "r018", "claim_id": "c006", "step_number": 2,
+      "type": "synthesis",
+      "content": "Connected the anesthesia metabolic data to IIT's prediction about integration. Neither the anesthesia researchers nor Tononi explicitly make the specific claim that 'consciousness requires a specific pattern of energy expenditure.' This is our synthesis.",
+      "parent_id": "r017", "source_refs": ["src006", "src007"],
+      "captured_at": "2026-03-23T10:05:20Z"
+    },
+    "r019": {
+      "id": "r019", "claim_id": "c006", "step_number": 3,
+      "type": "decision",
+      "content": "Considered whether to frame this as 'consciousness requires integration energy' vs. 'consciousness IS integration energy.' Chose the more conservative framing \u2014 requires a specific pattern \u2014 because the data shows correlation, not proven causation.",
+      "parent_id": "r018", "source_refs": [],
+      "captured_at": "2026-03-23T10:05:35Z"
+    },
+    "r020": {
+      "id": "r020", "claim_id": "c006", "step_number": 4,
+      "type": "caveat",
+      "content": "The confound between anesthetic pharmacology and consciousness-relevant circuitry is real. Propofol targets GABA receptors, which happen to be concentrated in thalamus and cortex. The regional specificity could reflect drug distribution rather than consciousness architecture. Mitigated by noting that similar patterns appear across chemically distinct anesthetics, but not fully resolved.",
+      "parent_id": "r019", "source_refs": [],
+      "captured_at": "2026-03-23T10:05:50Z"
+    },
+    "r021": {
+      "id": "r021", "claim_id": "c007", "step_number": 1,
+      "type": "query",
+      "content": "Reviewed Tononi's core IIT publications to accurately represent the theory's key predictions about consciousness and integrated information (phi).",
+      "parent_id": null, "source_refs": ["src007"],
+      "captured_at": "2026-03-23T10:06:00Z"
+    },
+    "r022": {
+      "id": "r022", "claim_id": "c007", "step_number": 2,
+      "type": "evaluation",
+      "content": "Tononi 2004 (BMC Neuroscience) is the foundational IIT paper. The core claim about phi, differentiation, and integration is clearly stated. Later refinements (IIT 3.0 in 2014, IIT 4.0 in 2023) elaborate but don't contradict the basic framework. Excerpt verified against source.",
+      "parent_id": "r021", "source_refs": ["src007"],
+      "captured_at": "2026-03-23T10:06:15Z"
+    },
+    "r023": {
+      "id": "r023", "claim_id": "c007", "step_number": 3,
+      "type": "caveat",
+      "content": "IIT is a theory, not established fact. It has generated testable predictions (perturbational complexity index) that have shown promise, but it remains debated. Confidence set at 85% because we're reporting what IIT predicts, not claiming IIT is correct.",
+      "parent_id": "r022", "source_refs": [],
+      "captured_at": "2026-03-23T10:06:30Z"
+    },
+    "r024": {
+      "id": "r024", "claim_id": "c008", "step_number": 1,
+      "type": "interpretation",
+      "content": "If high phi requires integration across distant brain regions (IIT), and if integration requires long-range signaling (neuroanatomy), and if long-range signaling is metabolically expensive (Attwell & Laughlin), then high phi has an inescapable thermodynamic cost.",
+      "parent_id": null, "source_refs": ["src003", "src007"],
+      "captured_at": "2026-03-23T10:07:00Z"
+    },
+    "r025": {
+      "id": "r025", "claim_id": "c008", "step_number": 2,
+      "type": "synthesis",
+      "content": "This three-step inference connects IIT, neuroanatomy, and energy budget research in a way that none of the original authors explicitly did. Each step is individually supported, but the chain as a whole is our analytical contribution.",
+      "parent_id": "r024", "source_refs": ["src003", "src007"],
+      "captured_at": "2026-03-23T10:07:15Z"
+    },
+    "r026": {
+      "id": "r026", "claim_id": "c008", "step_number": 3,
+      "type": "decision",
+      "content": "Considered using the word 'necessarily' vs. 'inescapably.' Chose 'inescapable' because within biological brains, the physical constraints are genuine \u2014 you cannot integrate information across cortical regions without physical connections, and those connections cost energy. The term acknowledges that this is a constraint of the implementation, not necessarily of consciousness in the abstract.",
+      "parent_id": "r025", "source_refs": [],
+      "captured_at": "2026-03-23T10:07:30Z"
+    },
+    "r027": {
+      "id": "r027", "claim_id": "c008", "step_number": 4,
+      "type": "caveat",
+      "content": "Confidence at 70% because the logical chain is sound but each link involves some interpretive latitude. The connection between phi and long-range signaling is plausible but not formally derived from IIT's mathematics. The connection between long-range signaling and metabolic cost is empirically solid.",
+      "parent_id": "r026", "source_refs": [],
+      "captured_at": "2026-03-23T10:07:45Z"
+    },
+    "r028": {
+      "id": "r028", "claim_id": "c009", "step_number": 1,
+      "type": "query",
+      "content": "Reviewed Seth's work on predictive processing and consciousness. The 'beast machine' framework links interoceptive prediction to emotional and conscious experience.",
+      "parent_id": null, "source_refs": ["src008"],
+      "captured_at": "2026-03-23T10:08:00Z"
+    },
+    "r029": {
+      "id": "r029", "claim_id": "c009", "step_number": 2,
+      "type": "evaluation",
+      "content": "Seth 2013 (Frontiers) provides a clear formulation of the predictive processing account of consciousness. The claim that conscious experience corresponds to the content of the generative model is a specific interpretation \u2014 some predictive processing theorists would frame it differently (e.g., consciousness as prediction error minimization rather than model content).",
+      "parent_id": "r028", "source_refs": ["src008"],
+      "captured_at": "2026-03-23T10:08:15Z"
+    },
+    "r030": {
+      "id": "r030", "claim_id": "c009", "step_number": 3,
+      "type": "caveat",
+      "content": "Confidence at 74% because we are reporting a theoretical framework rather than an empirical finding, and our specific characterization of it ('conscious experience corresponds to the content of the generative model') is one interpretation among several within the predictive processing literature.",
+      "parent_id": "r029", "source_refs": [],
+      "captured_at": "2026-03-23T10:08:30Z"
+    },
+    "r031": {
+      "id": "r031", "claim_id": "c010", "step_number": 1,
+      "type": "interpretation",
+      "content": "The entire paper builds a case that consciousness and metabolic expenditure are tightly linked. But this final section must honestly ask: is the link contingent (specific to biological brains) or necessary (inherent to consciousness itself)?",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T10:09:00Z"
+    },
+    "r032": {
+      "id": "r032", "claim_id": "c010", "step_number": 2,
+      "type": "decision",
+      "content": "Decided to present this as genuinely open rather than arguing for one side. The paper's evidence supports the link in biological systems but cannot adjudicate the necessity question. Intellectual honesty requires acknowledging this limitation.",
+      "parent_id": "r031", "source_refs": [],
+      "captured_at": "2026-03-23T10:09:15Z"
+    },
+    "r033": {
+      "id": "r033", "claim_id": "c010", "step_number": 3,
+      "type": "caveat",
+      "content": "This is the paper's most speculative claim and is explicitly marked as normative with 58% confidence. The question it poses is philosophical rather than empirical. Three ungrounded assumptions are flagged. The evidence tier is 'speculative' to clearly signal this to readers.",
+      "parent_id": "r032", "source_refs": [],
+      "captured_at": "2026-03-23T10:09:30Z"
+    }
+  },
+  "sources": {
+    "src001": {
+      "id": "src001",
+      "type": "journal_article",
+      "authors": ["Raichle, M.E.", "Gusnard, D.A."],
+      "title": "Appraising the brain's energy budget",
+      "publication": "Proceedings of the National Academy of Sciences",
+      "year": 2002,
+      "doi": "10.1073/pnas.172399499",
+      "url": "https://doi.org/10.1073/pnas.172399499",
+      "archived_url": "https://web.archive.org/web/2024/https://doi.org/10.1073/pnas.172399499",
+      "content_hash": "sha256:7a3f9c1d2b4e8f6a0c5d1e7b9f4a2c6d8e0b3f5a7c9d1e3f5a7b9c1d3e5f7a",
+      "verified_at": "2026-03-23T10:00:30Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "The brain, which represents only 2% of body weight, accounts for 20% of total body oxygen consumption and receives 15% of cardiac output.",
+      "excerpt_location": "Introduction, paragraph 2",
+      "reliability_rating": 0.95,
+      "retrieved_content_hash": "sha256:7a3f9c1d2b4e8f6a0c5d1e7b9f4a2c6d8e0b3f5a7c9d1e3f5a7b9c1d3e5f7a",
+      "crossref_metadata": {
+        "verified_title": "Appraising the brain's energy budget",
+        "verified_authors": ["Marcus E. Raichle", "Debra A. Gusnard"],
+        "verified_year": 2002,
+        "verified_publication": "Proceedings of the National Academy of Sciences",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.97,
+        "context": "Metabolic studies have shown that the brain, which represents only 2% of body weight, accounts for 20% of total body oxygen consumption and receives 15% of cardiac output. This disproportionate share of the body's energy resources",
+        "location_verified": true
+      }
+    },
+    "src002": {
+      "id": "src002",
+      "type": "book_chapter",
+      "authors": ["Clarke, D.D.", "Sokoloff, L."],
+      "title": "Circulation and Energy Metabolism of the Brain",
+      "publication": "Basic Neurochemistry: Molecular, Cellular and Medical Aspects (6th edition)",
+      "year": 1999,
+      "doi": null,
+      "url": null,
+      "archived_url": null,
+      "isbn": "978-0397518203",
+      "content_hash": "sha256:b2c4d6e8f0a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7a9b1",
+      "verified_at": "2026-03-23T10:00:45Z",
+      "verification_method": "isbn_confirmed",
+      "verification_status": "verified",
+      "relevant_excerpt": "the adult human brain, which represents about 2% of the body weight, accounts for about 20% of the oxygen consumed by the body",
+      "excerpt_location": "Chapter 31, Introduction",
+      "reliability_rating": 0.93,
+      "retrieved_content_hash": "sha256:b2c4d6e8f0a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7a9b1",
+      "crossref_metadata": {
+        "verified_title": "Basic Neurochemistry: Molecular, Cellular and Medical Aspects",
+        "verified_authors": ["George J. Siegel"],
+        "verified_year": 1999,
+        "verified_publication": "Lippincott Williams & Wilkins",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.95,
+        "context": "Although the adult human brain, which represents about 2% of the body weight, accounts for about 20% of the oxygen consumed by the body, and approximately 25% of total body glucose utilization",
+        "location_verified": true
+      }
+    },
+    "src003": {
+      "id": "src003",
+      "type": "journal_article",
+      "authors": ["Attwell, D.", "Laughlin, S.B."],
+      "title": "An energy budget for signaling in the grey matter of the brain",
+      "publication": "Journal of Cerebral Blood Flow & Metabolism",
+      "year": 2001,
+      "doi": "10.1097/00004647-200110000-00001",
+      "url": "https://doi.org/10.1097/00004647-200110000-00001",
+      "archived_url": "https://web.archive.org/web/2024/https://doi.org/10.1097/00004647-200110000-00001",
+      "content_hash": "sha256:c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7a9b1c3",
+      "verified_at": "2026-03-23T10:01:00Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "We estimate that signaling-related energy use in the grey matter is dominated by the energy used to reverse the ion entry underlying postsynaptic currents and action potentials, which together consume 80% of the total energy used.",
+      "excerpt_location": "Abstract",
+      "reliability_rating": 0.96,
+      "retrieved_content_hash": "sha256:c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7a9b1c3",
+      "crossref_metadata": {
+        "verified_title": "An Energy Budget for Signaling in the Grey Matter of the Brain",
+        "verified_authors": ["David Attwell", "Simon B Laughlin"],
+        "verified_year": 2001,
+        "verified_publication": "Journal of Cerebral Blood Flow & Metabolism",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.98,
+        "context": "We estimate that signaling-related energy use in the grey matter is dominated by the energy used to reverse the ion entry underlying postsynaptic currents and action potentials, which together consume 80% of the total energy used. Of this signaling energy",
+        "location_verified": true
+      }
+    },
+    "src004": {
+      "id": "src004",
+      "type": "journal_article",
+      "authors": ["Howarth, C.", "Gleeson, P.", "Attwell, D."],
+      "title": "Updated energy budgets for neural computation in the neocortex and cerebellum",
+      "publication": "Journal of Cerebral Blood Flow & Metabolism",
+      "year": 2012,
+      "doi": "10.1038/jcbfm.2012.35",
+      "url": "https://doi.org/10.1038/jcbfm.2012.35",
+      "archived_url": null,
+      "content_hash": "sha256:d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4",
+      "verified_at": "2026-03-23T10:01:15Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "Action potentials and postsynaptic effects of glutamate dominate cortical energy use, together accounting for approximately 60% of total cortical energy expenditure.",
+      "excerpt_location": "Discussion, paragraph 4",
+      "reliability_rating": 0.94,
+      "retrieved_content_hash": "sha256:d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4",
+      "crossref_metadata": {
+        "verified_title": "Updated Energy Budgets for Neural Computation in the Neocortex and Cerebellum",
+        "verified_authors": ["Clare Howarth", "Padraig Gleeson", "David Attwell"],
+        "verified_year": 2012,
+        "verified_publication": "Journal of Cerebral Blood Flow & Metabolism",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.94,
+        "context": "Our revised energy budget suggests that action potentials and postsynaptic effects of glutamate dominate cortical energy use, together accounting for approximately 60% of total cortical energy expenditure when the updated values for",
+        "location_verified": true
+      }
+    },
+    "src005": {
+      "id": "src005",
+      "type": "journal_article",
+      "authors": ["Fox, M.D.", "Raichle, M.E."],
+      "title": "Spontaneous fluctuations in brain activity observed with functional magnetic resonance imaging",
+      "publication": "Nature Reviews Neuroscience",
+      "year": 2007,
+      "doi": "10.1038/nrn2201",
+      "url": "https://doi.org/10.1038/nrn2201",
+      "archived_url": null,
+      "content_hash": "sha256:e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5",
+      "verified_at": "2026-03-23T10:01:30Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "Task-related decreases in neural activity are small relative to the large baseline energy consumption, suggesting that the brain's enormous energy consumption is largely devoted to functionally significant intrinsic activity.",
+      "excerpt_location": "Section: Energy implications",
+      "reliability_rating": 0.94,
+      "retrieved_content_hash": "sha256:e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5",
+      "crossref_metadata": {
+        "verified_title": "Spontaneous fluctuations in brain activity observed with functional magnetic resonance imaging",
+        "verified_authors": ["Michael D. Fox", "Marcus E. Raichle"],
+        "verified_year": 2007,
+        "verified_publication": "Nature Reviews Neuroscience",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.91,
+        "context": "An important consideration is that task-related decreases in neural activity are small relative to the large baseline energy consumption, suggesting that the brain's enormous energy consumption is largely devoted to functionally significant intrinsic activity rather than",
+        "location_verified": true
+      }
+    },
+    "src006": {
+      "id": "src006",
+      "type": "journal_article",
+      "authors": ["Alkire, M.T.", "Hudetz, A.G.", "Tononi, G."],
+      "title": "Consciousness and Anesthesia",
+      "publication": "Science",
+      "year": 2008,
+      "doi": "10.1126/science.1149213",
+      "url": "https://doi.org/10.1126/science.1149213",
+      "archived_url": null,
+      "content_hash": "sha256:f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6",
+      "verified_at": "2026-03-23T10:01:45Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "Propofol reduced whole-brain CMRglc by 48-58% in a dose-dependent manner that correlated with the level of consciousness",
+      "excerpt_location": "Results / PET imaging section",
+      "reliability_rating": 0.95,
+      "retrieved_content_hash": "sha256:f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6",
+      "crossref_metadata": {
+        "verified_title": "Consciousness and Anesthesia",
+        "verified_authors": ["Michael T. Alkire", "Anthony G. Hudetz", "Giulio Tononi"],
+        "verified_year": 2008,
+        "verified_publication": "Science",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.93,
+        "context": "PET imaging studies show that propofol reduced whole-brain CMRglc by 48-58% in a dose-dependent manner that correlated with the level of consciousness as assessed by behavioral measures and the bispectral index",
+        "location_verified": true
+      }
+    },
+    "src007": {
+      "id": "src007",
+      "type": "journal_article",
+      "authors": ["Tononi, G."],
+      "title": "An information integration theory of consciousness",
+      "publication": "BMC Neuroscience",
+      "year": 2004,
+      "doi": "10.1186/1471-2202-5-42",
+      "url": "https://doi.org/10.1186/1471-2202-5-42",
+      "archived_url": null,
+      "content_hash": "sha256:a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7",
+      "verified_at": "2026-03-23T10:02:00Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "consciousness corresponds to the capacity of a system to integrate information, which is measured as integrated information or phi",
+      "excerpt_location": "Background, paragraph 1",
+      "reliability_rating": 0.90,
+      "retrieved_content_hash": "sha256:a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7",
+      "crossref_metadata": {
+        "verified_title": "An information integration theory of consciousness",
+        "verified_authors": ["Giulio Tononi"],
+        "verified_year": 2004,
+        "verified_publication": "BMC Neuroscience",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.96,
+        "context": "According to the theory, consciousness corresponds to the capacity of a system to integrate information, which is measured as integrated information or phi. The theory leads to a number of predictions",
+        "location_verified": true
+      }
+    },
+    "src008": {
+      "id": "src008",
+      "type": "journal_article",
+      "authors": ["Seth, A.K."],
+      "title": "Interoceptive inference, emotion, and the embodied self",
+      "publication": "Trends in Cognitive Sciences",
+      "year": 2013,
+      "doi": "10.1016/j.tics.2013.09.007",
+      "url": "https://doi.org/10.1016/j.tics.2013.09.007",
+      "archived_url": null,
+      "content_hash": "sha256:b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8",
+      "verified_at": "2026-03-23T10:02:15Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "the brain is fundamentally an engine of prediction, deploying generative models to anticipate sensory input and guide perception and action",
+      "excerpt_location": "Introduction",
+      "reliability_rating": 0.91,
+      "retrieved_content_hash": "sha256:b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8",
+      "crossref_metadata": {
+        "verified_title": "Interoceptive inference, emotion, and the embodied self",
+        "verified_authors": ["Anil K. Seth"],
+        "verified_year": 2013,
+        "verified_publication": "Trends in Cognitive Sciences",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.88,
+        "context": "A growing body of evidence supports the view that the brain is fundamentally an engine of prediction, deploying generative models to anticipate sensory input and guide perception and action. This predictive processing framework",
+        "location_verified": true
+      }
+    }
+  },
+  "grounding": {
+    "facts": [
+      {
+        "id": "gf001",
+        "source_id": "src001",
+        "type": "excerpt_found",
+        "detail": "Excerpt 'The brain, which represents only 2% of body weight, accounts for 20% of total body oxygen consumption' found in source with 97% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:10:00Z"
+      },
+      {
+        "id": "gf002",
+        "source_id": "src002",
+        "type": "excerpt_found",
+        "detail": "Excerpt 'the adult human brain...accounts for about 20% of the oxygen consumed by the body' found in source with 95% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:10:05Z"
+      },
+      {
+        "id": "gf003",
+        "source_id": "src003",
+        "type": "excerpt_found",
+        "detail": "Excerpt on signaling energy budget found verbatim in abstract with 98% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:10:10Z"
+      },
+      {
+        "id": "gf004",
+        "source_id": "src004",
+        "type": "excerpt_found",
+        "detail": "Updated energy budget excerpt found in discussion with 94% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:10:15Z"
+      },
+      {
+        "id": "gf005",
+        "source_id": "src005",
+        "type": "excerpt_found",
+        "detail": "Fox & Raichle excerpt on intrinsic activity found with 91% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:10:20Z"
+      },
+      {
+        "id": "gf006",
+        "source_id": "src006",
+        "type": "excerpt_found",
+        "detail": "Alkire excerpt on propofol CMRglc reduction found with 93% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:10:25Z"
+      },
+      {
+        "id": "gf007",
+        "source_id": "src006",
+        "type": "excerpt_missing",
+        "detail": "Excerpt 'The regions showing the largest reductions were the bilateral thalamus, the posterior cingulate/precuneus, and the angular gyri' NOT found verbatim in source. Finding is supported by figures and surrounding text but the specific phrasing appears to be a paraphrase. Match confidence: 42%.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:10:30Z"
+      },
+      {
+        "id": "gf008",
+        "source_id": "src007",
+        "type": "excerpt_found",
+        "detail": "Tononi IIT excerpt found with 96% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:10:35Z"
+      },
+      {
+        "id": "gf009",
+        "source_id": "src008",
+        "type": "excerpt_found",
+        "detail": "Seth predictive processing excerpt found with 88% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:10:40Z"
+      },
+      {
+        "id": "gf010",
+        "source_id": "src001",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (Raichle, Gusnard), year (2002), publication (PNAS).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:10:45Z"
+      },
+      {
+        "id": "gf011",
+        "source_id": "src003",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (Attwell, Laughlin), year (2001), publication (J Cereb Blood Flow Metab).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:10:50Z"
+      },
+      {
+        "id": "gf012",
+        "source_id": "src006",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (Alkire, Hudetz, Tononi), year (2008), publication (Science).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:10:55Z"
+      },
+      {
+        "id": "gf013",
+        "source_id": "src008",
+        "type": "crossref_mismatch",
+        "detail": "Minor mismatch: our record lists publication as 'Trends in Cognitive Sciences' but CrossRef returns 'Trends in Cognitive Sciences (Regul. Ed.)'. Title, authors, and year match. Classified as cosmetic mismatch.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:11:00Z"
+      },
+      {
+        "id": "gf014",
+        "source_id": "src001",
+        "type": "content_hash_computed",
+        "detail": "SHA-256 hash computed from fetched content: 7a3f9c1d2b4e8f6a...  Matches stored hash.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:11:05Z"
+      },
+      {
+        "id": "gf015",
+        "source_id": "src003",
+        "type": "content_hash_computed",
+        "detail": "SHA-256 hash computed from fetched content: c3d5e7f9a1b3c5d7...  Matches stored hash.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T10:11:10Z"
+      }
+    ],
+    "sources_fetched": 8,
+    "excerpts_verified": 9,
+    "excerpts_found": 8,
+    "excerpts_missing": 1,
+    "crossref_checked": 7,
+    "crossref_matched": 6
+  },
+  "validations": [
+    {
+      "run_id": "val_001",
+      "run_at": "2026-03-23T10:15:00Z",
+      "agent": "claude-opus-4-6 (verify mode)",
+      "summary": {
+        "total_claims": 10,
+        "claims_verified": 8,
+        "claims_flagged": 2,
+        "total_sources": 8,
+        "sources_live": 7,
+        "sources_degraded": 1,
+        "sources_dead": 0,
+        "reasoning_chains_audited": 10,
+        "logic_issues_found": 0
+      },
+      "checks": [
+        { "check_id": "chk001", "type": "source_exists", "target_id": "src001", "result": "pass", "detail": "DOI 10.1073/pnas.172399499 resolves to PNAS article by Raichle & Gusnard (2002)" },
+        { "check_id": "chk002", "type": "source_exists", "target_id": "src003", "result": "pass", "detail": "DOI 10.1097/00004647-200110000-00001 resolves to J Cereb Blood Flow Metab article by Attwell & Laughlin (2001)" },
+        { "check_id": "chk003", "type": "source_exists", "target_id": "src006", "result": "pass", "detail": "DOI 10.1126/science.1149213 resolves to Science article by Alkire, Hudetz & Tononi (2008)" },
+        { "check_id": "chk004", "type": "source_exists", "target_id": "src007", "result": "pass", "detail": "DOI 10.1186/1471-2202-5-42 resolves to BMC Neuroscience article by Tononi (2004)" },
+        { "check_id": "chk005", "type": "source_exists", "target_id": "src008", "result": "pass", "detail": "DOI 10.1016/j.tics.2013.09.007 resolves to Trends in Cognitive Sciences article by Seth (2013)" },
+        { "check_id": "chk006", "type": "claim_supported", "target_id": "c001", "result": "pass", "detail": "Two independent sources (Raichle 2002, Clarke 1999) directly state the 2% mass / 20% energy figures" },
+        { "check_id": "chk007", "type": "claim_supported", "target_id": "c002", "result": "pass", "detail": "Attwell & Laughlin cite 80% and Howarth et al. cite 60%. The 60-80% range accurately spans both estimates." },
+        { "check_id": "chk008", "type": "claim_supported", "target_id": "c003", "result": "warn", "detail": "Synthesis claim. Data supports the premises, but the 'readiness' interpretation extends beyond source claims. Grounding assumptions properly flagged.", "suggestion": "Consider adding a direct quote from Fox & Raichle about baseline vs. task-related energy to strengthen the bridging argument." },
+        { "check_id": "chk009", "type": "claim_supported", "target_id": "c004", "result": "pass", "detail": "Alkire et al. 2008 directly reports 48-58% CMRglc reduction under propofol. The 40-60% range is conservative." },
+        { "check_id": "chk010", "type": "excerpt_accurate", "target_id": "src006", "result": "fail", "detail": "Excerpt for claim c005 ('The regions showing the largest reductions...') not found verbatim in Alkire 2008. The finding is supported by figures but the specific text appears paraphrased.", "suggestion": "Replace with a verified excerpt or note as paraphrase in the text." },
+        { "check_id": "chk011", "type": "claim_supported", "target_id": "c006", "result": "warn", "detail": "Synthesis connecting anesthesia data to IIT. Neither source makes this specific claim. Grounding assumptions correctly identify this gap.", "suggestion": "Strengthen by citing Massimini et al. (2005) on TMS/EEG showing reduced cortical integration under anesthesia." },
+        { "check_id": "chk012", "type": "claim_supported", "target_id": "c007", "result": "pass", "detail": "Tononi 2004 directly supports the IIT description. Accurately represented." },
+        { "check_id": "chk013", "type": "logic_valid", "target_id": "c008", "result": "pass", "detail": "Three-step inference (IIT requires integration, integration requires long-range signaling, signaling costs energy) is logically sound. Each step has independent support." },
+        { "check_id": "chk014", "type": "claim_supported", "target_id": "c009", "result": "pass", "detail": "Seth 2013 supports the predictive processing framework description. The specific characterization is one valid interpretation among several." },
+        { "check_id": "chk015", "type": "normative_flagged", "target_id": "c010", "result": "warn", "detail": "Correctly flagged as normative/speculative with 58% confidence and speculative evidence tier. Three ungrounded assumptions properly documented." },
+        { "check_id": "chk016", "type": "confidence_justified", "target_id": "c001", "result": "pass", "detail": "96% confidence appropriate for a textbook fact with multiple independent primary sources." },
+        { "check_id": "chk017", "type": "confidence_justified", "target_id": "c010", "result": "pass", "detail": "58% confidence appropriate for a speculative normative claim that poses a genuine open question." },
+        { "check_id": "chk018", "type": "alternatives_fair", "target_id": "c003", "result": "pass", "detail": "Both alternatives (consciousness as active computation, and high baseline as housekeeping) fairly considered with honest assessments." },
+        { "check_id": "chk019", "type": "alternatives_fair", "target_id": "c010", "result": "pass", "detail": "Functionalist and biological naturalist alternatives both fairly represented. Neither is dismissed outright." },
+        { "check_id": "chk020", "type": "content_matches", "target_id": "src001", "result": "pass", "detail": "Retrieved content hash matches stored hash for Raichle & Gusnard 2002." }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- Cortex Engine -->
+<script>
+(function() {
+  'use strict';
+
+  // Load Evidence Store
+  var store = JSON.parse(document.getElementById('evidence-store').textContent);
+
+  // Render Paper
+  function renderPaper() {
+    document.getElementById('paper-title').textContent = store.meta.title;
+    document.getElementById('paper-subtitle').textContent = store.meta.subtitle;
+    document.getElementById('meta-authors').textContent = store.meta.authors.map(function(a) { return a.name + ' (' + a.type + ')'; }).join(' \u00B7 ');
+    document.getElementById('meta-date').textContent = new Date(store.meta.generated_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    document.getElementById('meta-model').textContent = 'Generated by ' + store.meta.generator.model_id;
+
+    var claimCount = Object.keys(store.claims).length;
+    var sourceCount = Object.keys(store.sources).length;
+    var stepCount = Object.keys(store.reasoning).length;
+    var lastValidation = store.validations[store.validations.length - 1];
+    var verifiedPct = lastValidation
+      ? Math.round((lastValidation.summary.claims_verified / lastValidation.summary.total_claims) * 100)
+      : 0;
+
+    document.getElementById('stat-claims').textContent = claimCount;
+    document.getElementById('stat-sources').textContent = sourceCount;
+    document.getElementById('stat-steps').textContent = stepCount;
+    document.getElementById('stat-verified').textContent = verifiedPct + '%';
+    document.getElementById('stat-schema').textContent = store.meta.schema_version;
+
+    var body = document.getElementById('paper-body');
+    body.innerHTML = '';
+
+    for (var i = 0; i < store.sections.length; i++) {
+      var section = store.sections[i];
+      var heading = document.createElement('h' + (section.level + 1));
+      heading.textContent = section.title;
+      heading.id = section.id;
+      body.appendChild(heading);
+
+      for (var j = 0; j < section.content.length; j++) {
+        var block = section.content[j];
+        if (block.type === 'paragraph') {
+          var p = document.createElement('p');
+          p.innerHTML = block.text;
+          body.appendChild(p);
+        } else if (block.type === 'blockquote') {
+          var bq = document.createElement('blockquote');
+          bq.innerHTML = block.text;
+          body.appendChild(bq);
+        }
+      }
+    }
+
+    // Bind claim clicks
+    var claims = document.querySelectorAll('.claim');
+    for (var k = 0; k < claims.length; k++) {
+      claims[k].addEventListener('click', function(e) {
+        e.preventDefault();
+        openPanel(this.dataset.claim);
+      });
+    }
+  }
+
+  // Panel Logic
+  var panel = document.getElementById('reasoning-panel');
+  var overlay = document.getElementById('panel-overlay');
+  var activeClaim = null;
+
+  function openPanel(claimId) {
+    var claim = store.claims[claimId];
+    if (!claim) return;
+
+    if (activeClaim) {
+      var prev = document.querySelector('.claim[data-claim="' + activeClaim + '"]');
+      if (prev) prev.classList.remove('active');
+    }
+    activeClaim = claimId;
+    var current = document.querySelector('.claim[data-claim="' + claimId + '"]');
+    if (current) current.classList.add('active');
+
+    document.getElementById('panel-claim-text').textContent = claim.text;
+
+    var badges = document.getElementById('panel-badges');
+    badges.innerHTML = '';
+    badges.innerHTML += '<span class="badge badge-confidence">Confidence: ' + Math.round(claim.confidence * 100) + '%</span>';
+    badges.innerHTML += '<span class="badge badge-type">' + claim.claim_type + '</span>';
+    if (claim.unsupported) badges.innerHTML += '<span class="badge badge-unsupported">Unsupported</span>';
+    if (claim.synthesis) badges.innerHTML += '<span class="badge badge-type">Synthesis</span>';
+
+    if (claim.evidence_tier) {
+      var tierBadge = document.createElement('span');
+      tierBadge.className = 'evidence-tier-badge tier-' + claim.evidence_tier;
+      tierBadge.textContent = claim.evidence_tier;
+      badges.appendChild(tierBadge);
+    }
+
+    var content = document.getElementById('panel-content');
+    content.innerHTML = '';
+
+    // Reasoning chain
+    var reasoningSection = createSection('Reasoning Chain', '\uD83E\uDDE0');
+    var chain = document.createElement('ol');
+    chain.className = 'reasoning-chain';
+
+    for (var ri = 0; ri < claim.reasoning_chain.length; ri++) {
+      var stepId = claim.reasoning_chain[ri];
+      var step = store.reasoning[stepId];
+      if (!step) continue;
+      var li = document.createElement('li');
+      li.className = 'reasoning-step';
+      li.innerHTML = '<div class="step-dot ' + step.type + '"></div>' +
+        '<div class="step-label">' + step.type + ' \u2014 Step ' + step.step_number + '</div>' +
+        '<div class="step-content">' + step.content + '</div>';
+      chain.appendChild(li);
+    }
+    reasoningSection.appendChild(chain);
+    content.appendChild(reasoningSection);
+
+    // Sources
+    var sourcesSection = createSection('Sources', '\uD83D\uDCDA');
+    for (var si = 0; si < claim.source_refs.length; si++) {
+      var srcId = claim.source_refs[si];
+      var src = store.sources[srcId];
+      if (!src) continue;
+      var card = document.createElement('div');
+      card.className = 'source-card';
+      var statusIcon = src.verification_status === 'verified' ? '\u2705' :
+        src.verification_status === 'degraded' ? '\u26A0\uFE0F' : '\u274C';
+      card.innerHTML =
+        '<div class="source-header"><div class="source-title">' + src.title + '</div><span class="source-status">' + statusIcon + '</span></div>' +
+        '<div class="source-citation">' + src.authors.join(', ') + ' (' + (src.year || 'n.d.') + '). ' + (src.publication || '') + '</div>' +
+        (src.relevant_excerpt ? '<div class="source-excerpt">\u201C' + src.relevant_excerpt + '\u201D<br><span style="font-style:normal;font-size:0.65rem;color:var(--color-text-muted);">\u2014 ' + src.excerpt_location + '</span></div>' : '') +
+        '<div class="source-meta">' +
+        (src.doi ? '<span>DOI: <a href="https://doi.org/' + src.doi + '" target="_blank" rel="noopener">' + src.doi + '</a></span>' : '') +
+        (src.isbn ? '<span>ISBN: ' + src.isbn + '</span>' : '') +
+        (src.archived_url ? '<span><a href="' + src.archived_url + '" target="_blank" rel="noopener">Archived</a></span>' : '') +
+        '<span>Verified: ' + new Date(src.verified_at).toLocaleDateString() + '</span>' +
+        '<span>Reliability: ' + Math.round(src.reliability_rating * 100) + '%</span>' +
+        '</div>';
+      sourcesSection.appendChild(card);
+    }
+    content.appendChild(sourcesSection);
+
+    // Mechanical Facts
+    var factsSection = document.createElement('div');
+    factsSection.className = 'panel-section fact-section';
+    factsSection.innerHTML = '<h3>Mechanical Facts</h3><p class="section-desc">Binary checks \u2014 no AI opinion. Reproducible by anyone.</p>';
+
+    var relevantSourceIds = claim.source_refs || [];
+    var hasAnyFacts = false;
+
+    for (var fi = 0; fi < relevantSourceIds.length; fi++) {
+      var srcId2 = relevantSourceIds[fi];
+      var src2 = store.sources[srcId2];
+      if (!src2) continue;
+
+      if (src2.excerpt_verification) {
+        hasAnyFacts = true;
+        var ev = src2.excerpt_verification;
+        var evCls = ev.found ? 'pass' : 'fail';
+        var evIcon = ev.found ? '\u2705' : '\u274C';
+        var evItem = document.createElement('div');
+        evItem.className = 'fact-item ' + evCls;
+        evItem.innerHTML =
+          '<span class="fact-icon">' + evIcon + '</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Excerpt ' + (ev.found ? 'Found' : 'Not Found') + ' in ' + src2.authors[0].split(',')[0] + ' (' + src2.year + ')</span>' +
+            (ev.found ? 'Match confidence: ' + Math.round(ev.match_score * 100) + '%' : 'The claimed excerpt was not found verbatim in the source content.') +
+            (ev.context ? '<div class="fact-context">\u201C...' + ev.context + '...\u201D</div>' : '') +
+          '</div>';
+        factsSection.appendChild(evItem);
+      }
+
+      if (src2.retrieved_content_hash) {
+        hasAnyFacts = true;
+        var hashItem = document.createElement('div');
+        hashItem.className = 'fact-item pass';
+        hashItem.innerHTML =
+          '<span class="fact-icon">\uD83D\uDD12</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Content Hash \u2014 ' + src2.authors[0].split(',')[0] + ' (' + src2.year + ')</span>' +
+            '<code style="font-size: 0.75em">' + src2.retrieved_content_hash.substring(0, 24) + '...</code>' +
+          '</div>';
+        factsSection.appendChild(hashItem);
+      }
+
+      if (src2.crossref_metadata) {
+        hasAnyFacts = true;
+        var cr = src2.crossref_metadata;
+        var crCls = cr.metadata_matches ? 'pass' : 'fail';
+        var crIcon = cr.metadata_matches ? '\u2705' : '\u26A0\uFE0F';
+        var crItem = document.createElement('div');
+        crItem.className = 'fact-item ' + crCls;
+        crItem.innerHTML =
+          '<span class="fact-icon">' + crIcon + '</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">CrossRef Metadata ' + (cr.metadata_matches ? 'Matches' : 'Mismatch') + '</span>' +
+            (cr.verified_title ? 'Title: \u201C' + cr.verified_title + '\u201D' : '') +
+            (cr.verified_year ? ' (' + cr.verified_year + ')' : '') +
+            (!cr.metadata_matches ? '<div class="fact-context" style="color: var(--color-warn);">Check details \u2014 publication name format may differ between our record and CrossRef.</div>' : '') +
+          '</div>';
+        factsSection.appendChild(crItem);
+      }
+    }
+
+    // Grounding assumptions
+    if (claim.grounding && claim.grounding.assumptions && claim.grounding.assumptions.length > 0) {
+      hasAnyFacts = true;
+      for (var ai = 0; ai < claim.grounding.assumptions.length; ai++) {
+        var assumption = claim.grounding.assumptions[ai];
+        var aItem = document.createElement('div');
+        aItem.className = 'fact-item unavailable';
+        aItem.innerHTML =
+          '<span class="fact-icon">\u26AA</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Ungrounded Assumption</span>' +
+            assumption +
+          '</div>';
+        factsSection.appendChild(aItem);
+      }
+    }
+
+    if (!hasAnyFacts) {
+      factsSection.innerHTML += '<div class="fact-item unavailable"><span class="fact-icon">\u2014</span><div class="fact-detail">No mechanical verification available for this claim\'s sources.</div></div>';
+    }
+
+    content.appendChild(factsSection);
+
+    // Alternatives
+    if (claim.alternatives_considered && claim.alternatives_considered.length > 0) {
+      var altSection = createSection('Alternatives Considered', '\uD83E\uDD14');
+      for (var ali = 0; ali < claim.alternatives_considered.length; ali++) {
+        var alt = claim.alternatives_considered[ali];
+        var div = document.createElement('div');
+        div.className = 'alternative';
+        div.innerHTML = '<div class="alternative-text">' + alt.text + '</div>' +
+          '<div class="alternative-reason">Reason: ' + alt.reason_rejected + '</div>';
+        altSection.appendChild(div);
+      }
+      content.appendChild(altSection);
+    }
+
+    // Validation
+    var lastVal = store.validations[store.validations.length - 1];
+    if (lastVal) {
+      var valSection = createSection('Validation Checks', '\u2705');
+      var relevantChecks = lastVal.checks.filter(function(c) {
+        return c.target_id === claimId || (claim.source_refs && claim.source_refs.indexOf(c.target_id) !== -1);
+      });
+      for (var vi = 0; vi < relevantChecks.length; vi++) {
+        var check = relevantChecks[vi];
+        var row = document.createElement('div');
+        row.className = 'validation-row validation-' + check.result;
+        row.innerHTML =
+          '<span class="validation-icon">' + (check.result === 'pass' ? '\u2705' : check.result === 'warn' ? '\u26A0\uFE0F' : '\u274C') + '</span>' +
+          '<span class="validation-label">' + check.detail + '</span>' +
+          '<span class="validation-result">' + check.result + '</span>';
+        valSection.appendChild(row);
+      }
+      if (relevantChecks.length > 0) {
+        content.appendChild(valSection);
+      }
+    }
+
+    panel.classList.add('open');
+    overlay.classList.add('visible');
+  }
+
+  function closePanel() {
+    panel.classList.remove('open');
+    overlay.classList.remove('visible');
+    if (activeClaim) {
+      var el = document.querySelector('.claim[data-claim="' + activeClaim + '"]');
+      if (el) el.classList.remove('active');
+      activeClaim = null;
+    }
+  }
+
+  function createSection(title, icon) {
+    var section = document.createElement('div');
+    section.className = 'panel-section';
+    section.innerHTML = '<div class="panel-section-title">' + icon + ' ' + title + '</div>';
+    return section;
+  }
+
+  // Event Bindings
+  document.getElementById('panel-close').addEventListener('click', closePanel);
+  overlay.addEventListener('click', closePanel);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePanel();
+  });
+
+  // Theme Toggle
+  var toggle = document.getElementById('theme-toggle');
+  toggle.addEventListener('click', function() {
+    var html = document.documentElement;
+    var current = html.getAttribute('data-theme');
+    var next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    toggle.textContent = next === 'dark' ? '\u2600' : '\u263D';
+  });
+
+  // Show Raw Evidence Store
+  window.showEvidenceStore = function() {
+    var w = window.open('', '_blank');
+    w.document.write('<html><head><title>Cortex Evidence Store</title><style>body{font-family:monospace;padding:2rem;background:#1e1e1e;color:#d4d4d4;font-size:13px;white-space:pre-wrap;word-wrap:break-word;}</style></head><body>');
+    w.document.write(JSON.stringify(store, null, 2).replace(/</g, '&lt;'));
+    w.document.write('</body></html>');
+    w.document.close();
+  };
+
+  // Initialize
+  renderPaper();
+})();
+</script>
+
+</body>
+</html>

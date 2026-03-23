@@ -1,14 +1,23 @@
 # Cortex
 
-AI-generated papers where every claim shows its reasoning chain and sources. Transparent academic writing with embedded evidence stores.
+**Transparent academic papers where every claim shows its work.**
 
-## What it does
+Cortex generates self-contained HTML papers with embedded reasoning chains, verifiable sources, and adversarial verification. Click any claim to see exactly why the author believes it, what sources support it, and whether an independent reviewer agreed.
 
-Cortex produces self-contained HTML papers with an embedded evidence store. Every claim in the paper carries its own provenance chain: the reasoning that led to it, the source excerpts that support it, and independent verification results.
+AI can write convincingly -- that's the problem. Cortex makes reasoning transparent without breaking the narrative. The reader never has to trust the author.
 
-## v2: Mechanical grounding layer
+## How It Works
 
-v2 adds a grounding phase that fetches primary source content, verifies quoted excerpts actually exist in the source material, and validates citation metadata against CrossRef. This is the termination condition for verification recursion -- once claims are checked against the primary source, there is no further regression to perform.
+Cortex runs a six-phase pipeline that captures reasoning as it happens, not after:
+
+1. **Research** -- Find real sources (DOIs, academic papers) before writing a single word
+2. **Outline** -- Map every claim to its sources before prose exists
+3. **Write** -- Generate prose while capturing the reasoning chain live
+4. **Ground** -- Fetch sources, hash content, verify excerpts mechanically
+5. **Verify** -- A separate agent tries to break every claim adversarially
+6. **Assemble** -- Package into a single self-contained HTML file
+
+> "Mechanical facts terminate the verification recursion. A DOI resolves or it doesn't."
 
 Evidence is classified into tiers based on how each claim is grounded:
 
@@ -18,7 +27,48 @@ Evidence is classified into tiers based on how each claim is grounded:
 - **Analytical** -- Logical derivation from verified premises
 - **Speculative** -- Explicitly flagged as conjecture
 
-With primary sources as ground truth, the adversarial verification agent's scope narrows to interpretation quality: whether the paper's claims follow from the evidence, not whether the evidence itself is real.
+## Usage
+
+```bash
+git clone https://github.com/srieg/cortex
+cd cortex
+export ANTHROPIC_API_KEY=your-key-here
+npx tsx Pipeline/orchestrator.ts "Your topic here"
+```
+
+Requires Node.js 18+ and an Anthropic API key. Uses claude-sonnet-4-6 by default.
+
+### Options
+
+| Flag | Values | Description |
+|------|--------|-------------|
+| `--style` | `academic` (default), `accessible`, `technical` | Writing style |
+| `--depth` | `brief`, `standard` (default), `thorough` | Research depth and source count |
+
+### Examples
+
+```bash
+# Academic paper on consciousness
+npx tsx Pipeline/orchestrator.ts "The metabolic cost of consciousness"
+
+# Accessible explainer with deep research
+npx tsx Pipeline/orchestrator.ts "Why do antibiotics stop working" --style=accessible --depth=thorough
+
+# Technical paper, brief format
+npx tsx Pipeline/orchestrator.ts "Quantum error correction" --style=technical --depth=brief
+```
+
+Output is a self-contained HTML file that opens in your browser automatically.
+
+## Sample Paper
+
+See a full Cortex paper in action: [The Metabolic Cost of Consciousness](https://srieg.github.io/cortex/examples/sample-paper.html)
+
+Every underlined claim is clickable. Each click reveals the reasoning chain, source references, confidence level, and independent verification result.
+
+## Demo
+
+View the landing page: [srieg.github.io/cortex/demo](https://srieg.github.io/cortex/demo/)
 
 ## Structure
 
@@ -26,9 +76,8 @@ With primary sources as ground truth, the adversarial verification agent's scope
 - **Schema/** -- TypeScript schema defining the evidence store format
 - **Template/** -- HTML template for rendered papers
 - **Workflows/** -- Workflow definitions for generating, verifying, and previewing papers
-- **SKILL.md** -- Skill definition and configuration
 
-## Pipeline agents
+## Pipeline Agents
 
 | Agent | Role |
 |-------|------|
@@ -40,6 +89,16 @@ With primary sources as ground truth, the adversarial verification agent's scope
 | `assembler` | Combines sections into final HTML with embedded evidence store |
 | `orchestrator` | Coordinates the full pipeline |
 
+## What Makes a Cortex Paper Different
+
+- **Reasoning chains** -- Every factual claim carries the steps the author took to arrive at it
+- **Source verification** -- Sources are fetched, hashed, and verified mechanically (not just cited)
+- **Adversarial review** -- A separate agent tries to break every claim before publication
+- **Confidence scoring** -- Each claim has an explicit confidence level and evidence tier
+- **Self-contained** -- Output is a single HTML file with no external dependencies
+
 ## License
 
-MIT
+Apache License 2.0. Free to use, modify, and distribute with attribution.
+
+Created by [Sam Riegel](https://github.com/srieg). See [LICENSE](LICENSE) and [NOTICE](NOTICE).

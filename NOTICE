@@ -1,0 +1,12 @@
+Cortex — Transparent Academic Papers with Embedded Reasoning Chains
+Copyright 2026 Sam Riegel
+
+The Cortex document format, evidence store schema, and mechanical grounding
+methodology were created by Sam Riegel. This includes:
+- The CortexDocument schema and evidence store format
+- The 6-phase pipeline architecture (Research → Outline → Write → Ground → Verify → Assemble)
+- The mechanical grounding approach for terminating verification recursion
+- The interactive reader UI with claim-level transparency
+
+If you use, adapt, or build upon Cortex, you must retain this notice
+and provide attribution to the original creator.
