@@ -27,7 +27,7 @@ export interface GenerateOptions {
 
 export async function generateCortexPaper(options: GenerateOptions): Promise<string> {
   const startTime = Date.now();
-  const model = options.model ?? "claude-opus-4-6";
+  const model = options.model ?? "claude-sonnet-4-6-20250514";
 
   console.log("\n  CORTEX GENERATION PIPELINE");
   console.log("  ═══════════════════════════════════\n");
@@ -126,4 +126,59 @@ export async function generateCortexPaper(options: GenerateOptions): Promise<str
   console.log(`  Verification: ${validations.summary.claims_verified}/${validations.summary.total_claims} passed\n`);
 
   return html;
+}
+
+// ─── CLI Entry Point ─────────────────────────────────────
+// import.meta.main works in Bun and modern Node (via tsx)
+if (import.meta.main) {
+  const args = process.argv.slice(2);
+  const positionalArgs = args.filter((a: string) => !a.startsWith("--"));
+  const topic = positionalArgs[0];
+
+  if (!topic) {
+    console.error("\n  Usage: npx tsx Pipeline/orchestrator.ts \"Your topic here\"");
+    console.error("    Options: --style=academic|accessible|technical --depth=brief|standard|thorough");
+    console.error("    Env:     ANTHROPIC_API_KEY (required)\n");
+    process.exit(1);
+  }
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.error("\n  Error: ANTHROPIC_API_KEY environment variable is required.");
+    console.error("  Set it with: export ANTHROPIC_API_KEY=your-key-here\n");
+    process.exit(1);
+  }
+
+  const style = (args.find((a: string) => a.startsWith("--style="))?.split("=")[1] ?? "academic") as "academic" | "accessible" | "technical";
+  const depth = (args.find((a: string) => a.startsWith("--depth="))?.split("=")[1] ?? "standard") as "brief" | "standard" | "thorough";
+
+  console.log(`\n  Cortex — Generating transparent paper on: "${topic}"\n`);
+
+  const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
+
+  generateCortexPaper({ topic, style, depth })
+    .then(async (html) => {
+      const { mkdirSync, writeFileSync } = await import("fs");
+      const { execSync } = await import("child_process");
+
+      const outDir = new URL("../output", import.meta.url).pathname;
+      mkdirSync(outDir, { recursive: true });
+
+      const filename = `${slugify(topic)}.html`;
+      const outPath = `${outDir}/${filename}`;
+      writeFileSync(outPath, html);
+
+      console.log(`\n  Output: ${outPath}`);
+      console.log("  Opening in browser...\n");
+
+      try {
+        execSync(`open "${outPath}"`, { stdio: "ignore" });
+      } catch {
+        // Non-macOS or open not available — just print the path
+        console.log(`  Open manually: file://${outPath}\n`);
+      }
+    })
+    .catch((err) => {
+      console.error("\n  Pipeline failed:", err.message || err);
+      process.exit(1);
+    });
 }
