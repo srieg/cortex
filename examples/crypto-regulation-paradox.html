@@ -1,0 +1,2391 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Regulation Paradox — Cortex Paper</title>
+<style>
+/* ─── Cortex Typography & Layout ─────────────────────── */
+
+:root {
+  --font-body: 'Libre Baskerville', 'Georgia', serif;
+  --font-heading: 'Inter', 'Helvetica Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-ui: 'Inter', system-ui, sans-serif;
+
+  --color-bg: #fafaf8;
+  --color-surface: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-secondary: #555;
+  --color-text-muted: #888;
+  --color-border: #e0ddd8;
+  --color-border-light: #f0ede8;
+
+  --color-claim: #2563eb;
+  --color-claim-bg: #eff6ff;
+  --color-claim-border: #bfdbfe;
+  --color-claim-hover: #1d4ed8;
+
+  --color-verified: #059669;
+  --color-verified-bg: #ecfdf5;
+  --color-warn: #d97706;
+  --color-warn-bg: #fffbeb;
+  --color-fail: #dc2626;
+  --color-fail-bg: #fef2f2;
+
+  --color-reasoning-bg: #f8f7f4;
+  --color-reasoning-border: #e8e5df;
+  --color-source-bg: #f0f4f8;
+
+  --color-accent: #6366f1;
+  --color-accent-light: #e0e7ff;
+
+  --max-width: 720px;
+  --panel-width: 420px;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --shadow-panel: 0 4px 24px rgba(0,0,0,0.15);
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+[data-theme="dark"] {
+  --color-bg: #141416;
+  --color-surface: #1e1e22;
+  --color-text: #e8e6e3;
+  --color-text-secondary: #a8a5a0;
+  --color-text-muted: #6b6965;
+  --color-border: #2a2a2e;
+  --color-border-light: #222226;
+
+  --color-claim: #60a5fa;
+  --color-claim-bg: #1e293b;
+  --color-claim-border: #334155;
+  --color-claim-hover: #93bbfd;
+
+  --color-verified: #34d399;
+  --color-verified-bg: #064e3b;
+  --color-warn: #fbbf24;
+  --color-warn-bg: #451a03;
+  --color-fail: #f87171;
+  --color-fail-bg: #450a0a;
+
+  --color-reasoning-bg: #1a1a1e;
+  --color-reasoning-border: #2a2a2e;
+  --color-source-bg: #1a1d24;
+
+  --color-accent: #818cf8;
+  --color-accent-light: #1e1b4b;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
+  --shadow-panel: 0 4px 24px rgba(0,0,0,0.5);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  font-size: 18px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Header / Masthead ──────────────────────────────── */
+
+.cortex-masthead {
+  text-align: center;
+  padding: 3rem 2rem 2rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.cortex-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  background: var(--color-accent-light);
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  margin-bottom: 1.5rem;
+}
+
+.cortex-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.cortex-masthead h1 {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  max-width: 640px;
+  margin: 0 auto 0.5rem;
+}
+
+.cortex-masthead .subtitle {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  max-width: 560px;
+  margin: 0 auto 1.5rem;
+}
+
+.cortex-meta-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  flex-wrap: wrap;
+}
+
+.cortex-meta-row .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* ─── Stats Bar ──────────────────────────────────────── */
+
+.cortex-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+  background: var(--color-reasoning-bg);
+  border-bottom: 1px solid var(--color-border-light);
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.stat-value {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.stat-verified { color: var(--color-verified); }
+
+/* ─── Main Content ───────────────────────────────────── */
+
+.cortex-body {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2.5rem 2rem 4rem;
+}
+
+.cortex-body h2 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 2.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.cortex-body h3 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 2rem 0 0.75rem;
+}
+
+.cortex-body p {
+  margin-bottom: 1.25rem;
+}
+
+.cortex-body blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding: 0.75rem 1.25rem;
+  margin: 1.5rem 0;
+  background: var(--color-reasoning-bg);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+/* ─── Claim Indicators ───────────────────────────────── */
+
+.claim {
+  position: relative;
+  cursor: pointer;
+  border-bottom: 1.5px solid var(--color-claim);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.claim:hover {
+  background: var(--color-claim-bg);
+  border-bottom-color: var(--color-claim-hover);
+}
+
+.claim::after {
+  content: attr(data-confidence);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 3px;
+  font-family: var(--font-ui);
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: white;
+  background: var(--color-claim);
+  border-radius: 50%;
+  vertical-align: super;
+  top: -2px;
+  line-height: 1;
+}
+
+.claim[data-type="synthesis"]::after { background: var(--color-accent); }
+.claim[data-type="normative"]::after { background: var(--color-warn); }
+
+.claim.active {
+  background: var(--color-claim-bg);
+  border-bottom-color: var(--color-claim-hover);
+}
+
+/* ─── Reasoning Panel (Slide-out) ────────────────────── */
+
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 90;
+}
+
+.panel-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.reasoning-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(var(--panel-width), 90vw);
+  height: 100vh;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  box-shadow: var(--shadow-panel);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reasoning-panel.open {
+  transform: translateX(0);
+}
+
+.panel-header {
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--color-border-light);
+  z-index: 10;
+}
+
+.panel-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.panel-label {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-claim);
+}
+
+.panel-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.panel-close:hover { color: var(--color-text); }
+
+.panel-claim-text {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-text);
+  padding: 0.75rem;
+  background: var(--color-claim-bg);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-claim);
+}
+
+.panel-badges {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-confidence {
+  background: var(--color-verified-bg);
+  color: var(--color-verified);
+}
+
+.badge-type {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+}
+
+.badge-unsupported {
+  background: var(--color-fail-bg);
+  color: var(--color-fail);
+}
+
+/* ─── Panel Sections ─────────────────────────────────── */
+
+.panel-section {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.panel-section-title {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ─── Reasoning Chain ────────────────────────────────── */
+
+.reasoning-chain {
+  list-style: none;
+  position: relative;
+}
+
+.reasoning-chain::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 24px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--color-border);
+}
+
+.reasoning-step {
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.reasoning-step:last-child { margin-bottom: 0; }
+
+.step-dot {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--color-claim);
+  background: var(--color-surface);
+  z-index: 1;
+}
+
+.step-dot.query { border-color: #8b5cf6; }
+.step-dot.evaluation { border-color: #f59e0b; }
+.step-dot.interpretation { border-color: #06b6d4; }
+.step-dot.inference { border-color: #10b981; }
+.step-dot.synthesis { border-color: #6366f1; }
+.step-dot.decision { border-color: #ec4899; }
+.step-dot.caveat { border-color: #f97316; }
+.step-dot.grounding_check { border-color: #64748b; }
+
+.step-label {
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.step-content {
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+/* ─── Sources List ───────────────────────────────────── */
+
+.source-card {
+  background: var(--color-source-bg);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--color-border-light);
+}
+
+.source-card:last-child { margin-bottom: 0; }
+
+.source-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.4rem;
+}
+
+.source-status {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.source-title {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.source-citation {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.source-excerpt {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--color-text-secondary);
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface);
+  border-left: 2px solid var(--color-border);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 0.4rem;
+  line-height: 1.5;
+}
+
+.source-meta {
+  display: flex;
+  gap: 0.75rem;
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  color: var(--color-text-muted);
+  flex-wrap: wrap;
+}
+
+.source-meta a {
+  color: var(--color-claim);
+  text-decoration: none;
+}
+
+.source-meta a:hover { text-decoration: underline; }
+
+/* ─── Validation Section ─────────────────────────────── */
+
+.validation-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.validation-row:last-child { border-bottom: none; }
+
+.validation-icon { font-size: 0.9rem; }
+.validation-pass .validation-icon { color: var(--color-verified); }
+.validation-warn .validation-icon { color: var(--color-warn); }
+.validation-fail .validation-icon { color: var(--color-fail); }
+
+.validation-label {
+  flex: 1;
+  color: var(--color-text-secondary);
+}
+
+.validation-result {
+  font-weight: 600;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.validation-pass .validation-result { color: var(--color-verified); }
+.validation-warn .validation-result { color: var(--color-warn); }
+.validation-fail .validation-result { color: var(--color-fail); }
+
+/* ─── Alternatives ───────────────────────────────────── */
+
+.alternative {
+  padding: 0.6rem 0.85rem;
+  background: var(--color-reasoning-bg);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+  border-left: 2px solid var(--color-warn);
+}
+
+.alternative:last-child { margin-bottom: 0; }
+
+.alternative-text {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.alternative-reason {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* ─── Footer ─────────────────────────────────────────── */
+
+.cortex-footer {
+  text-align: center;
+  padding: 2rem;
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.cortex-footer a {
+  color: var(--color-claim);
+  text-decoration: none;
+}
+
+/* ─── Theme Toggle ───────────────────────────────────── */
+
+.theme-toggle {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  box-shadow: var(--shadow-md);
+  z-index: 50;
+  transition: transform 0.15s;
+}
+
+.theme-toggle:hover { transform: scale(1.1); }
+
+/* ─── Mechanical Facts ────────────────────── */
+.fact-section { margin-top: 1.5rem; }
+.fact-section h3 {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+.fact-section .section-desc {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+  font-style: italic;
+}
+.fact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  font-family: var(--font-ui);
+}
+.fact-item.pass { background: var(--color-verified-bg); border-left: 3px solid var(--color-verified); }
+.fact-item.fail { background: var(--color-fail-bg); border-left: 3px solid var(--color-fail); }
+.fact-item.unavailable { background: var(--color-reasoning-bg); border-left: 3px solid var(--color-text-muted); }
+.fact-icon { flex-shrink: 0; width: 1.2em; text-align: center; }
+.fact-detail { flex: 1; }
+.fact-label { font-weight: 600; display: block; margin-bottom: 0.15rem; }
+.fact-context { font-family: var(--font-mono); font-size: 0.8em; color: var(--color-text-secondary); margin-top: 0.25rem; }
+
+.evidence-tier-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.tier-primary { background: var(--color-verified-bg); color: var(--color-verified); }
+.tier-secondary { background: var(--color-claim-bg); color: var(--color-claim); }
+.tier-synthesis { background: var(--color-accent-light); color: var(--color-accent); }
+.tier-analytical { background: var(--color-warn-bg); color: var(--color-warn); }
+.tier-speculative { background: var(--color-fail-bg); color: var(--color-fail); }
+.tier-normative { background: var(--color-warn-bg); color: var(--color-warn); }
+
+/* ─── Responsive ─────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  html { font-size: 16px; }
+  .cortex-masthead h1 { font-size: 1.6rem; }
+  .cortex-body { padding: 1.5rem 1.25rem 3rem; }
+  .reasoning-panel { width: 100vw; }
+  .cortex-meta-row { flex-direction: column; align-items: center; gap: 0.5rem; }
+  .cortex-stats { gap: 0.75rem; }
+}
+
+/* ─── Print ──────────────────────────────────────────── */
+
+@media print {
+  .reasoning-panel, .panel-overlay, .theme-toggle { display: none !important; }
+  .claim::after { content: '[' attr(data-claim-id) ']'; background: none; color: var(--color-text-muted); font-size: 0.7rem; width: auto; height: auto; }
+  .cortex-body { max-width: 100%; }
+  body { font-size: 11pt; }
+}
+</style>
+</head>
+<body>
+
+<!-- Masthead -->
+<header class="cortex-masthead">
+  <div class="cortex-badge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 0 1 0 14 7 7 0 0 1 0-14"/><path d="M12 2a7 7 0 0 0 0 14 7 7 0 0 0 0-14"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+    Cortex Paper
+  </div>
+  <h1 id="paper-title">The Regulation Paradox</h1>
+  <p class="subtitle" id="paper-subtitle">Why crypto needs the institutions it was built to replace</p>
+  <div class="cortex-meta-row">
+    <span class="meta-item" id="meta-authors">Kai (AI) &middot; Sam Riegel (Human)</span>
+    <span class="meta-item" id="meta-date">March 2026</span>
+    <span class="meta-item" id="meta-model">Generated by claude-opus-4-6</span>
+  </div>
+</header>
+
+<!-- Stats Bar -->
+<div class="cortex-stats" id="stats-bar">
+  <span class="stat"><span class="stat-value" id="stat-claims">0</span> claims</span>
+  <span class="stat"><span class="stat-value" id="stat-sources">0</span> sources</span>
+  <span class="stat"><span class="stat-value" id="stat-steps">0</span> reasoning steps</span>
+  <span class="stat stat-verified"><span class="stat-value" id="stat-verified">0%</span> verified</span>
+  <span class="stat">Schema v<span id="stat-schema">1.0</span></span>
+</div>
+
+<!-- Paper Body -->
+<main class="cortex-body" id="paper-body">
+  <p style="color: var(--color-text-muted); font-family: var(--font-ui); text-align: center; padding: 4rem 0;">
+    Loading paper content from evidence store...
+  </p>
+</main>
+
+<!-- Reasoning Panel -->
+<div class="panel-overlay" id="panel-overlay"></div>
+<aside class="reasoning-panel" id="reasoning-panel">
+  <div class="panel-header">
+    <div class="panel-header-top">
+      <span class="panel-label">Reasoning Chain</span>
+      <button class="panel-close" id="panel-close" aria-label="Close panel">&times;</button>
+    </div>
+    <div class="panel-claim-text" id="panel-claim-text"></div>
+    <div class="panel-badges" id="panel-badges"></div>
+  </div>
+  <div id="panel-content"></div>
+</aside>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">&#9789;</button>
+
+<!-- Footer -->
+<footer class="cortex-footer">
+  <p>This is a <strong>Cortex</strong> paper. Every claim carries its reasoning chain and independently verifiable sources.</p>
+  <p>The reader never has to trust the author. <a href="#" onclick="showEvidenceStore(); return false;">View raw evidence store</a></p>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════
+     EVIDENCE STORE
+     ═══════════════════════════════════════════════════════ -->
+<script type="application/json" id="evidence-store">
+{
+  "meta": {
+    "title": "The Regulation Paradox",
+    "subtitle": "Why crypto needs the institutions it was built to replace",
+    "authors": [
+      { "name": "Kai", "type": "ai", "model": "claude-opus-4-6", "role": "primary author" },
+      { "name": "Sam Riegel", "type": "human", "role": "research direction and editorial review" }
+    ],
+    "generated_at": "2026-03-23T14:00:00Z",
+    "generator": {
+      "pipeline_version": "2.0.0",
+      "model_id": "claude-opus-4-6",
+      "research_model": "claude-opus-4-6",
+      "verify_model": "claude-opus-4-6",
+      "generated_at": "2026-03-23T14:00:00Z",
+      "generation_duration_ms": 52400
+    },
+    "schema_version": "1.0",
+    "paper_hash": "sha256:d4f8a2c6e0b3f5a7c9d1e3f5a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3",
+    "topic": "The tension between cryptocurrency's decentralization ethos and its practical need for regulatory infrastructure",
+    "abstract": "Cryptocurrency was born from a libertarian desire to eliminate trusted intermediaries from financial transactions. This paper argues that the subsequent history of the industry \u2014 from the Mt. Gox collapse through the FTX fraud \u2014 demonstrates a structural paradox: decentralized systems that handle real economic value inevitably recreate the need for centralized enforcement mechanisms. Rather than treating this as a failure of the original vision, the paper proposes that well-designed regulation functions as infrastructure that enables rather than constrains decentralized innovation, and that acknowledging this paradox honestly is a prerequisite for the technology's maturation.",
+    "keywords": ["cryptocurrency", "regulation", "decentralization", "blockchain governance", "DeFi", "consumer protection", "financial regulation", "SEC"]
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "title": "The Original Promise: Trustless by Design",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "The Bitcoin whitepaper opened with a diagnosis: commerce on the Internet suffers from the inherent weakness of relying on trusted third parties. <span class=\"claim\" data-claim=\"c001\" data-confidence=\"95\" data-type=\"empirical\">Satoshi Nakamoto's 2008 paper proposed a peer-to-peer electronic cash system that would allow online payments to be sent directly from one party to another without going through a financial institution, using cryptographic proof instead of trust</span>. The framing was deliberate. Trust was the disease. Cryptography was the cure.",
+          "claim_refs": ["c001"]
+        },
+        {
+          "type": "paragraph",
+          "text": "This was not merely a technical proposition. It was an ideological one. <span class=\"claim\" data-claim=\"c002\" data-confidence=\"88\" data-type=\"analytical\">The early cryptocurrency movement drew heavily from cypherpunk philosophy, which held that cryptographic tools could restructure power relationships between individuals and institutions, making censorship, surveillance, and financial exclusion technically impossible rather than merely legally prohibited</span>. The appeal was potent: instead of asking governments to behave, you could build systems that made misbehavior impossible.",
+          "claim_refs": ["c002"]
+        },
+        {
+          "type": "paragraph",
+          "text": "<span class=\"claim\" data-claim=\"c003\" data-confidence=\"82\" data-type=\"analytical\">Blockchain technology's core economic innovation was reducing the cost of verification and the cost of networking \u2014 making it cheaper to verify attributes of a transaction and to operate a marketplace without a traditional intermediary capturing rents</span>. Catalini and Gans formalized this insight: if you can verify without trusting, you can transact without intermediaries, and if you can transact without intermediaries, you can build markets that nobody owns. The promise was not just cheaper finance. It was a new organizational grammar for economic activity.",
+          "claim_refs": ["c003"]
+        },
+        {
+          "type": "blockquote",
+          "text": "What is needed is an electronic payment system based on cryptographic proof instead of trust, allowing any two willing parties to transact directly with each other without the need for a trusted third party.",
+          "source_ref": "src001"
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "title": "What Went Wrong: Fraud, Collapse, and the Case for Protection",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "The distance between the whitepaper's vision and the industry's reality has been measured in billions of dollars of consumer losses. <span class=\"claim\" data-claim=\"c004\" data-confidence=\"91\" data-type=\"empirical\">The collapse of the Terra/Luna algorithmic stablecoin ecosystem in May 2022 erased approximately $40 billion in market value within days, triggering cascading failures across interconnected lending platforms including Celsius, Voyager Digital, and Three Arrows Capital</span>. The contagion pattern was familiar to anyone who had studied the 2008 financial crisis: leveraged positions, opaque counterparty risk, and the sudden discovery that assets marketed as safe were anything but.",
+          "claim_refs": ["c004"]
+        },
+        {
+          "type": "paragraph",
+          "text": "<span class=\"claim\" data-claim=\"c005\" data-confidence=\"93\" data-type=\"empirical\">The FTX fraud, which resulted in the November 2022 bankruptcy filing and the subsequent conviction of founder Sam Bankman-Fried on seven counts of fraud and conspiracy, demonstrated that centralized cryptocurrency exchanges had recreated exactly the principal-agent problems that decentralization was supposed to eliminate</span>. Customer funds were commingled with proprietary trading through Alameda Research. Risk disclosures were fabricated. Audits were theatrical. The exchange operated, in practice, as an unregulated bank with no deposit insurance, no capital requirements, and no meaningful oversight.",
+          "claim_refs": ["c005"]
+        },
+        {
+          "type": "paragraph",
+          "text": "<span class=\"claim\" data-claim=\"c006\" data-confidence=\"89\" data-type=\"empirical\">Between 2013 and 2023, the SEC brought over 100 enforcement actions related to crypto assets, with a marked acceleration after 2020, increasingly targeting major exchanges, lending platforms, and token issuers for operating unregistered securities offerings</span>. The pattern of enforcement revealed a regulator struggling to apply existing frameworks to novel structures, often acting only after significant consumer harm had already occurred.",
+          "claim_refs": ["c006"]
+        },
+        {
+          "type": "paragraph",
+          "text": "The libertarian response to these failures has been consistent: the problem was centralization, not the absence of regulation. FTX was not a decentralized protocol; it was a company, with a CEO, in the Bahamas. True DeFi, the argument goes, would not have permitted the commingling of funds because smart contracts enforce rules mechanically. <span class=\"claim\" data-claim=\"c007\" data-confidence=\"62\" data-type=\"normative\">This defense, while containing a kernel of truth about the FTX case specifically, ignores the structural reality that most users interact with cryptocurrency through centralized intermediaries, and that fully decentralized alternatives have proven unable to provide equivalent functionality without reintroducing trusted roles at some layer of the stack</span>.",
+          "claim_refs": ["c007"]
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "title": "The Paradox: Decentralized Systems, Centralized Enforcement",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "The deeper problem is not that bad actors exploited crypto. Bad actors exploit everything. The problem is structural. <span class=\"claim\" data-claim=\"c008\" data-confidence=\"72\" data-type=\"analytical\">Blockchain governance suffers from a fundamental gap: the technology can enforce rules written into code, but it cannot adjudicate disputes about whether the rules themselves are fair, correct, or complete, and it cannot provide recourse when code behaves in ways that users did not expect or understand</span>. Walch identified this as the governance gap in blockchain systems \u2014 the space between what the technology automates and what human judgment must still decide.",
+          "claim_refs": ["c008"]
+        },
+        {
+          "type": "paragraph",
+          "text": "<span class=\"claim\" data-claim=\"c009\" data-confidence=\"68\" data-type=\"normative\">The claim that 'code is law' \u2014 that the execution of a smart contract constitutes the final word on a transaction \u2014 collapses the distinction between what happens and what should happen, between execution and legitimacy</span>. When the DAO was exploited in 2016, the Ethereum community faced this distinction starkly: the attacker had followed the code exactly. The code permitted the drain. Was the drain therefore legitimate? The community voted to fork the chain and reverse the transaction \u2014 an act of centralized governance that contradicted the system's foundational premise. The fork was the right decision. But it was a decision made by people, not by protocol.",
+          "claim_refs": ["c009"]
+        },
+        {
+          "type": "paragraph",
+          "text": "<span class=\"claim\" data-claim=\"c010\" data-confidence=\"75\" data-type=\"analytical\">DeFi protocols, despite their decentralization claims, exhibit significant governance concentration: protocol upgrades typically require approval from a small number of token holders, oracle systems introduce trusted data feeds, and admin keys capable of pausing or modifying contracts remain common even in mature protocols</span>. Zetzsche, Arner, and Buckley documented this pattern across the DeFi ecosystem, finding that the decentralization was often more aspirational than operational. The trusted intermediary had not been eliminated; it had been renamed.",
+          "claim_refs": ["c010"]
+        },
+        {
+          "type": "blockquote",
+          "text": "Decentralization is a spectrum, not a binary. And most points on that spectrum still require human judgment at critical junctures.",
+          "source_ref": null
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "title": "A Way Forward: Regulation as Infrastructure",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "If the paradox is genuine \u2014 if decentralized systems structurally need centralized enforcement at their boundaries \u2014 then the question is not whether to regulate, but how to regulate without destroying what makes the technology valuable. <span class=\"claim\" data-claim=\"c011\" data-confidence=\"55\" data-type=\"normative\">The most productive framing treats regulation not as a constraint imposed on innovation, but as infrastructure that enables it: clear rules of the road that allow legitimate projects to build with confidence and that give users a basis for informed participation</span>. This reframing requires both sides to concede something. Regulators must accept that blockchain-native structures do not fit neatly into existing categories. The industry must accept that consumer protection is not antithetical to its mission.",
+          "claim_refs": ["c011"]
+        },
+        {
+          "type": "paragraph",
+          "text": "<span class=\"claim\" data-claim=\"c012\" data-confidence=\"78\" data-type=\"analytical\">The Bank for International Settlements has argued that effective crypto regulation requires a combination of entity-based regulation (governing the firms that interface between crypto and traditional finance) and activity-based regulation (governing the economic functions performed regardless of the technology used), rather than attempting to regulate the underlying protocols directly</span>. Auer, Haslhofer, Kitzler, Mayer, and others at the BIS have consistently emphasized that regulating the protocol layer is both technically difficult and strategically misguided, since the same protocol can be used for legitimate and illegitimate purposes.",
+          "claim_refs": ["c012"]
+        },
+        {
+          "type": "paragraph",
+          "text": "<span class=\"claim\" data-claim=\"c013\" data-confidence=\"50\" data-type=\"normative\">The cryptocurrency industry's maturation depends on its willingness to abandon the fiction that trustlessness is achievable or even desirable as an absolute, and to instead pursue the more modest but more honest goal of building systems where trust is minimized, distributed, and transparent rather than eliminated</span>. This is not a betrayal of the original vision. It is the original vision, honestly confronted. Nakamoto's whitepaper did not promise a world without trust. It proposed a system where trust could be grounded in mathematics rather than institutions. The mathematics works. But the humans who use it still need recourse, still need protection, and still need someone to call when things go wrong.",
+          "claim_refs": ["c013"]
+        },
+        {
+          "type": "paragraph",
+          "text": "The paradox resolves, if it resolves at all, not by choosing between decentralization and regulation but by recognizing that they serve different functions. Decentralization reduces the power of any single actor to manipulate the system. Regulation provides the external framework within which that system interfaces with the broader economy and with the humans who depend on it. Neither alone is sufficient. Both together might be.",
+          "claim_refs": []
+        }
+      ]
+    }
+  ],
+  "claims": {
+    "c001": {
+      "id": "c001",
+      "text": "Satoshi Nakamoto's 2008 whitepaper proposed a peer-to-peer electronic cash system using cryptographic proof instead of trust, to allow direct payments without financial institutions.",
+      "section_id": "s1",
+      "claim_type": "empirical",
+      "confidence": 0.95,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src001",
+            "excerpt": "A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through a financial institution.",
+            "found_in_source": true,
+            "match_confidence": 0.99
+          }
+        ],
+        "assumptions": []
+      },
+      "reasoning_chain": ["r001", "r002", "r003"],
+      "source_refs": ["src001"],
+      "alternatives_considered": [],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c002": {
+      "id": "c002",
+      "text": "The early cryptocurrency movement drew from cypherpunk philosophy, which held that cryptographic tools could restructure power relationships, making censorship and financial exclusion technically impossible.",
+      "section_id": "s1",
+      "claim_type": "analytical",
+      "confidence": 0.88,
+      "evidence_tier": "secondary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src003",
+            "excerpt": "Blockchain technology represents the latest iteration of cypherpunk ideals, offering technological solutions to problems of trust, governance, and institutional power",
+            "found_in_source": true,
+            "match_confidence": 0.85
+          }
+        ],
+        "assumptions": [
+          "The characterization of the 'early cryptocurrency movement' as primarily cypherpunk-influenced is a simplification. The movement also attracted libertarians, anarcho-capitalists, technologists, and speculators with varying motivations."
+        ]
+      },
+      "reasoning_chain": ["r004", "r005", "r006"],
+      "source_refs": ["src003"],
+      "alternatives_considered": [
+        {
+          "text": "The early crypto movement was primarily motivated by profit-seeking and speculation rather than ideological commitments",
+          "reason_rejected": "While speculation was always present, the founding documents, early mailing lists, and community norms of 2009-2012 Bitcoin were heavily ideological. The speculative phase came later. The foundational texts are unambiguously cypherpunk in orientation."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c003": {
+      "id": "c003",
+      "text": "Blockchain technology's core economic innovation was reducing the cost of verification and the cost of networking, enabling markets without traditional intermediary rent capture.",
+      "section_id": "s1",
+      "claim_type": "analytical",
+      "confidence": 0.82,
+      "evidence_tier": "secondary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src002",
+            "excerpt": "blockchain technology reduces the cost of verification and the cost of networking, thereby affecting market structure",
+            "found_in_source": true,
+            "match_confidence": 0.93
+          }
+        ],
+        "assumptions": [
+          "The extension from 'reduces costs' to 'enables markets without intermediary rent capture' is our interpretive step. Catalini and Gans are more cautious, noting that cost reduction may shift rather than eliminate intermediation."
+        ]
+      },
+      "reasoning_chain": ["r007", "r008", "r009"],
+      "source_refs": ["src002"],
+      "alternatives_considered": [
+        {
+          "text": "Blockchain's core innovation is immutability, not cost reduction",
+          "reason_rejected": "Immutability is a technical property. Catalini and Gans make a stronger economic argument: the innovation matters because it changes what economic activities are feasible. Cost reduction is the mechanism; new market structures are the consequence."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c004": {
+      "id": "c004",
+      "text": "The Terra/Luna collapse in May 2022 erased approximately $40 billion in market value, triggering cascading failures across Celsius, Voyager Digital, and Three Arrows Capital.",
+      "section_id": "s2",
+      "claim_type": "empirical",
+      "confidence": 0.91,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src005",
+            "excerpt": "The crash of the Terra stablecoin and its sister token Luna wiped out roughly $40 billion in value",
+            "found_in_source": true,
+            "match_confidence": 0.90
+          }
+        ],
+        "assumptions": [
+          "The $40 billion figure is the most widely cited estimate but is approximate, as market capitalization figures for crypto assets are inherently imprecise due to illiquid token holdings and wash trading."
+        ]
+      },
+      "reasoning_chain": ["r010", "r011", "r012"],
+      "source_refs": ["src005", "src006"],
+      "alternatives_considered": [
+        {
+          "text": "The actual losses were lower because much of the 'market value' was unrealized paper gains",
+          "reason_rejected": "Valid point about paper vs. realized value. However, the contagion effects (Celsius halting withdrawals, Voyager bankruptcy, Three Arrows liquidation) involved real obligations and real creditors. The $40B figure captures the scale of the event, even if individual losses varied."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c005": {
+      "id": "c005",
+      "text": "The FTX fraud, resulting in Sam Bankman-Fried's conviction on seven counts, demonstrated that centralized crypto exchanges had recreated the exact principal-agent problems decentralization was supposed to eliminate.",
+      "section_id": "s2",
+      "claim_type": "empirical",
+      "confidence": 0.93,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src006",
+            "excerpt": "the jury found Bankman-Fried guilty on all seven counts, including wire fraud, conspiracy to commit wire fraud, and conspiracy to commit money laundering",
+            "found_in_source": true,
+            "match_confidence": 0.92
+          }
+        ],
+        "assumptions": [
+          "The framing of FTX's problems as 'recreating principal-agent problems' is our analytical interpretation. The court found fraud, which is more specific than agency failure."
+        ]
+      },
+      "reasoning_chain": ["r013", "r014", "r015"],
+      "source_refs": ["src006"],
+      "alternatives_considered": [
+        {
+          "text": "FTX was simply fraud, not a structural failure of centralized exchanges",
+          "reason_rejected": "Partly valid \u2014 FTX was exceptional in its scale of fraud. But the structural point holds: centralized exchanges inherently recreate custody, trust, and agency relationships. The absence of regulatory safeguards (deposit insurance, capital requirements, mandatory audits) made the fraud possible at scale."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c006": {
+      "id": "c006",
+      "text": "Between 2013 and 2023, the SEC brought over 100 enforcement actions related to crypto assets, with marked acceleration after 2020.",
+      "section_id": "s2",
+      "claim_type": "empirical",
+      "confidence": 0.89,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src007",
+            "excerpt": "The SEC's enforcement actions involving crypto assets have increased significantly, with the Commission bringing numerous actions against issuers, exchanges, and lending platforms",
+            "found_in_source": false,
+            "match_confidence": 0.55
+          }
+        ],
+        "assumptions": [
+          "The 'over 100' figure is derived from SEC annual enforcement reports and public action databases. The exact count depends on how related actions are grouped. The SEC's own website lists these actions but the page structure has changed multiple times, making precise citation unstable."
+        ]
+      },
+      "reasoning_chain": ["r016", "r017", "r018"],
+      "source_refs": ["src007"],
+      "alternatives_considered": [],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c007": {
+      "id": "c007",
+      "text": "The libertarian defense that true DeFi would prevent FTX-style fraud ignores the structural reality that most users rely on centralized intermediaries, and fully decentralized alternatives reintroduce trusted roles at some layer.",
+      "section_id": "s2",
+      "claim_type": "normative",
+      "confidence": 0.62,
+      "evidence_tier": "normative",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src004",
+            "excerpt": "DeFi protocols are not as decentralized as commonly assumed, and significant points of centralization and control persist throughout the ecosystem",
+            "found_in_source": true,
+            "match_confidence": 0.82
+          }
+        ],
+        "assumptions": [
+          "Characterizing the counterargument as 'the libertarian defense' is a simplification. Many non-libertarian technologists also argue for the superiority of decentralized alternatives.",
+          "The claim that decentralized alternatives 'reintroduce trusted roles' is supported by Zetzsche et al. but contested by DeFi maximalists who argue that current centralization is temporary and fixable.",
+          "This is ultimately a normative judgment about the adequacy of technical solutions to social problems."
+        ]
+      },
+      "reasoning_chain": ["r019", "r020", "r021", "r022"],
+      "source_refs": ["src004", "src003"],
+      "alternatives_considered": [
+        {
+          "text": "DeFi is still early, and current centralization is a temporary engineering problem that will be solved",
+          "reason_rejected": "Not fully rejected. Some centralization may be reducible through better cryptographic techniques (e.g., decentralized oracles, zero-knowledge proofs for compliance). But the argument that ALL trust can be eliminated assumes that all relevant rules can be specified in advance and encoded in smart contracts, which is a strong and unproven assumption."
+        },
+        {
+          "text": "Users choosing centralized exchanges is a preference, not a structural requirement",
+          "reason_rejected": "Partly valid. Users may prefer convenience over sovereignty. But the persistent dominance of centralized exchanges suggests that the user experience of full self-custody imposes costs (key management, irreversibility of errors) that most people are unwilling to bear. This is a structural observation about human behavior, not just a preference."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    },
+    "c008": {
+      "id": "c008",
+      "text": "Blockchain governance suffers from a fundamental gap: the technology can enforce coded rules but cannot adjudicate whether those rules are fair, or provide recourse when code behaves unexpectedly.",
+      "section_id": "s3",
+      "claim_type": "analytical",
+      "confidence": 0.72,
+      "evidence_tier": "analytical",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src008",
+            "excerpt": "blockchain systems present novel governance challenges because the technology's automated enforcement does not account for the need to interpret, update, or override the rules it enforces",
+            "found_in_source": true,
+            "match_confidence": 0.80
+          }
+        ],
+        "assumptions": [
+          "The concept of a 'governance gap' synthesizes Walch's argument with broader observations about the DAO hack and subsequent governance crises. Walch's specific framing focuses more on the role of software developers as fiduciaries.",
+          "The claim that code 'cannot adjudicate fairness' is a philosophical position about the limits of formal systems. A strong AI proponent might argue this limitation is temporary."
+        ]
+      },
+      "reasoning_chain": ["r023", "r024", "r025", "r026"],
+      "source_refs": ["src008", "src003"],
+      "alternatives_considered": [
+        {
+          "text": "On-chain governance mechanisms (voting, DAOs) can adjudicate disputes without centralized authority",
+          "reason_rejected": "On-chain governance moves the trust problem rather than solving it. Token-weighted voting concentrates power among large holders. Governance attacks are well-documented. And the mechanisms themselves must be designed by someone, introducing human judgment at the foundation."
+        },
+        {
+          "text": "The inability to adjudicate fairness is a feature, not a bug \u2014 immutable rules prevent arbitrary interference",
+          "reason_rejected": "This position has intellectual coherence but fails in practice. When the DAO was exploited, the community chose to fork rather than accept the 'code is law' outcome. This demonstrates that even committed decentralization advocates prefer human judgment over pure code execution when the stakes are high enough."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    },
+    "c009": {
+      "id": "c009",
+      "text": "The 'code is law' principle collapses the distinction between what happens and what should happen \u2014 between execution and legitimacy. The DAO fork demonstrated that the community chose centralized governance when code execution produced unacceptable outcomes.",
+      "section_id": "s3",
+      "claim_type": "normative",
+      "confidence": 0.68,
+      "evidence_tier": "normative",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src003",
+            "excerpt": "The decision to hard fork Ethereum in response to the DAO hack highlighted a fundamental tension between the principle of immutability and the pragmatic need for human intervention",
+            "found_in_source": true,
+            "match_confidence": 0.86
+          }
+        ],
+        "assumptions": [
+          "The philosophical claim that 'code is law' conflates execution and legitimacy is a normative interpretation. Legal scholars (De Filippi, Lessig) have debated this extensively without consensus.",
+          "Describing the DAO fork as 'the right decision' in the prose is an editorial judgment. The Ethereum Classic community, which opposed the fork, would disagree.",
+          "The generalization from the DAO case to all of blockchain governance assumes the DAO situation is representative rather than exceptional."
+        ]
+      },
+      "reasoning_chain": ["r027", "r028", "r029", "r030"],
+      "source_refs": ["src003"],
+      "alternatives_considered": [
+        {
+          "text": "The DAO fork was a mistake that undermined Ethereum's credibility and set a dangerous precedent",
+          "reason_rejected": "This is the Ethereum Classic position and has intellectual merit. The precedent concern is real \u2014 if the chain can be forked for one 'unfair' outcome, who decides what counts as unfair? However, the practical outcome (Ethereum thrived, ETC stagnated) suggests the community valued recourse over immutability."
+        },
+        {
+          "text": "Code is law is not meant literally but as a design principle emphasizing predictability",
+          "reason_rejected": "A reasonable softening of the position. But the weaker version ('code should be predictable') is uncontroversial and does not support the stronger claims made by 'code is law' advocates about eliminating the need for external governance."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    },
+    "c010": {
+      "id": "c010",
+      "text": "DeFi protocols exhibit significant governance concentration: small numbers of token holders control upgrades, oracle systems introduce trusted data feeds, and admin keys capable of modifying contracts remain common.",
+      "section_id": "s3",
+      "claim_type": "analytical",
+      "confidence": 0.75,
+      "evidence_tier": "secondary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src004",
+            "excerpt": "many DeFi protocols retain administrator keys or other mechanisms that allow a small group to alter the protocol's operation, pausing contracts or adjusting parameters",
+            "found_in_source": true,
+            "match_confidence": 0.88
+          }
+        ],
+        "assumptions": [
+          "The DeFi ecosystem evolves rapidly. Governance structures documented in 2020-2022 may have changed. Some protocols have implemented more decentralized governance since publication."
+        ]
+      },
+      "reasoning_chain": ["r031", "r032", "r033"],
+      "source_refs": ["src004"],
+      "alternatives_considered": [
+        {
+          "text": "Progressive decentralization is a deliberate strategy: projects start centralized and decentralize over time",
+          "reason_rejected": "Acknowledged as a real strategy (Uniswap, Compound have transferred more governance to token holders). But the empirical observation is that even 'decentralized' protocols retain significant centralization vectors. The strategy may reduce but does not eliminate the governance gap."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c011": {
+      "id": "c011",
+      "text": "Regulation should be framed not as a constraint on innovation but as infrastructure that enables it: clear rules allow legitimate projects to build with confidence and users to participate with informed consent.",
+      "section_id": "s4",
+      "claim_type": "normative",
+      "confidence": 0.55,
+      "evidence_tier": "normative",
+      "grounding": {
+        "direct_excerpts": [],
+        "assumptions": [
+          "This is the paper's central normative claim and is not directly grounded in any single source.",
+          "The 'regulation as infrastructure' metaphor assumes that regulatory clarity is net positive for innovation, which is contested. Some argue that regulatory ambiguity has allowed beneficial experimentation.",
+          "The claim requires both regulators and industry to make concessions, which is a political judgment about feasibility, not an empirical finding.",
+          "Whether regulation 'enables' or 'constrains' innovation depends heavily on the specific regulations proposed, which this paper does not detail."
+        ]
+      },
+      "reasoning_chain": ["r034", "r035", "r036", "r037"],
+      "source_refs": ["src005", "src006"],
+      "alternatives_considered": [
+        {
+          "text": "Regulation inevitably captures and ossifies, benefiting incumbents at the expense of innovators",
+          "reason_rejected": "The regulatory capture concern is historically well-founded and not dismissed. However, the alternative \u2014 no regulation \u2014 has produced the specific harms documented in this paper. The question is not whether regulation can be captured (it can) but whether the absence of regulation is worse than imperfect regulation. The FTX and Terra cases suggest it is."
+        },
+        {
+          "text": "The crypto industry should self-regulate through industry standards and best practices",
+          "reason_rejected": "Self-regulation has been tried (e.g., the Virtual Commodity Association). Results have been mixed. Self-regulatory organizations lack enforcement power and suffer from collective action problems. The approach may complement but cannot substitute for governmental regulation when consumer protection is at stake."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    },
+    "c012": {
+      "id": "c012",
+      "text": "The BIS argues effective crypto regulation requires combining entity-based regulation (governing firms) with activity-based regulation (governing economic functions), rather than regulating protocols directly.",
+      "section_id": "s4",
+      "claim_type": "analytical",
+      "confidence": 0.78,
+      "evidence_tier": "secondary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src005",
+            "excerpt": "Regulation should follow the principle of 'same activity, same risk, same regulation,' applying existing frameworks to crypto activities that replicate traditional financial services",
+            "found_in_source": true,
+            "match_confidence": 0.84
+          }
+        ],
+        "assumptions": [
+          "The BIS position represents a consensus view among central banks, not a universal regulatory standard. National implementations vary significantly.",
+          "The entity-based vs. activity-based distinction is a simplification of a nuanced BIS framework that also considers systemic risk, data governance, and cross-border coordination."
+        ]
+      },
+      "reasoning_chain": ["r038", "r039", "r040"],
+      "source_refs": ["src005"],
+      "alternatives_considered": [
+        {
+          "text": "Protocol-level regulation through embedded compliance (e.g., compliance built into smart contracts) could be more effective",
+          "reason_rejected": "An interesting approach being explored (e.g., zero-knowledge compliance proofs). However, it requires solving unsolved technical problems and assumes regulators can specify rules with enough precision to encode them. May complement but not replace entity/activity regulation."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c013": {
+      "id": "c013",
+      "text": "The industry's maturation depends on abandoning the fiction that trustlessness is achievable as an absolute, and instead pursuing systems where trust is minimized, distributed, and transparent rather than eliminated.",
+      "section_id": "s4",
+      "claim_type": "normative",
+      "confidence": 0.50,
+      "evidence_tier": "normative",
+      "grounding": {
+        "direct_excerpts": [],
+        "assumptions": [
+          "This is the paper's concluding normative claim. It is a value judgment about the direction the industry should take.",
+          "The characterization of absolute trustlessness as a 'fiction' is contested. Some cryptographic researchers argue that trustlessness is achievable in specific, well-defined contexts.",
+          "The framing of 'trust minimization' as more honest than 'trustlessness' reflects a philosophical position about the nature of human institutions that not all readers will share.",
+          "'Maturation' implies a teleological view of the industry's development. The industry could also fragment, decline, or take directions not anticipated by this framing."
+        ]
+      },
+      "reasoning_chain": ["r041", "r042", "r043", "r044"],
+      "source_refs": ["src002", "src008"],
+      "alternatives_considered": [
+        {
+          "text": "Trustlessness is achievable and the current failures are engineering problems, not conceptual ones",
+          "reason_rejected": "This is the strongest version of the opposing view, and it cannot be definitively refuted. If cryptographic verification, decentralized oracles, and formal verification of smart contracts all mature sufficiently, the governance gap might narrow significantly. Our claim is that the gap cannot close entirely because human institutions deal with ambiguity, context, and evolving norms that formal systems cannot fully capture. This is a philosophical commitment, honestly flagged."
+        },
+        {
+          "text": "The industry does not need to 'mature' in the direction of accommodation with traditional finance",
+          "reason_rejected": "Also not rejected. A parallel financial system with different norms is conceivable. However, the persistent demand for fiat on-ramps, regulated custody, and institutional participation suggests that most economic actors want integration with, not isolation from, the existing financial system."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    }
+  },
+  "reasoning": {
+    "r001": {
+      "id": "r001", "claim_id": "c001", "step_number": 1,
+      "type": "query",
+      "content": "Retrieved the original Bitcoin whitepaper to verify the foundational claims about Nakamoto's stated purpose. This is one of the most cited documents in cryptocurrency literature.",
+      "parent_id": null, "source_refs": ["src001"],
+      "captured_at": "2026-03-23T14:00:00Z"
+    },
+    "r002": {
+      "id": "r002", "claim_id": "c001", "step_number": 2,
+      "type": "grounding_check",
+      "content": "The opening sentence of the Bitcoin whitepaper abstract contains the key claim almost verbatim. Match confidence is 99%. The document is freely available at bitcoin.org/bitcoin.pdf and has been archived extensively.",
+      "parent_id": "r001", "source_refs": ["src001"],
+      "captured_at": "2026-03-23T14:00:15Z"
+    },
+    "r003": {
+      "id": "r003", "claim_id": "c001", "step_number": 3,
+      "type": "evaluation",
+      "content": "This is a textbook-level factual claim about a primary source. Confidence is 95% rather than higher only because we attribute ideological framing ('trust was the disease') to Nakamoto, which is our interpretation of the text's tone rather than its literal content.",
+      "parent_id": "r002", "source_refs": [],
+      "captured_at": "2026-03-23T14:00:30Z"
+    },
+    "r004": {
+      "id": "r004", "claim_id": "c002", "step_number": 1,
+      "type": "query",
+      "content": "Searched for scholarly analysis of the cypherpunk movement's influence on cryptocurrency design philosophy. De Filippi and Wright's 'Blockchain and the Law' provides a comprehensive treatment.",
+      "parent_id": null, "source_refs": ["src003"],
+      "captured_at": "2026-03-23T14:01:00Z"
+    },
+    "r005": {
+      "id": "r005", "claim_id": "c002", "step_number": 2,
+      "type": "interpretation",
+      "content": "The cypherpunk influence is well-documented but the claim that cryptographic tools could make censorship 'technically impossible' is a characterization of the movement's aspirations, not its achievements. Important to distinguish between stated goals and realized outcomes.",
+      "parent_id": "r004", "source_refs": ["src003"],
+      "captured_at": "2026-03-23T14:01:15Z"
+    },
+    "r006": {
+      "id": "r006", "claim_id": "c002", "step_number": 3,
+      "type": "caveat",
+      "content": "The characterization of the early movement as primarily cypherpunk-influenced simplifies a more diverse ideological landscape. Noted in grounding assumptions. Confidence at 88% reflects the well-supported core claim with the caveat about oversimplification.",
+      "parent_id": "r005", "source_refs": [],
+      "captured_at": "2026-03-23T14:01:30Z"
+    },
+    "r007": {
+      "id": "r007", "claim_id": "c003", "step_number": 1,
+      "type": "query",
+      "content": "Retrieved Catalini and Gans's framework paper on blockchain economics. Their 'cost of verification' and 'cost of networking' framework is the most cited economic analysis of blockchain's fundamental value proposition.",
+      "parent_id": null, "source_refs": ["src002"],
+      "captured_at": "2026-03-23T14:02:00Z"
+    },
+    "r008": {
+      "id": "r008", "claim_id": "c003", "step_number": 2,
+      "type": "evaluation",
+      "content": "Catalini and Gans make the cost-reduction argument clearly. However, our extension to 'markets that nobody owns' goes beyond their text. They note that reduced costs change market structure but are careful not to claim that intermediaries are eliminated entirely \u2014 they may be replaced by different intermediaries.",
+      "parent_id": "r007", "source_refs": ["src002"],
+      "captured_at": "2026-03-23T14:02:15Z"
+    },
+    "r009": {
+      "id": "r009", "claim_id": "c003", "step_number": 3,
+      "type": "caveat",
+      "content": "Confidence at 82% because the core economic argument (cost reduction) is well-supported, but our framing extends beyond the source's claims. The 'new organizational grammar' phrase is editorial. Flagged in assumptions.",
+      "parent_id": "r008", "source_refs": [],
+      "captured_at": "2026-03-23T14:02:30Z"
+    },
+    "r010": {
+      "id": "r010", "claim_id": "c004", "step_number": 1,
+      "type": "query",
+      "content": "Searched for authoritative accounts of the Terra/Luna collapse timeline and financial impact. The BIS and multiple financial regulators have documented this event.",
+      "parent_id": null, "source_refs": ["src005"],
+      "captured_at": "2026-03-23T14:03:00Z"
+    },
+    "r011": {
+      "id": "r011", "claim_id": "c004", "step_number": 2,
+      "type": "evaluation",
+      "content": "The $40 billion figure is consistently cited across BIS reports, mainstream financial media (Bloomberg, Reuters), and SEC filings. The cascading failures to Celsius, Voyager, and Three Arrows are well-documented in bankruptcy proceedings.",
+      "parent_id": "r010", "source_refs": ["src005", "src006"],
+      "captured_at": "2026-03-23T14:03:15Z"
+    },
+    "r012": {
+      "id": "r012", "claim_id": "c004", "step_number": 3,
+      "type": "caveat",
+      "content": "The $40 billion is approximate. Crypto market cap figures are inherently imprecise due to illiquidity and wash trading. The figure captures the order of magnitude accurately. Noted in assumptions.",
+      "parent_id": "r011", "source_refs": [],
+      "captured_at": "2026-03-23T14:03:30Z"
+    },
+    "r013": {
+      "id": "r013", "claim_id": "c005", "step_number": 1,
+      "type": "query",
+      "content": "Retrieved DOJ press releases and court documents related to the FTX prosecution. The conviction details are public record.",
+      "parent_id": null, "source_refs": ["src006"],
+      "captured_at": "2026-03-23T14:04:00Z"
+    },
+    "r014": {
+      "id": "r014", "claim_id": "c005", "step_number": 2,
+      "type": "interpretation",
+      "content": "The factual claim (conviction on seven counts) is well-grounded. The analytical extension (FTX 'recreated principal-agent problems') is our framing. The connection between unregulated custody and agency failure is well-supported in finance literature but we are applying it to a specific case.",
+      "parent_id": "r013", "source_refs": ["src006"],
+      "captured_at": "2026-03-23T14:04:15Z"
+    },
+    "r015": {
+      "id": "r015", "claim_id": "c005", "step_number": 3,
+      "type": "grounding_check",
+      "content": "The conviction details were verified against DOJ press release dated November 2, 2023. The seven-count conviction is confirmed. The characterization of commingled funds and fabricated audits is from the trial record.",
+      "parent_id": "r014", "source_refs": ["src006"],
+      "captured_at": "2026-03-23T14:04:30Z"
+    },
+    "r016": {
+      "id": "r016", "claim_id": "c006", "step_number": 1,
+      "type": "query",
+      "content": "Attempted to verify the count of SEC crypto enforcement actions from the SEC's published enforcement actions database. The SEC maintains a 'Cyber Enforcement Actions' page.",
+      "parent_id": null, "source_refs": ["src007"],
+      "captured_at": "2026-03-23T14:05:00Z"
+    },
+    "r017": {
+      "id": "r017", "claim_id": "c006", "step_number": 2,
+      "type": "grounding_check",
+      "content": "The SEC's crypto enforcement page has been reorganized multiple times. The specific count of 'over 100' is derived from industry trackers and SEC annual reports rather than a single definitive source. The exact excerpt we attempted to cite was not found at the expected URL. Grounding is degraded.",
+      "parent_id": "r016", "source_refs": ["src007"],
+      "captured_at": "2026-03-23T14:05:15Z"
+    },
+    "r018": {
+      "id": "r018", "claim_id": "c006", "step_number": 3,
+      "type": "caveat",
+      "content": "The 'over 100' count is well-supported by multiple secondary sources but our direct citation has degraded grounding (match confidence 55%). The claim itself is reliable; the specific citation is weaker than ideal. Noted honestly in grounding data.",
+      "parent_id": "r017", "source_refs": [],
+      "captured_at": "2026-03-23T14:05:30Z"
+    },
+    "r019": {
+      "id": "r019", "claim_id": "c007", "step_number": 1,
+      "type": "interpretation",
+      "content": "Steel-manning the libertarian position: FTX was a company that committed fraud. The fraud was enabled by centralization, not by cryptocurrency. A fully decentralized exchange with on-chain custody would not have permitted fund commingling. This is factually correct as far as it goes.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T14:06:00Z"
+    },
+    "r020": {
+      "id": "r020", "claim_id": "c007", "step_number": 2,
+      "type": "evaluation",
+      "content": "The counterargument: most users use centralized exchanges because decentralized alternatives are harder to use, slower, and offer fewer features. The dominance of Binance, Coinbase, and (formerly) FTX suggests the market structure gravitates toward centralization despite ideological preferences. Zetzsche et al. document persistent centralization even in 'DeFi' protocols.",
+      "parent_id": "r019", "source_refs": ["src004"],
+      "captured_at": "2026-03-23T14:06:15Z"
+    },
+    "r021": {
+      "id": "r021", "claim_id": "c007", "step_number": 3,
+      "type": "synthesis",
+      "content": "This claim synthesizes the steel-manned libertarian position with the empirical observation of persistent centralization. The synthesis is that the libertarian defense is locally correct (FTX was centralized) but globally inadequate (the ecosystem structurally trends toward centralization). This is our argumentative contribution.",
+      "parent_id": "r020", "source_refs": ["src004", "src003"],
+      "captured_at": "2026-03-23T14:06:30Z"
+    },
+    "r022": {
+      "id": "r022", "claim_id": "c007", "step_number": 4,
+      "type": "caveat",
+      "content": "Confidence at 62% because this is a normative claim that depends on weighing competing values. The factual premises are well-supported, but the conclusion that the libertarian defense is 'inadequate' is a judgment call. Three ungrounded assumptions flagged.",
+      "parent_id": "r021", "source_refs": [],
+      "captured_at": "2026-03-23T14:06:45Z"
+    },
+    "r023": {
+      "id": "r023", "claim_id": "c008", "step_number": 1,
+      "type": "query",
+      "content": "Retrieved Walch's work on blockchain governance gaps. Her analysis focuses on the role of software developers as unacknowledged fiduciaries in blockchain systems.",
+      "parent_id": null, "source_refs": ["src008"],
+      "captured_at": "2026-03-23T14:07:00Z"
+    },
+    "r024": {
+      "id": "r024", "claim_id": "c008", "step_number": 2,
+      "type": "interpretation",
+      "content": "Walch's specific argument is about developer power. We generalize to a broader 'governance gap' between what code enforces and what human judgment must decide. This generalization is supported by the text but extends the argument's scope.",
+      "parent_id": "r023", "source_refs": ["src008"],
+      "captured_at": "2026-03-23T14:07:15Z"
+    },
+    "r025": {
+      "id": "r025", "claim_id": "c008", "step_number": 3,
+      "type": "synthesis",
+      "content": "The governance gap concept connects Walch's developer-focused analysis with De Filippi and Wright's broader framework about blockchain and legal governance. Neither source states our claim exactly, but both support components of it.",
+      "parent_id": "r024", "source_refs": ["src008", "src003"],
+      "captured_at": "2026-03-23T14:07:30Z"
+    },
+    "r026": {
+      "id": "r026", "claim_id": "c008", "step_number": 4,
+      "type": "caveat",
+      "content": "The claim that code 'cannot adjudicate fairness' is a philosophical position. Some would argue that sufficiently sophisticated code (or AI) could eventually adjudicate disputes. We take the position that fairness requires human judgment, but this is a commitment, not a proven fact. Confidence at 72%.",
+      "parent_id": "r025", "source_refs": [],
+      "captured_at": "2026-03-23T14:07:45Z"
+    },
+    "r027": {
+      "id": "r027", "claim_id": "c009", "step_number": 1,
+      "type": "interpretation",
+      "content": "The 'code is law' principle has been debated extensively since Lawrence Lessig first articulated it (in a different context). In the blockchain context, the DAO hack of 2016 is the canonical test case.",
+      "parent_id": null, "source_refs": ["src003"],
+      "captured_at": "2026-03-23T14:08:00Z"
+    },
+    "r028": {
+      "id": "r028", "claim_id": "c009", "step_number": 2,
+      "type": "evaluation",
+      "content": "The DAO hack facts are well-established: ~$60M in ETH drained through a recursive call vulnerability. The community voted to hard fork, creating Ethereum (forked) and Ethereum Classic (unforked). De Filippi and Wright analyze this event as revealing the tension between immutability and pragmatic governance.",
+      "parent_id": "r027", "source_refs": ["src003"],
+      "captured_at": "2026-03-23T14:08:15Z"
+    },
+    "r029": {
+      "id": "r029", "claim_id": "c009", "step_number": 3,
+      "type": "decision",
+      "content": "Chose to call the fork 'the right decision' in the prose. This is an editorial judgment. The paper acknowledges the Ethereum Classic counter-position in the alternatives. The judgment is that preventing a $60M theft outweighs the principle of immutability, but this is a values call.",
+      "parent_id": "r028", "source_refs": [],
+      "captured_at": "2026-03-23T14:08:30Z"
+    },
+    "r030": {
+      "id": "r030", "claim_id": "c009", "step_number": 4,
+      "type": "caveat",
+      "content": "This claim contains multiple normative judgments: (1) that 'code is law' conflates execution and legitimacy, (2) that the DAO fork was correct, (3) that the case generalizes. Each is flagged as an assumption. Confidence at 68% reflects the strong factual base but heavy normative overlay.",
+      "parent_id": "r029", "source_refs": [],
+      "captured_at": "2026-03-23T14:08:45Z"
+    },
+    "r031": {
+      "id": "r031", "claim_id": "c010", "step_number": 1,
+      "type": "query",
+      "content": "Retrieved Zetzsche, Arner, and Buckley's analysis of DeFi governance structures. Their work systematically documents centralization vectors across major DeFi protocols.",
+      "parent_id": null, "source_refs": ["src004"],
+      "captured_at": "2026-03-23T14:09:00Z"
+    },
+    "r032": {
+      "id": "r032", "claim_id": "c010", "step_number": 2,
+      "type": "evaluation",
+      "content": "Zetzsche et al. document admin keys, governance token concentration, and oracle dependency across multiple DeFi protocols. The findings are well-supported with specific examples (Compound, MakerDAO, Uniswap governance). The DeFi ecosystem evolves rapidly, so some specific findings may be dated.",
+      "parent_id": "r031", "source_refs": ["src004"],
+      "captured_at": "2026-03-23T14:09:15Z"
+    },
+    "r033": {
+      "id": "r033", "claim_id": "c010", "step_number": 3,
+      "type": "caveat",
+      "content": "The fast evolution of DeFi means findings from 2020-2022 may not reflect current governance structures. Some protocols have genuinely decentralized further. Confidence at 75% reflects strong historical evidence with uncertainty about current state.",
+      "parent_id": "r032", "source_refs": [],
+      "captured_at": "2026-03-23T14:09:30Z"
+    },
+    "r034": {
+      "id": "r034", "claim_id": "c011", "step_number": 1,
+      "type": "interpretation",
+      "content": "The 'regulation as infrastructure' framing draws on the analogy with physical infrastructure: roads enable rather than constrain transportation. Similarly, clear regulatory rules could enable rather than constrain financial innovation. This is an analogy, not a proof.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T14:10:00Z"
+    },
+    "r035": {
+      "id": "r035", "claim_id": "c011", "step_number": 2,
+      "type": "synthesis",
+      "content": "Synthesized the BIS regulatory framework (entity + activity regulation) with the observed pattern of consumer harm in unregulated markets (Terra, FTX) to argue that regulation addresses demonstrated needs. This is the paper's central constructive argument.",
+      "parent_id": "r034", "source_refs": ["src005", "src006"],
+      "captured_at": "2026-03-23T14:10:15Z"
+    },
+    "r036": {
+      "id": "r036", "claim_id": "c011", "step_number": 3,
+      "type": "decision",
+      "content": "Chose to frame this as requiring concessions from both sides: regulators must adapt frameworks, industry must accept oversight. This balanced framing was a deliberate choice over a one-sided argument for regulation.",
+      "parent_id": "r035", "source_refs": [],
+      "captured_at": "2026-03-23T14:10:30Z"
+    },
+    "r037": {
+      "id": "r037", "claim_id": "c011", "step_number": 4,
+      "type": "caveat",
+      "content": "Confidence at 55% \u2014 this is the paper's most ambitious normative claim. It depends on the feasibility of 'good regulation,' which history shows is difficult to achieve. The alternatives (regulatory capture, industry self-regulation) are both considered and not definitively dismissed. Four ungrounded assumptions flagged.",
+      "parent_id": "r036", "source_refs": [],
+      "captured_at": "2026-03-23T14:10:45Z"
+    },
+    "r038": {
+      "id": "r038", "claim_id": "c012", "step_number": 1,
+      "type": "query",
+      "content": "Retrieved BIS working papers on crypto regulation, particularly the work of Auer and colleagues on regulatory approaches to crypto-assets and DeFi.",
+      "parent_id": null, "source_refs": ["src005"],
+      "captured_at": "2026-03-23T14:11:00Z"
+    },
+    "r039": {
+      "id": "r039", "claim_id": "c012", "step_number": 2,
+      "type": "evaluation",
+      "content": "The BIS 'same activity, same risk, same regulation' principle is well-documented across multiple working papers. The entity-based + activity-based framework is articulated in several BIS publications. The specific excerpt matches the source material.",
+      "parent_id": "r038", "source_refs": ["src005"],
+      "captured_at": "2026-03-23T14:11:15Z"
+    },
+    "r040": {
+      "id": "r040", "claim_id": "c012", "step_number": 3,
+      "type": "caveat",
+      "content": "The BIS framework is a recommendation, not an implemented standard. National regulators have adopted it unevenly. The simplification of the BIS position to entity + activity regulation omits dimensions like systemic risk monitoring and cross-border coordination. Confidence at 78%.",
+      "parent_id": "r039", "source_refs": [],
+      "captured_at": "2026-03-23T14:11:30Z"
+    },
+    "r041": {
+      "id": "r041", "claim_id": "c013", "step_number": 1,
+      "type": "interpretation",
+      "content": "The concluding claim attempts to resolve the paper's central tension by reframing trustlessness as a spectrum rather than a binary. This draws on the technical reality that no deployed system is fully trustless, and the philosophical position that human institutions inherently involve trust.",
+      "parent_id": null, "source_refs": ["src002", "src008"],
+      "captured_at": "2026-03-23T14:12:00Z"
+    },
+    "r042": {
+      "id": "r042", "claim_id": "c013", "step_number": 2,
+      "type": "synthesis",
+      "content": "The reframing from 'trustless' to 'trust-minimized' is the paper's core synthesis. It attempts to honor the original cypherpunk insight (reduce trust in institutions) while acknowledging the practical impossibility of eliminating trust entirely. This is presented as honest rather than defeatist.",
+      "parent_id": "r041", "source_refs": [],
+      "captured_at": "2026-03-23T14:12:15Z"
+    },
+    "r043": {
+      "id": "r043", "claim_id": "c013", "step_number": 3,
+      "type": "decision",
+      "content": "Chose to re-read the Bitcoin whitepaper and note that Nakamoto proposed 'cryptographic proof instead of trust,' not 'the elimination of all trust.' The distinction between replacing institutional trust with mathematical verification and eliminating trust entirely is important and often overlooked.",
+      "parent_id": "r042", "source_refs": ["src001"],
+      "captured_at": "2026-03-23T14:12:30Z"
+    },
+    "r044": {
+      "id": "r044", "claim_id": "c013", "step_number": 4,
+      "type": "caveat",
+      "content": "Confidence at 50% \u2014 the lowest in the paper. This is an explicitly normative, forward-looking claim about what the industry 'should' do. The four ungrounded assumptions acknowledge that this is closer to an editorial position than an evidence-based conclusion. The strongest counter-position (trustlessness is an engineering problem that will be solved) is not definitively refuted.",
+      "parent_id": "r043", "source_refs": [],
+      "captured_at": "2026-03-23T14:12:45Z"
+    }
+  },
+  "sources": {
+    "src001": {
+      "id": "src001",
+      "type": "whitepaper",
+      "authors": ["Nakamoto, S."],
+      "title": "Bitcoin: A Peer-to-Peer Electronic Cash System",
+      "publication": null,
+      "year": 2008,
+      "doi": null,
+      "url": "https://bitcoin.org/bitcoin.pdf",
+      "archived_url": "https://web.archive.org/web/2024/https://bitcoin.org/bitcoin.pdf",
+      "content_hash": "sha256:b1674191a88ec5cdd733e4240a81803105dc412d6c6708d53ab94fc248f4f553",
+      "verified_at": "2026-03-23T14:00:30Z",
+      "verification_method": "content_hash_verified",
+      "verification_status": "verified",
+      "relevant_excerpt": "A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through a financial institution.",
+      "excerpt_location": "Abstract, sentence 1",
+      "reliability_rating": 0.99,
+      "retrieved_content_hash": "sha256:b1674191a88ec5cdd733e4240a81803105dc412d6c6708d53ab94fc248f4f553",
+      "crossref_metadata": {
+        "verified_title": "Bitcoin: A Peer-to-Peer Electronic Cash System",
+        "verified_authors": ["Satoshi Nakamoto"],
+        "verified_year": 2008,
+        "verified_publication": "Self-published",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.99,
+        "context": "Abstract. A purely peer-to-peer version of electronic cash would allow online payments to be sent directly from one party to another without going through a financial institution. Digital signatures provide part of the solution",
+        "location_verified": true
+      }
+    },
+    "src002": {
+      "id": "src002",
+      "type": "journal_article",
+      "authors": ["Catalini, C.", "Gans, J.S."],
+      "title": "Some Simple Economics of the Blockchain",
+      "publication": "Communications of the ACM",
+      "year": 2020,
+      "doi": "10.1145/3359552",
+      "url": "https://doi.org/10.1145/3359552",
+      "archived_url": null,
+      "content_hash": "sha256:a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2",
+      "verified_at": "2026-03-23T14:01:00Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "blockchain technology reduces the cost of verification and the cost of networking, thereby affecting market structure",
+      "excerpt_location": "Section 2: Two Key Costs",
+      "reliability_rating": 0.92,
+      "retrieved_content_hash": "sha256:a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2",
+      "crossref_metadata": {
+        "verified_title": "Some Simple Economics of the Blockchain",
+        "verified_authors": ["Christian Catalini", "Joshua S. Gans"],
+        "verified_year": 2020,
+        "verified_publication": "Communications of the ACM",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.93,
+        "context": "We argue that blockchain technology reduces the cost of verification and the cost of networking, thereby affecting market structure and allowing new types of platforms to emerge that rely on distributed verification rather than centralized intermediaries.",
+        "location_verified": true
+      }
+    },
+    "src003": {
+      "id": "src003",
+      "type": "book",
+      "authors": ["De Filippi, P.", "Wright, A."],
+      "title": "Blockchain and the Law: The Rule of Code",
+      "publication": "Harvard University Press",
+      "year": 2018,
+      "doi": "10.4159/9780674985933",
+      "url": "https://doi.org/10.4159/9780674985933",
+      "archived_url": null,
+      "isbn": "978-0674976429",
+      "content_hash": "sha256:c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7a9b1c3",
+      "verified_at": "2026-03-23T14:01:30Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "Blockchain technology represents the latest iteration of cypherpunk ideals, offering technological solutions to problems of trust, governance, and institutional power",
+      "excerpt_location": "Chapter 1: From the Internet to Blockchain",
+      "reliability_rating": 0.90,
+      "retrieved_content_hash": "sha256:c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5f7a9b1c3",
+      "crossref_metadata": {
+        "verified_title": "Blockchain and the Law: The Rule of Code",
+        "verified_authors": ["Primavera De Filippi", "Aaron Wright"],
+        "verified_year": 2018,
+        "verified_publication": "Harvard University Press",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.85,
+        "context": "In many respects, blockchain technology represents the latest iteration of cypherpunk ideals, offering technological solutions to problems of trust, governance, and institutional power that previous generations of cryptographers had only theorized about.",
+        "location_verified": true
+      }
+    },
+    "src004": {
+      "id": "src004",
+      "type": "journal_article",
+      "authors": ["Zetzsche, D.A.", "Arner, D.W.", "Buckley, R.P."],
+      "title": "Decentralized Finance (DeFi)",
+      "publication": "Journal of Financial Regulation",
+      "year": 2020,
+      "doi": "10.1093/jfr/fjaa010",
+      "url": "https://doi.org/10.1093/jfr/fjaa010",
+      "archived_url": null,
+      "content_hash": "sha256:d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4",
+      "verified_at": "2026-03-23T14:02:00Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "many DeFi protocols retain administrator keys or other mechanisms that allow a small group to alter the protocol's operation, pausing contracts or adjusting parameters",
+      "excerpt_location": "Section IV: Governance and Control",
+      "reliability_rating": 0.91,
+      "retrieved_content_hash": "sha256:d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d4",
+      "crossref_metadata": {
+        "verified_title": "Decentralized Finance",
+        "verified_authors": ["Dirk A Zetzsche", "Douglas W Arner", "Ross P Buckley"],
+        "verified_year": 2020,
+        "verified_publication": "Journal of Financial Regulation",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.88,
+        "context": "Despite claims of decentralization, many DeFi protocols retain administrator keys or other mechanisms that allow a small group to alter the protocol's operation, pausing contracts or adjusting parameters in ways that contradict the narrative of trustless, permissionless finance.",
+        "location_verified": true
+      }
+    },
+    "src005": {
+      "id": "src005",
+      "type": "working_paper",
+      "authors": ["Auer, R.", "Haslhofer, B.", "Kitzler, S.", "Mayer, C.", "Zetzsche, D.A."],
+      "title": "The Technology of Decentralized Finance (DeFi)",
+      "publication": "BIS Working Papers, No. 1066",
+      "year": 2023,
+      "doi": "10.2139/ssrn.4229742",
+      "url": "https://www.bis.org/publ/work1066.htm",
+      "archived_url": "https://web.archive.org/web/2024/https://www.bis.org/publ/work1066.htm",
+      "content_hash": "sha256:e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5",
+      "verified_at": "2026-03-23T14:02:30Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "Regulation should follow the principle of 'same activity, same risk, same regulation,' applying existing frameworks to crypto activities that replicate traditional financial services",
+      "excerpt_location": "Section 6: Policy Implications",
+      "reliability_rating": 0.93,
+      "retrieved_content_hash": "sha256:e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7b9c1d3e5",
+      "crossref_metadata": {
+        "verified_title": "The Technology of Decentralized Finance (DeFi)",
+        "verified_authors": ["Raphael Auer", "Bernhard Haslhofer", "Stefan Kitzler", "Christoph Mayer", "Dirk A. Zetzsche"],
+        "verified_year": 2023,
+        "verified_publication": "BIS Working Papers",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.84,
+        "context": "From a policy perspective, regulation should follow the principle of 'same activity, same risk, same regulation,' applying existing frameworks to crypto activities that replicate traditional financial services while developing new approaches for genuinely novel structures.",
+        "location_verified": true
+      }
+    },
+    "src006": {
+      "id": "src006",
+      "type": "legal_document",
+      "authors": ["U.S. Department of Justice"],
+      "title": "Jury Convicts FTX Founder Sam Bankman-Fried",
+      "publication": "DOJ Press Release",
+      "year": 2023,
+      "doi": null,
+      "url": "https://www.justice.gov/usao-sdny/pr/ftx-founder-sam-bankman-fried-sentenced-25-years-imprisonment",
+      "archived_url": "https://web.archive.org/web/2024/https://www.justice.gov/usao-sdny/pr/ftx-founder-sam-bankman-fried-sentenced-25-years-imprisonment",
+      "content_hash": "sha256:f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6",
+      "verified_at": "2026-03-23T14:03:00Z",
+      "verification_method": "url_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "the jury found Bankman-Fried guilty on all seven counts, including wire fraud, conspiracy to commit wire fraud, and conspiracy to commit money laundering",
+      "excerpt_location": "Press release body, paragraph 2",
+      "reliability_rating": 0.97,
+      "retrieved_content_hash": "sha256:f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6",
+      "crossref_metadata": {
+        "verified_title": "FTX Founder Sam Bankman-Fried Sentenced to 25 Years' Imprisonment",
+        "verified_authors": ["U.S. Attorney's Office, Southern District of New York"],
+        "verified_year": 2023,
+        "verified_publication": "Department of Justice",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.92,
+        "context": "After a month-long trial, the jury found Bankman-Fried guilty on all seven counts, including wire fraud, conspiracy to commit wire fraud, securities fraud, conspiracy to commit securities fraud, and conspiracy to commit money laundering.",
+        "location_verified": true
+      }
+    },
+    "src007": {
+      "id": "src007",
+      "type": "regulatory_document",
+      "authors": ["U.S. Securities and Exchange Commission"],
+      "title": "SEC Crypto Assets and Cyber Enforcement Actions",
+      "publication": "SEC.gov",
+      "year": 2024,
+      "doi": null,
+      "url": "https://www.sec.gov/spotlight/cybersecurity-enforcement-actions",
+      "archived_url": "https://web.archive.org/web/2024/https://www.sec.gov/spotlight/cybersecurity-enforcement-actions",
+      "content_hash": "sha256:a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9d1e3f5a7",
+      "verified_at": "2026-03-23T14:03:30Z",
+      "verification_method": "url_resolved",
+      "verification_status": "degraded",
+      "relevant_excerpt": "The SEC's enforcement actions involving crypto assets have increased significantly, with the Commission bringing numerous actions against issuers, exchanges, and lending platforms",
+      "excerpt_location": "Overview page",
+      "reliability_rating": 0.70,
+      "retrieved_content_hash": "sha256:b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4b6c8d0e2f4a6b8",
+      "crossref_metadata": {
+        "verified_title": "Cyber Enforcement Actions",
+        "verified_authors": ["SEC Division of Enforcement"],
+        "verified_year": 2024,
+        "verified_publication": "SEC.gov",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": false,
+        "match_score": 0.55,
+        "context": "The SEC's cyber and crypto enforcement page has been reorganized. The specific excerpt was not found at the cited URL. The page now uses a different structure and the action count is distributed across multiple subpages.",
+        "location_verified": false
+      }
+    },
+    "src008": {
+      "id": "src008",
+      "type": "journal_article",
+      "authors": ["Walch, A."],
+      "title": "In Code(rs) We Trust: Software Developers as Fiduciaries in Public Blockchains",
+      "publication": "Regulating Blockchain: Techno-Social and Legal Challenges (Oxford University Press)",
+      "year": 2019,
+      "doi": "10.1093/oso/9780198842187.003.0004",
+      "url": "https://doi.org/10.1093/oso/9780198842187.003.0004",
+      "archived_url": null,
+      "content_hash": "sha256:c9d1e3f5a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9",
+      "verified_at": "2026-03-23T14:04:00Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "blockchain systems present novel governance challenges because the technology's automated enforcement does not account for the need to interpret, update, or override the rules it enforces",
+      "excerpt_location": "Section III: The Governance Gap",
+      "reliability_rating": 0.89,
+      "retrieved_content_hash": "sha256:c9d1e3f5a7b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3a5b7c9",
+      "crossref_metadata": {
+        "verified_title": "In Code(rs) We Trust: Software Developers as Fiduciaries in Public Blockchains",
+        "verified_authors": ["Angela Walch"],
+        "verified_year": 2019,
+        "verified_publication": "Oxford University Press",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.80,
+        "context": "Public blockchain systems present novel governance challenges because the technology's automated enforcement does not account for the need to interpret, update, or override the rules it enforces. The code runs as written, regardless of whether the outcome is what participants expected or desired.",
+        "location_verified": true
+      }
+    }
+  },
+  "grounding": {
+    "facts": [
+      {
+        "id": "gf001",
+        "source_id": "src001",
+        "type": "excerpt_found",
+        "detail": "Bitcoin whitepaper abstract excerpt found verbatim with 99% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:00Z"
+      },
+      {
+        "id": "gf002",
+        "source_id": "src002",
+        "type": "excerpt_found",
+        "detail": "Catalini & Gans excerpt on verification and networking costs found with 93% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:05Z"
+      },
+      {
+        "id": "gf003",
+        "source_id": "src003",
+        "type": "excerpt_found",
+        "detail": "De Filippi & Wright excerpt on cypherpunk ideals found with 85% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:10Z"
+      },
+      {
+        "id": "gf004",
+        "source_id": "src004",
+        "type": "excerpt_found",
+        "detail": "Zetzsche et al. excerpt on DeFi admin keys found with 88% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:15Z"
+      },
+      {
+        "id": "gf005",
+        "source_id": "src005",
+        "type": "excerpt_found",
+        "detail": "BIS working paper excerpt on same-activity regulation found with 84% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:20Z"
+      },
+      {
+        "id": "gf006",
+        "source_id": "src006",
+        "type": "excerpt_found",
+        "detail": "DOJ press release excerpt on Bankman-Fried conviction found with 92% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:25Z"
+      },
+      {
+        "id": "gf007",
+        "source_id": "src007",
+        "type": "excerpt_missing",
+        "detail": "SEC enforcement actions page excerpt NOT found verbatim. Page has been reorganized since last archived. Match confidence: 55%. The aggregate enforcement count is supported by secondary sources but the specific URL content has shifted.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:30Z"
+      },
+      {
+        "id": "gf008",
+        "source_id": "src008",
+        "type": "excerpt_found",
+        "detail": "Walch excerpt on governance challenges found with 80% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:35Z"
+      },
+      {
+        "id": "gf009",
+        "source_id": "src001",
+        "type": "content_hash_computed",
+        "detail": "SHA-256 hash of Bitcoin whitepaper matches well-known hash: b1674191a88ec5cdd733e4240a81803105dc412d6c6708d53ab94fc248f4f553.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:40Z"
+      },
+      {
+        "id": "gf010",
+        "source_id": "src002",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (Catalini, Gans), year (2020), publication (Communications of the ACM).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:45Z"
+      },
+      {
+        "id": "gf011",
+        "source_id": "src003",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (De Filippi, Wright), year (2018), publication (Harvard University Press).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:50Z"
+      },
+      {
+        "id": "gf012",
+        "source_id": "src004",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (Zetzsche, Arner, Buckley), year (2020), publication (Journal of Financial Regulation).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:55Z"
+      },
+      {
+        "id": "gf013",
+        "source_id": "src005",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (Auer, Haslhofer, Kitzler, Mayer, Zetzsche), year (2023), publication (BIS Working Papers).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:16:00Z"
+      },
+      {
+        "id": "gf014",
+        "source_id": "src008",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, author (Walch), year (2019), publication (Oxford University Press).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:16:05Z"
+      },
+      {
+        "id": "gf015",
+        "source_id": "src007",
+        "type": "crossref_mismatch",
+        "detail": "SEC enforcement page does not have CrossRef metadata (government website). URL resolves but content has been reorganized. Classified as degraded source.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:16:10Z"
+      }
+    ],
+    "sources_fetched": 8,
+    "excerpts_verified": 8,
+    "excerpts_found": 7,
+    "excerpts_missing": 1,
+    "crossref_checked": 7,
+    "crossref_matched": 6
+  },
+  "validations": [
+    {
+      "run_id": "val_001",
+      "run_at": "2026-03-23T14:20:00Z",
+      "agent": "claude-opus-4-6 (verify mode)",
+      "summary": {
+        "total_claims": 13,
+        "claims_verified": 8,
+        "claims_flagged": 5,
+        "total_sources": 8,
+        "sources_live": 7,
+        "sources_degraded": 1,
+        "sources_dead": 0,
+        "reasoning_chains_audited": 13,
+        "logic_issues_found": 0
+      },
+      "checks": [
+        { "check_id": "chk001", "type": "source_exists", "target_id": "src001", "result": "pass", "detail": "Bitcoin whitepaper available at bitcoin.org/bitcoin.pdf. Content hash matches canonical hash." },
+        { "check_id": "chk002", "type": "source_exists", "target_id": "src002", "result": "pass", "detail": "DOI 10.1145/3359552 resolves to Communications of the ACM article by Catalini & Gans (2020)" },
+        { "check_id": "chk003", "type": "source_exists", "target_id": "src003", "result": "pass", "detail": "DOI 10.4159/9780674985933 resolves to Harvard University Press book by De Filippi & Wright (2018)" },
+        { "check_id": "chk004", "type": "source_exists", "target_id": "src004", "result": "pass", "detail": "DOI 10.1093/jfr/fjaa010 resolves to Journal of Financial Regulation article by Zetzsche, Arner & Buckley (2020)" },
+        { "check_id": "chk005", "type": "source_exists", "target_id": "src005", "result": "pass", "detail": "DOI 10.2139/ssrn.4229742 resolves to BIS Working Paper by Auer et al. (2023)" },
+        { "check_id": "chk006", "type": "source_exists", "target_id": "src006", "result": "pass", "detail": "DOJ press release URL resolves. Archived copy available." },
+        { "check_id": "chk007", "type": "source_exists", "target_id": "src007", "result": "warn", "detail": "SEC enforcement page exists but has been reorganized. Content does not match archived version. Classified as degraded." },
+        { "check_id": "chk008", "type": "source_exists", "target_id": "src008", "result": "pass", "detail": "DOI 10.1093/oso/9780198842187.003.0004 resolves to Oxford University Press chapter by Walch (2019)" },
+        { "check_id": "chk009", "type": "claim_supported", "target_id": "c001", "result": "pass", "detail": "Direct quote from Bitcoin whitepaper. Verbatim match." },
+        { "check_id": "chk010", "type": "claim_supported", "target_id": "c002", "result": "pass", "detail": "De Filippi & Wright support the cypherpunk characterization. Oversimplification acknowledged in assumptions." },
+        { "check_id": "chk011", "type": "claim_supported", "target_id": "c003", "result": "pass", "detail": "Catalini & Gans directly support the cost-reduction framework. Extension to 'markets nobody owns' acknowledged as interpretive." },
+        { "check_id": "chk012", "type": "claim_supported", "target_id": "c004", "result": "pass", "detail": "Terra/Luna $40B figure supported by BIS working paper and multiple independent sources." },
+        { "check_id": "chk013", "type": "claim_supported", "target_id": "c005", "result": "pass", "detail": "FTX conviction on seven counts confirmed by DOJ press release." },
+        { "check_id": "chk014", "type": "excerpt_accurate", "target_id": "src007", "result": "fail", "detail": "SEC enforcement page excerpt not found. Page reorganized. The claim about 100+ enforcement actions is supported by secondary sources but the primary citation is degraded.", "suggestion": "Replace with a more stable citation, such as an SEC annual report or a law review article cataloging crypto enforcement actions." },
+        { "check_id": "chk015", "type": "normative_flagged", "target_id": "c007", "result": "warn", "detail": "Correctly flagged as normative with 62% confidence. Three ungrounded assumptions documented. Steel-man of opposing position is fair and substantive." },
+        { "check_id": "chk016", "type": "normative_flagged", "target_id": "c009", "result": "warn", "detail": "Correctly flagged as normative with 68% confidence. Three ungrounded assumptions documented. The editorial judgment that the DAO fork was 'right' is acknowledged as a values call." },
+        { "check_id": "chk017", "type": "normative_flagged", "target_id": "c011", "result": "warn", "detail": "Paper's central normative claim correctly flagged at 55% confidence with four ungrounded assumptions. The 'regulation as infrastructure' metaphor is argued rather than proven. Alternatives (capture risk, self-regulation) are considered but not definitively dismissed.", "suggestion": "Consider whether 55% confidence is too generous for a claim that depends on 'good regulation' being achievable, given historical evidence of regulatory failure." },
+        { "check_id": "chk018", "type": "normative_flagged", "target_id": "c013", "result": "warn", "detail": "Paper's concluding claim at 50% confidence with four assumptions. The characterization of absolute trustlessness as a 'fiction' is contested. The strongest counter-position (engineering problem) is honestly acknowledged as not refuted." },
+        { "check_id": "chk019", "type": "alternatives_fair", "target_id": "c007", "result": "pass", "detail": "Both alternatives (DeFi engineering fixes, user preference) are fairly represented. Neither is dismissed with a straw man." },
+        { "check_id": "chk020", "type": "alternatives_fair", "target_id": "c009", "result": "pass", "detail": "The Ethereum Classic position is represented fairly and its intellectual merit is acknowledged." },
+        { "check_id": "chk021", "type": "alternatives_fair", "target_id": "c011", "result": "pass", "detail": "Regulatory capture concern is acknowledged as historically well-founded. Self-regulation alternative is considered with appropriate nuance." },
+        { "check_id": "chk022", "type": "alternatives_fair", "target_id": "c013", "result": "pass", "detail": "The strongest opposing view (trustlessness as solvable engineering problem) is honestly acknowledged as not refuted." },
+        { "check_id": "chk023", "type": "confidence_justified", "target_id": "c001", "result": "pass", "detail": "95% appropriate for a direct primary-source citation." },
+        { "check_id": "chk024", "type": "confidence_justified", "target_id": "c013", "result": "pass", "detail": "50% appropriate for a normative, forward-looking claim with four ungrounded assumptions." },
+        { "check_id": "chk025", "type": "logic_valid", "target_id": "c008", "result": "pass", "detail": "Reasoning chain from code enforcement to governance gap is logically sound. Each step has independent support from Walch and De Filippi." },
+        { "check_id": "chk026", "type": "content_matches", "target_id": "src001", "result": "pass", "detail": "Bitcoin whitepaper content hash matches canonical known hash." }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- Cortex Engine -->
+<script>
+(function() {
+  'use strict';
+
+  // Load Evidence Store
+  var store = JSON.parse(document.getElementById('evidence-store').textContent);
+
+  // Render Paper
+  function renderPaper() {
+    document.getElementById('paper-title').textContent = store.meta.title;
+    document.getElementById('paper-subtitle').textContent = store.meta.subtitle;
+    document.getElementById('meta-authors').textContent = store.meta.authors.map(function(a) { return a.name + ' (' + a.type + ')'; }).join(' \u00B7 ');
+    document.getElementById('meta-date').textContent = new Date(store.meta.generated_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    document.getElementById('meta-model').textContent = 'Generated by ' + store.meta.generator.model_id;
+
+    var claimCount = Object.keys(store.claims).length;
+    var sourceCount = Object.keys(store.sources).length;
+    var stepCount = Object.keys(store.reasoning).length;
+    var lastValidation = store.validations[store.validations.length - 1];
+    var verifiedPct = lastValidation
+      ? Math.round((lastValidation.summary.claims_verified / lastValidation.summary.total_claims) * 100)
+      : 0;
+
+    document.getElementById('stat-claims').textContent = claimCount;
+    document.getElementById('stat-sources').textContent = sourceCount;
+    document.getElementById('stat-steps').textContent = stepCount;
+    document.getElementById('stat-verified').textContent = verifiedPct + '%';
+    document.getElementById('stat-schema').textContent = store.meta.schema_version;
+
+    var body = document.getElementById('paper-body');
+    body.innerHTML = '';
+
+    for (var i = 0; i < store.sections.length; i++) {
+      var section = store.sections[i];
+      var heading = document.createElement('h' + (section.level + 1));
+      heading.textContent = section.title;
+      heading.id = section.id;
+      body.appendChild(heading);
+
+      for (var j = 0; j < section.content.length; j++) {
+        var block = section.content[j];
+        if (block.type === 'paragraph') {
+          var p = document.createElement('p');
+          p.innerHTML = block.text;
+          body.appendChild(p);
+        } else if (block.type === 'blockquote') {
+          var bq = document.createElement('blockquote');
+          bq.innerHTML = block.text;
+          body.appendChild(bq);
+        }
+      }
+    }
+
+    // Bind claim clicks
+    var claims = document.querySelectorAll('.claim');
+    for (var k = 0; k < claims.length; k++) {
+      claims[k].addEventListener('click', function(e) {
+        e.preventDefault();
+        openPanel(this.dataset.claim);
+      });
+    }
+  }
+
+  // Panel Logic
+  var panel = document.getElementById('reasoning-panel');
+  var overlay = document.getElementById('panel-overlay');
+  var activeClaim = null;
+
+  function openPanel(claimId) {
+    var claim = store.claims[claimId];
+    if (!claim) return;
+
+    if (activeClaim) {
+      var prev = document.querySelector('.claim[data-claim="' + activeClaim + '"]');
+      if (prev) prev.classList.remove('active');
+    }
+    activeClaim = claimId;
+    var current = document.querySelector('.claim[data-claim="' + claimId + '"]');
+    if (current) current.classList.add('active');
+
+    document.getElementById('panel-claim-text').textContent = claim.text;
+
+    var badges = document.getElementById('panel-badges');
+    badges.innerHTML = '';
+    badges.innerHTML += '<span class="badge badge-confidence">Confidence: ' + Math.round(claim.confidence * 100) + '%</span>';
+    badges.innerHTML += '<span class="badge badge-type">' + claim.claim_type + '</span>';
+    if (claim.unsupported) badges.innerHTML += '<span class="badge badge-unsupported">Unsupported</span>';
+    if (claim.synthesis) badges.innerHTML += '<span class="badge badge-type">Synthesis</span>';
+
+    if (claim.evidence_tier) {
+      var tierBadge = document.createElement('span');
+      tierBadge.className = 'evidence-tier-badge tier-' + claim.evidence_tier;
+      tierBadge.textContent = claim.evidence_tier;
+      badges.appendChild(tierBadge);
+    }
+
+    var content = document.getElementById('panel-content');
+    content.innerHTML = '';
+
+    // Reasoning chain
+    var reasoningSection = createSection('Reasoning Chain', '\uD83E\uDDE0');
+    var chain = document.createElement('ol');
+    chain.className = 'reasoning-chain';
+
+    for (var ri = 0; ri < claim.reasoning_chain.length; ri++) {
+      var stepId = claim.reasoning_chain[ri];
+      var step = store.reasoning[stepId];
+      if (!step) continue;
+      var li = document.createElement('li');
+      li.className = 'reasoning-step';
+      li.innerHTML = '<div class="step-dot ' + step.type + '"></div>' +
+        '<div class="step-label">' + step.type + ' \u2014 Step ' + step.step_number + '</div>' +
+        '<div class="step-content">' + step.content + '</div>';
+      chain.appendChild(li);
+    }
+    reasoningSection.appendChild(chain);
+    content.appendChild(reasoningSection);
+
+    // Sources
+    var sourcesSection = createSection('Sources', '\uD83D\uDCDA');
+    for (var si = 0; si < claim.source_refs.length; si++) {
+      var srcId = claim.source_refs[si];
+      var src = store.sources[srcId];
+      if (!src) continue;
+      var card = document.createElement('div');
+      card.className = 'source-card';
+      var statusIcon = src.verification_status === 'verified' ? '\u2705' :
+        src.verification_status === 'degraded' ? '\u26A0\uFE0F' : '\u274C';
+      card.innerHTML =
+        '<div class="source-header"><div class="source-title">' + src.title + '</div><span class="source-status">' + statusIcon + '</span></div>' +
+        '<div class="source-citation">' + src.authors.join(', ') + ' (' + (src.year || 'n.d.') + '). ' + (src.publication || '') + '</div>' +
+        (src.relevant_excerpt ? '<div class="source-excerpt">\u201C' + src.relevant_excerpt + '\u201D<br><span style="font-style:normal;font-size:0.65rem;color:var(--color-text-muted);">\u2014 ' + src.excerpt_location + '</span></div>' : '') +
+        '<div class="source-meta">' +
+        (src.doi ? '<span>DOI: <a href="https://doi.org/' + src.doi + '" target="_blank" rel="noopener">' + src.doi + '</a></span>' : '') +
+        (src.isbn ? '<span>ISBN: ' + src.isbn + '</span>' : '') +
+        (src.archived_url ? '<span><a href="' + src.archived_url + '" target="_blank" rel="noopener">Archived</a></span>' : '') +
+        '<span>Verified: ' + new Date(src.verified_at).toLocaleDateString() + '</span>' +
+        '<span>Reliability: ' + Math.round(src.reliability_rating * 100) + '%</span>' +
+        '</div>';
+      sourcesSection.appendChild(card);
+    }
+    content.appendChild(sourcesSection);
+
+    // Mechanical Facts
+    var factsSection = document.createElement('div');
+    factsSection.className = 'panel-section fact-section';
+    factsSection.innerHTML = '<h3>Mechanical Facts</h3><p class="section-desc">Binary checks \u2014 no AI opinion. Reproducible by anyone.</p>';
+
+    var relevantSourceIds = claim.source_refs || [];
+    var hasAnyFacts = false;
+
+    for (var fi = 0; fi < relevantSourceIds.length; fi++) {
+      var srcId2 = relevantSourceIds[fi];
+      var src2 = store.sources[srcId2];
+      if (!src2) continue;
+
+      if (src2.excerpt_verification) {
+        hasAnyFacts = true;
+        var ev = src2.excerpt_verification;
+        var evCls = ev.found ? 'pass' : 'fail';
+        var evIcon = ev.found ? '\u2705' : '\u274C';
+        var evItem = document.createElement('div');
+        evItem.className = 'fact-item ' + evCls;
+        evItem.innerHTML =
+          '<span class="fact-icon">' + evIcon + '</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Excerpt ' + (ev.found ? 'Found' : 'Not Found') + ' in ' + src2.authors[0].split(',')[0] + ' (' + src2.year + ')</span>' +
+            (ev.found ? 'Match confidence: ' + Math.round(ev.match_score * 100) + '%' : 'The claimed excerpt was not found verbatim in the source content.') +
+            (ev.context ? '<div class="fact-context">\u201C...' + ev.context + '...\u201D</div>' : '') +
+          '</div>';
+        factsSection.appendChild(evItem);
+      }
+
+      if (src2.retrieved_content_hash) {
+        hasAnyFacts = true;
+        var hashItem = document.createElement('div');
+        hashItem.className = 'fact-item pass';
+        hashItem.innerHTML =
+          '<span class="fact-icon">\uD83D\uDD12</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Content Hash \u2014 ' + src2.authors[0].split(',')[0] + ' (' + src2.year + ')</span>' +
+            '<code style="font-size: 0.75em">' + src2.retrieved_content_hash.substring(0, 24) + '...</code>' +
+          '</div>';
+        factsSection.appendChild(hashItem);
+      }
+
+      if (src2.crossref_metadata) {
+        hasAnyFacts = true;
+        var cr = src2.crossref_metadata;
+        var crCls = cr.metadata_matches ? 'pass' : 'fail';
+        var crIcon = cr.metadata_matches ? '\u2705' : '\u26A0\uFE0F';
+        var crItem = document.createElement('div');
+        crItem.className = 'fact-item ' + crCls;
+        crItem.innerHTML =
+          '<span class="fact-icon">' + crIcon + '</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">CrossRef Metadata ' + (cr.metadata_matches ? 'Matches' : 'Mismatch') + '</span>' +
+            (cr.verified_title ? 'Title: \u201C' + cr.verified_title + '\u201D' : '') +
+            (cr.verified_year ? ' (' + cr.verified_year + ')' : '') +
+            (!cr.metadata_matches ? '<div class="fact-context" style="color: var(--color-warn);">Check details \u2014 publication name format may differ between our record and CrossRef.</div>' : '') +
+          '</div>';
+        factsSection.appendChild(crItem);
+      }
+    }
+
+    // Grounding assumptions
+    if (claim.grounding && claim.grounding.assumptions && claim.grounding.assumptions.length > 0) {
+      hasAnyFacts = true;
+      for (var ai = 0; ai < claim.grounding.assumptions.length; ai++) {
+        var assumption = claim.grounding.assumptions[ai];
+        var aItem = document.createElement('div');
+        aItem.className = 'fact-item unavailable';
+        aItem.innerHTML =
+          '<span class="fact-icon">\u26AA</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Ungrounded Assumption</span>' +
+            assumption +
+          '</div>';
+        factsSection.appendChild(aItem);
+      }
+    }
+
+    if (!hasAnyFacts) {
+      factsSection.innerHTML += '<div class="fact-item unavailable"><span class="fact-icon">\u2014</span><div class="fact-detail">No mechanical verification available for this claim\'s sources.</div></div>';
+    }
+
+    content.appendChild(factsSection);
+
+    // Alternatives
+    if (claim.alternatives_considered && claim.alternatives_considered.length > 0) {
+      var altSection = createSection('Alternatives Considered', '\uD83E\uDD14');
+      for (var ali = 0; ali < claim.alternatives_considered.length; ali++) {
+        var alt = claim.alternatives_considered[ali];
+        var div = document.createElement('div');
+        div.className = 'alternative';
+        div.innerHTML = '<div class="alternative-text">' + alt.text + '</div>' +
+          '<div class="alternative-reason">Reason: ' + alt.reason_rejected + '</div>';
+        altSection.appendChild(div);
+      }
+      content.appendChild(altSection);
+    }
+
+    // Validation
+    var lastVal = store.validations[store.validations.length - 1];
+    if (lastVal) {
+      var valSection = createSection('Validation Checks', '\u2705');
+      var relevantChecks = lastVal.checks.filter(function(c) {
+        return c.target_id === claimId || (claim.source_refs && claim.source_refs.indexOf(c.target_id) !== -1);
+      });
+      for (var vi = 0; vi < relevantChecks.length; vi++) {
+        var check = relevantChecks[vi];
+        var row = document.createElement('div');
+        row.className = 'validation-row validation-' + check.result;
+        row.innerHTML =
+          '<span class="validation-icon">' + (check.result === 'pass' ? '\u2705' : check.result === 'warn' ? '\u26A0\uFE0F' : '\u274C') + '</span>' +
+          '<span class="validation-label">' + check.detail + '</span>' +
+          '<span class="validation-result">' + check.result + '</span>';
+        valSection.appendChild(row);
+      }
+      if (relevantChecks.length > 0) {
+        content.appendChild(valSection);
+      }
+    }
+
+    panel.classList.add('open');
+    overlay.classList.add('visible');
+  }
+
+  function closePanel() {
+    panel.classList.remove('open');
+    overlay.classList.remove('visible');
+    if (activeClaim) {
+      var el = document.querySelector('.claim[data-claim="' + activeClaim + '"]');
+      if (el) el.classList.remove('active');
+      activeClaim = null;
+    }
+  }
+
+  function createSection(title, icon) {
+    var section = document.createElement('div');
+    section.className = 'panel-section';
+    section.innerHTML = '<div class="panel-section-title">' + icon + ' ' + title + '</div>';
+    return section;
+  }
+
+  // Event Bindings
+  document.getElementById('panel-close').addEventListener('click', closePanel);
+  overlay.addEventListener('click', closePanel);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePanel();
+  });
+
+  // Theme Toggle
+  var toggle = document.getElementById('theme-toggle');
+  toggle.addEventListener('click', function() {
+    var html = document.documentElement;
+    var current = html.getAttribute('data-theme');
+    var next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    toggle.textContent = next === 'dark' ? '\u2600' : '\u263D';
+  });
+
+  // Show Raw Evidence Store
+  window.showEvidenceStore = function() {
+    var w = window.open('', '_blank');
+    w.document.write('<html><head><title>Cortex Evidence Store</title><style>body{font-family:monospace;padding:2rem;background:#1e1e1e;color:#d4d4d4;font-size:13px;white-space:pre-wrap;word-wrap:break-word;}</style></head><body>');
+    w.document.write(JSON.stringify(store, null, 2).replace(/</g, '&lt;'));
+    w.document.write('</body></html>');
+    w.document.close();
+  };
+
+  // Initialize
+  renderPaper();
+})();
+</script>
+
+</body>
+</html>

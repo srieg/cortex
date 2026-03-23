@@ -60,9 +60,12 @@ npx tsx Pipeline/orchestrator.ts "Quantum error correction" --style=technical --
 
 Output is a self-contained HTML file that opens in your browser automatically.
 
-## Sample Paper
+## Sample Papers
 
-See a full Cortex paper in action: [The Metabolic Cost of Consciousness](https://srieg.github.io/cortex/examples/sample-paper.html)
+- [The Metabolic Cost of Consciousness](https://srieg.github.io/cortex/examples/sample-paper.html) -- neuroscience, academic style
+- [The Alignment Tax](https://srieg.github.io/cortex/examples/alignment-tax.html) -- AI safety, accessible style
+- [Sleep as Computation](https://srieg.github.io/cortex/examples/sleep-memory-consolidation.html) -- neuroscience, academic style
+- [The Regulation Paradox](https://srieg.github.io/cortex/examples/crypto-regulation-paradox.html) -- crypto/policy, accessible style
 
 Every underlined claim is clickable. Each click reveals the reasoning chain, source references, confidence level, and independent verification result.
 

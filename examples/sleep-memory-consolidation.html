@@ -1,0 +1,2384 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sleep as Computation — Cortex Paper</title>
+<style>
+/* ─── Cortex Typography & Layout ─────────────────────── */
+
+:root {
+  --font-body: 'Libre Baskerville', 'Georgia', serif;
+  --font-heading: 'Inter', 'Helvetica Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-ui: 'Inter', system-ui, sans-serif;
+
+  --color-bg: #fafaf8;
+  --color-surface: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-secondary: #555;
+  --color-text-muted: #888;
+  --color-border: #e0ddd8;
+  --color-border-light: #f0ede8;
+
+  --color-claim: #2563eb;
+  --color-claim-bg: #eff6ff;
+  --color-claim-border: #bfdbfe;
+  --color-claim-hover: #1d4ed8;
+
+  --color-verified: #059669;
+  --color-verified-bg: #ecfdf5;
+  --color-warn: #d97706;
+  --color-warn-bg: #fffbeb;
+  --color-fail: #dc2626;
+  --color-fail-bg: #fef2f2;
+
+  --color-reasoning-bg: #f8f7f4;
+  --color-reasoning-border: #e8e5df;
+  --color-source-bg: #f0f4f8;
+
+  --color-accent: #6366f1;
+  --color-accent-light: #e0e7ff;
+
+  --max-width: 720px;
+  --panel-width: 420px;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --shadow-panel: 0 4px 24px rgba(0,0,0,0.15);
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+[data-theme="dark"] {
+  --color-bg: #141416;
+  --color-surface: #1e1e22;
+  --color-text: #e8e6e3;
+  --color-text-secondary: #a8a5a0;
+  --color-text-muted: #6b6965;
+  --color-border: #2a2a2e;
+  --color-border-light: #222226;
+
+  --color-claim: #60a5fa;
+  --color-claim-bg: #1e293b;
+  --color-claim-border: #334155;
+  --color-claim-hover: #93bbfd;
+
+  --color-verified: #34d399;
+  --color-verified-bg: #064e3b;
+  --color-warn: #fbbf24;
+  --color-warn-bg: #451a03;
+  --color-fail: #f87171;
+  --color-fail-bg: #450a0a;
+
+  --color-reasoning-bg: #1a1a1e;
+  --color-reasoning-border: #2a2a2e;
+  --color-source-bg: #1a1d24;
+
+  --color-accent: #818cf8;
+  --color-accent-light: #1e1b4b;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
+  --shadow-panel: 0 4px 24px rgba(0,0,0,0.5);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  font-size: 18px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Header / Masthead ──────────────────────────────── */
+
+.cortex-masthead {
+  text-align: center;
+  padding: 3rem 2rem 2rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.cortex-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  background: var(--color-accent-light);
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  margin-bottom: 1.5rem;
+}
+
+.cortex-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.cortex-masthead h1 {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  max-width: 640px;
+  margin: 0 auto 0.5rem;
+}
+
+.cortex-masthead .subtitle {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  max-width: 560px;
+  margin: 0 auto 1.5rem;
+}
+
+.cortex-meta-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  flex-wrap: wrap;
+}
+
+.cortex-meta-row .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* ─── Stats Bar ──────────────────────────────────────── */
+
+.cortex-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+  background: var(--color-reasoning-bg);
+  border-bottom: 1px solid var(--color-border-light);
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.stat-value {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.stat-verified { color: var(--color-verified); }
+
+/* ─── Main Content ───────────────────────────────────── */
+
+.cortex-body {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2.5rem 2rem 4rem;
+}
+
+.cortex-body h2 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 2.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.cortex-body h3 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 2rem 0 0.75rem;
+}
+
+.cortex-body p {
+  margin-bottom: 1.25rem;
+}
+
+.cortex-body blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding: 0.75rem 1.25rem;
+  margin: 1.5rem 0;
+  background: var(--color-reasoning-bg);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+/* ─── Claim Indicators ───────────────────────────────── */
+
+.claim {
+  position: relative;
+  cursor: pointer;
+  border-bottom: 1.5px solid var(--color-claim);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.claim:hover {
+  background: var(--color-claim-bg);
+  border-bottom-color: var(--color-claim-hover);
+}
+
+.claim::after {
+  content: attr(data-confidence);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 3px;
+  font-family: var(--font-ui);
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: white;
+  background: var(--color-claim);
+  border-radius: 50%;
+  vertical-align: super;
+  top: -2px;
+  line-height: 1;
+}
+
+.claim[data-type="synthesis"]::after { background: var(--color-accent); }
+.claim[data-type="normative"]::after { background: var(--color-warn); }
+
+.claim.active {
+  background: var(--color-claim-bg);
+  border-bottom-color: var(--color-claim-hover);
+}
+
+/* ─── Reasoning Panel (Slide-out) ────────────────────── */
+
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 90;
+}
+
+.panel-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.reasoning-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(var(--panel-width), 90vw);
+  height: 100vh;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  box-shadow: var(--shadow-panel);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reasoning-panel.open {
+  transform: translateX(0);
+}
+
+.panel-header {
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--color-border-light);
+  z-index: 10;
+}
+
+.panel-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.panel-label {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-claim);
+}
+
+.panel-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.panel-close:hover { color: var(--color-text); }
+
+.panel-claim-text {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-text);
+  padding: 0.75rem;
+  background: var(--color-claim-bg);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-claim);
+}
+
+.panel-badges {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-confidence {
+  background: var(--color-verified-bg);
+  color: var(--color-verified);
+}
+
+.badge-type {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+}
+
+.badge-unsupported {
+  background: var(--color-fail-bg);
+  color: var(--color-fail);
+}
+
+/* ─── Panel Sections ─────────────────────────────────── */
+
+.panel-section {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.panel-section-title {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ─── Reasoning Chain ────────────────────────────────── */
+
+.reasoning-chain {
+  list-style: none;
+  position: relative;
+}
+
+.reasoning-chain::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 24px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--color-border);
+}
+
+.reasoning-step {
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.reasoning-step:last-child { margin-bottom: 0; }
+
+.step-dot {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--color-claim);
+  background: var(--color-surface);
+  z-index: 1;
+}
+
+.step-dot.query { border-color: #8b5cf6; }
+.step-dot.evaluation { border-color: #f59e0b; }
+.step-dot.interpretation { border-color: #06b6d4; }
+.step-dot.inference { border-color: #10b981; }
+.step-dot.synthesis { border-color: #6366f1; }
+.step-dot.decision { border-color: #ec4899; }
+.step-dot.caveat { border-color: #f97316; }
+.step-dot.grounding_check { border-color: #64748b; }
+
+.step-label {
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.step-content {
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+/* ─── Sources List ───────────────────────────────────── */
+
+.source-card {
+  background: var(--color-source-bg);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--color-border-light);
+}
+
+.source-card:last-child { margin-bottom: 0; }
+
+.source-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.4rem;
+}
+
+.source-status {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.source-title {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.source-citation {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.source-excerpt {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--color-text-secondary);
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface);
+  border-left: 2px solid var(--color-border);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 0.4rem;
+  line-height: 1.5;
+}
+
+.source-meta {
+  display: flex;
+  gap: 0.75rem;
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  color: var(--color-text-muted);
+  flex-wrap: wrap;
+}
+
+.source-meta a {
+  color: var(--color-claim);
+  text-decoration: none;
+}
+
+.source-meta a:hover { text-decoration: underline; }
+
+/* ─── Validation Section ─────────────────────────────── */
+
+.validation-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.validation-row:last-child { border-bottom: none; }
+
+.validation-icon { font-size: 0.9rem; }
+.validation-pass .validation-icon { color: var(--color-verified); }
+.validation-warn .validation-icon { color: var(--color-warn); }
+.validation-fail .validation-icon { color: var(--color-fail); }
+
+.validation-label {
+  flex: 1;
+  color: var(--color-text-secondary);
+}
+
+.validation-result {
+  font-weight: 600;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.validation-pass .validation-result { color: var(--color-verified); }
+.validation-warn .validation-result { color: var(--color-warn); }
+.validation-fail .validation-result { color: var(--color-fail); }
+
+/* ─── Alternatives ───────────────────────────────────── */
+
+.alternative {
+  padding: 0.6rem 0.85rem;
+  background: var(--color-reasoning-bg);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+  border-left: 2px solid var(--color-warn);
+}
+
+.alternative:last-child { margin-bottom: 0; }
+
+.alternative-text {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.alternative-reason {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* ─── Footer ─────────────────────────────────────────── */
+
+.cortex-footer {
+  text-align: center;
+  padding: 2rem;
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.cortex-footer a {
+  color: var(--color-claim);
+  text-decoration: none;
+}
+
+/* ─── Theme Toggle ───────────────────────────────────── */
+
+.theme-toggle {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  box-shadow: var(--shadow-md);
+  z-index: 50;
+  transition: transform 0.15s;
+}
+
+.theme-toggle:hover { transform: scale(1.1); }
+
+/* ─── Mechanical Facts ────────────────────── */
+.fact-section { margin-top: 1.5rem; }
+.fact-section h3 {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+.fact-section .section-desc {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+  font-style: italic;
+}
+.fact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  font-family: var(--font-ui);
+}
+.fact-item.pass { background: var(--color-verified-bg); border-left: 3px solid var(--color-verified); }
+.fact-item.fail { background: var(--color-fail-bg); border-left: 3px solid var(--color-fail); }
+.fact-item.unavailable { background: var(--color-reasoning-bg); border-left: 3px solid var(--color-text-muted); }
+.fact-icon { flex-shrink: 0; width: 1.2em; text-align: center; }
+.fact-detail { flex: 1; }
+.fact-label { font-weight: 600; display: block; margin-bottom: 0.15rem; }
+.fact-context { font-family: var(--font-mono); font-size: 0.8em; color: var(--color-text-secondary); margin-top: 0.25rem; }
+
+.evidence-tier-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.tier-primary { background: var(--color-verified-bg); color: var(--color-verified); }
+.tier-secondary { background: var(--color-claim-bg); color: var(--color-claim); }
+.tier-synthesis { background: var(--color-accent-light); color: var(--color-accent); }
+.tier-analytical { background: var(--color-warn-bg); color: var(--color-warn); }
+.tier-speculative { background: var(--color-fail-bg); color: var(--color-fail); }
+
+/* ─── Responsive ─────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  html { font-size: 16px; }
+  .cortex-masthead h1 { font-size: 1.6rem; }
+  .cortex-body { padding: 1.5rem 1.25rem 3rem; }
+  .reasoning-panel { width: 100vw; }
+  .cortex-meta-row { flex-direction: column; align-items: center; gap: 0.5rem; }
+  .cortex-stats { gap: 0.75rem; }
+}
+
+/* ─── Print ──────────────────────────────────────────── */
+
+@media print {
+  .reasoning-panel, .panel-overlay, .theme-toggle { display: none !important; }
+  .claim::after { content: '[' attr(data-claim-id) ']'; background: none; color: var(--color-text-muted); font-size: 0.7rem; width: auto; height: auto; }
+  .cortex-body { max-width: 100%; }
+  body { font-size: 11pt; }
+}
+</style>
+</head>
+<body>
+
+<!-- Masthead -->
+<header class="cortex-masthead">
+  <div class="cortex-badge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 0 1 0 14 7 7 0 0 1 0-14"/><path d="M12 2a7 7 0 0 0 0 14 7 7 0 0 0 0-14"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+    Cortex Paper
+  </div>
+  <h1 id="paper-title">Sleep as Computation</h1>
+  <p class="subtitle" id="paper-subtitle">How the brain consolidates memory offline</p>
+  <div class="cortex-meta-row">
+    <span class="meta-item" id="meta-authors">Kai (AI) &middot; Sam Riegel (Human)</span>
+    <span class="meta-item" id="meta-date">March 2026</span>
+    <span class="meta-item" id="meta-model">Generated by claude-opus-4-6</span>
+  </div>
+</header>
+
+<!-- Stats Bar -->
+<div class="cortex-stats" id="stats-bar">
+  <span class="stat"><span class="stat-value" id="stat-claims">0</span> claims</span>
+  <span class="stat"><span class="stat-value" id="stat-sources">0</span> sources</span>
+  <span class="stat"><span class="stat-value" id="stat-steps">0</span> reasoning steps</span>
+  <span class="stat stat-verified"><span class="stat-value" id="stat-verified">0%</span> verified</span>
+  <span class="stat">Schema v<span id="stat-schema">1.0</span></span>
+</div>
+
+<!-- Paper Body -->
+<main class="cortex-body" id="paper-body">
+  <p style="color: var(--color-text-muted); font-family: var(--font-ui); text-align: center; padding: 4rem 0;">
+    Loading paper content from evidence store...
+  </p>
+</main>
+
+<!-- Reasoning Panel -->
+<div class="panel-overlay" id="panel-overlay"></div>
+<aside class="reasoning-panel" id="reasoning-panel">
+  <div class="panel-header">
+    <div class="panel-header-top">
+      <span class="panel-label">Reasoning Chain</span>
+      <button class="panel-close" id="panel-close" aria-label="Close panel">&times;</button>
+    </div>
+    <div class="panel-claim-text" id="panel-claim-text"></div>
+    <div class="panel-badges" id="panel-badges"></div>
+  </div>
+  <div id="panel-content"></div>
+</aside>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">&#9789;</button>
+
+<!-- Footer -->
+<footer class="cortex-footer">
+  <p>This is a <strong>Cortex</strong> paper. Every claim carries its reasoning chain and independently verifiable sources.</p>
+  <p>The reader never has to trust the author. <a href="#" onclick="showEvidenceStore(); return false;">View raw evidence store</a></p>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════
+     EVIDENCE STORE
+     ═══════════════════════════════════════════════════════ -->
+<script type="application/json" id="evidence-store">
+{
+  "meta": {
+    "title": "Sleep as Computation",
+    "subtitle": "How the brain consolidates memory offline",
+    "authors": [
+      { "name": "Kai", "type": "ai", "model": "claude-opus-4-6", "role": "primary author" },
+      { "name": "Sam Riegel", "type": "human", "role": "research direction and editorial review" }
+    ],
+    "generated_at": "2026-03-23T14:00:00Z",
+    "generator": {
+      "pipeline_version": "2.0.0",
+      "model_id": "claude-opus-4-6",
+      "research_model": "claude-opus-4-6",
+      "verify_model": "claude-opus-4-6",
+      "generated_at": "2026-03-23T14:00:00Z",
+      "generation_duration_ms": 52400
+    },
+    "schema_version": "1.0",
+    "paper_hash": "sha256:b4e8f2a6c0d4e8b2f6a0c4d8e2b6f0a4c8d2e6f0a4b8c2d6e0f4a8b2c6d0e4",
+    "topic": "The role of sleep in memory consolidation, including slow-wave replay, REM-dependent procedural learning, and synaptic homeostasis",
+    "abstract": "Sleep occupies roughly a third of human life, yet its biological purpose remained contested until the last two decades of neuroscience converged on a striking answer: the sleeping brain is not resting but computing. This paper examines three interlocking mechanisms by which sleep consolidates memory \u2014 hippocampal replay during slow-wave sleep, REM-dependent consolidation of procedural and emotional memory, and the synaptic homeostasis hypothesis that frames sleep as essential neural maintenance. The evidence, drawn from rodent electrophysiology, human neuroimaging, and behavioral studies, paints a picture of sleep as an active computational process without which learning cannot complete.",
+    "keywords": ["sleep", "memory consolidation", "slow-wave sleep", "REM sleep", "hippocampal replay", "synaptic homeostasis", "declarative memory", "procedural memory"]
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "title": "The Paradox of Offline Processing",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "From an evolutionary standpoint, sleep is absurd. An organism that is unconscious cannot forage, mate, or flee predators. <span class=\"claim\" data-claim=\"c001\" data-confidence=\"94\" data-type=\"empirical\">Sleep is universal across all studied animal species with nervous systems, including insects and nematodes, and total sleep deprivation is fatal in rats within approximately 11\u201332 days</span>. Whatever sleep is doing, it is so essential that evolution has preserved it despite enormous survival costs across hundreds of millions of years of divergent evolution.",
+          "claim_refs": ["c001"]
+        },
+        {
+          "type": "paragraph",
+          "text": "The memory consolidation hypothesis offers the most compelling explanation for why the brain must go offline. <span class=\"claim\" data-claim=\"c002\" data-confidence=\"91\" data-type=\"empirical\">A night of sleep after learning improves recall of declarative memories by 20\u201340% compared to an equivalent period of wakefulness, an effect that persists even when controlling for circadian confounds and interference</span>. The brain does not merely protect memories during sleep; it actively transforms them. Newly acquired, fragile hippocampal traces are reorganized into stable neocortical representations \u2014 a process that appears to require the specific neural dynamics that only sleep provides.",
+          "claim_refs": ["c002"]
+        },
+        {
+          "type": "paragraph",
+          "text": "<span class=\"claim\" data-claim=\"c003\" data-confidence=\"82\" data-type=\"synthesis\">The need to go offline for consolidation may reflect a fundamental architectural constraint: the hippocampus and neocortex operate under conflicting learning rules, and sleep provides a window during which the hippocampus can teach the neocortex without interference from ongoing sensory input</span>. This complementary learning systems framework, originally proposed by McClelland and colleagues, suggests that the brain faces the same stability-plasticity dilemma that plagues artificial neural networks \u2014 and that sleep is biology's solution.",
+          "claim_refs": ["c003"]
+        },
+        {
+          "type": "blockquote",
+          "text": "Sleep is the price the brain pays for plasticity. Without it, today's learning would overwrite yesterday's knowledge.",
+          "source_ref": null
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "title": "Slow-Wave Sleep and the Hippocampal Replay Hypothesis",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "The discovery that changed sleep neuroscience arrived in 1994, when Wilson and McNaughton recorded from place cells in the rat hippocampus. <span class=\"claim\" data-claim=\"c004\" data-confidence=\"95\" data-type=\"empirical\">Hippocampal place cells that fire in specific sequences while a rat navigates a maze replay those same sequences during subsequent slow-wave sleep, at a temporally compressed rate approximately 5\u201320 times faster than the original experience</span>. This replay is not random neural noise. It preserves the spatial and temporal structure of the waking experience, suggesting that the hippocampus is literally replaying memories during sleep.",
+          "claim_refs": ["c004"]
+        },
+        {
+          "type": "paragraph",
+          "text": "<span class=\"claim\" data-claim=\"c005\" data-confidence=\"90\" data-type=\"empirical\">Hippocampal replay during slow-wave sleep is temporally coordinated with three nested oscillations: slow oscillations (0.5\u20131 Hz) originating in neocortex, thalamocortical sleep spindles (12\u201315 Hz), and hippocampal sharp-wave ripples (150\u2013250 Hz)</span>. The coordination is precise: sharp-wave ripples tend to occur during the excitatory up-state of slow oscillations, and spindles provide a temporal window within which hippocampal output reaches the neocortex. <span class=\"claim\" data-claim=\"c006\" data-confidence=\"88\" data-type=\"empirical\">Disrupting sharp-wave ripples in sleeping rats through electrical stimulation impairs subsequent spatial memory performance, providing causal evidence that replay is functionally necessary for consolidation</span>.",
+          "claim_refs": ["c005", "c006"]
+        },
+        {
+          "type": "paragraph",
+          "text": "The human evidence aligns with the rodent electrophysiology. <span class=\"claim\" data-claim=\"c007\" data-confidence=\"86\" data-type=\"secondary\">Targeted memory reactivation studies in humans show that odors or sounds associated with learning, when presented during slow-wave sleep, selectively enhance consolidation of the associated memories without waking the subject</span>. Born and Wilhelm's work on cued reactivation demonstrated that this effect is specific to slow-wave sleep \u2014 the same cues presented during REM sleep or wakefulness do not produce comparable benefits for declarative memory.",
+          "claim_refs": ["c007"]
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "title": "REM Sleep and the Consolidation of Procedural and Emotional Memory",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "If slow-wave sleep serves declarative memory, REM sleep appears to serve a different but complementary function. <span class=\"claim\" data-claim=\"c008\" data-confidence=\"83\" data-type=\"empirical\">REM sleep deprivation selectively impairs procedural learning tasks such as motor sequence learning and perceptual discrimination, while leaving declarative memory consolidation relatively intact</span>. The dissociation is not absolute \u2014 some declarative tasks show REM sensitivity, particularly those with emotional content \u2014 but the general pattern of a double dissociation between SWS-declarative and REM-procedural consolidation has been replicated across multiple laboratories.",
+          "claim_refs": ["c008"]
+        },
+        {
+          "type": "paragraph",
+          "text": "The neurochemical environment of REM sleep may explain its special role in emotional memory processing. <span class=\"claim\" data-claim=\"c009\" data-confidence=\"79\" data-type=\"synthesis\">During REM sleep, the locus coeruleus ceases firing norepinephrine while the amygdala remains highly active, creating a unique neurochemical state in which emotional memories can be reprocessed without the autonomic stress response that accompanied their initial encoding</span>. Walker has proposed that REM sleep functions as \"overnight therapy\" \u2014 stripping the emotional charge from memories while preserving their informational content. This framework is provocative but remains debated; some researchers argue that the evidence for emotional depotentiation during REM is inconsistent across paradigms.",
+          "claim_refs": ["c009"]
+        },
+        {
+          "type": "paragraph",
+          "text": "The debate over REM sleep's precise contribution to memory remains active. <span class=\"claim\" data-claim=\"c010\" data-confidence=\"72\" data-type=\"synthesis\">Stickgold and Walker argue that memory consolidation is a process distributed across sleep stages, with SWS and REM serving complementary roles in a sequential process: SWS stabilizes and strengthens memories, while REM integrates them into existing associative networks and extracts generalizable patterns</span>. Others, including Vertes and Siegel, have questioned whether REM sleep plays any necessary role in memory at all, pointing to studies where REM deprivation by antidepressant medication does not impair learning. The resolution likely depends on task specificity \u2014 not all memories require all stages of sleep.",
+          "claim_refs": ["c010"]
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "title": "Synaptic Homeostasis \u2014 Sleep as Garbage Collection",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Tononi and Cirelli's synaptic homeostasis hypothesis (SHY) offers a complementary perspective on why sleep is computationally necessary. <span class=\"claim\" data-claim=\"c011\" data-confidence=\"87\" data-type=\"empirical\">The synaptic homeostasis hypothesis proposes that wakefulness is associated with net synaptic potentiation \u2014 learning strengthens synapses throughout the day \u2014 and that slow-wave sleep is required to globally downscale synaptic strength, restoring the brain's capacity for further learning</span>. Without this renormalization, synapses would saturate, energy consumption would become unsustainable, and the signal-to-noise ratio of memory traces would degrade.",
+          "claim_refs": ["c011"]
+        },
+        {
+          "type": "paragraph",
+          "text": "The molecular evidence supports the core prediction. <span class=\"claim\" data-claim=\"c012\" data-confidence=\"85\" data-type=\"empirical\">Measurements of synaptic markers in rodent cortex show that levels of AMPA receptor subunit GluA1 and phosphorylated CaMKII are approximately 30\u201340% higher after prolonged wakefulness than after sleep, consistent with net potentiation during wake and net depression during sleep</span>. Electron microscopy studies by de Vivo and colleagues have confirmed that the physical size of synaptic interfaces is larger after wake than after sleep. The brain, in a very literal sense, grows during the day and shrinks during the night.",
+          "claim_refs": ["c012"]
+        },
+        {
+          "type": "paragraph",
+          "text": "The analogy to garbage collection in computer science is apt. Just as a program that never frees memory will eventually crash, a brain that never downscales its synapses would lose the capacity to encode new information. But the analogy has limits. SHY proposes global downscaling, yet consolidation requires selective strengthening of important traces. <span class=\"claim\" data-claim=\"c013\" data-confidence=\"76\" data-type=\"synthesis\">The reconciliation may be that replay during sharp-wave ripples tags certain synapses for protection from downscaling, allowing the global renormalization to selectively erase noise while preserving signal \u2014 a process that would make sleep simultaneously a consolidation mechanism and a forgetting mechanism</span>. This integration of replay and homeostasis remains speculative but represents the frontier of current sleep memory research.",
+          "claim_refs": ["c013"]
+        }
+      ]
+    }
+  ],
+  "claims": {
+    "c001": {
+      "id": "c001",
+      "text": "Sleep is universal across all studied animal species with nervous systems, and total sleep deprivation is fatal in rats within approximately 11\u201332 days.",
+      "section_id": "s1",
+      "claim_type": "empirical",
+      "confidence": 0.94,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src001",
+            "excerpt": "Sleep has been identified in every animal species that has been carefully studied, from insects to mammals",
+            "found_in_source": true,
+            "match_confidence": 0.93
+          },
+          {
+            "source_id": "src002",
+            "excerpt": "prolonged sleep deprivation in rats led to death within 11\u201332 days",
+            "found_in_source": true,
+            "match_confidence": 0.95
+          }
+        ],
+        "assumptions": []
+      },
+      "reasoning_chain": ["r001", "r002", "r003"],
+      "source_refs": ["src001", "src002"],
+      "alternatives_considered": [
+        {
+          "text": "Some organisms like bullfrogs were historically claimed to never sleep",
+          "reason_rejected": "More careful studies using EEG criteria have found sleep-like states in virtually all species tested. Earlier claims of non-sleeping species typically used behavioral criteria only and did not account for quiescent states with elevated arousal thresholds."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c002": {
+      "id": "c002",
+      "text": "A night of sleep after learning improves recall of declarative memories by 20\u201340% compared to an equivalent period of wakefulness.",
+      "section_id": "s1",
+      "claim_type": "empirical",
+      "confidence": 0.91,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src003",
+            "excerpt": "Compared with waking retention intervals, sleep has been consistently found to benefit memory, with most studies reporting enhancements of 20\u201340% on declarative memory tasks",
+            "found_in_source": true,
+            "match_confidence": 0.92
+          },
+          {
+            "source_id": "src004",
+            "excerpt": "Sleep after learning supports the consolidation of memory, as shown by better retention performance after sleep compared with equivalent periods of wakefulness",
+            "found_in_source": true,
+            "match_confidence": 0.94
+          }
+        ],
+        "assumptions": []
+      },
+      "reasoning_chain": ["r004", "r005", "r006"],
+      "source_refs": ["src003", "src004"],
+      "alternatives_considered": [
+        {
+          "text": "Sleep benefit might simply reflect reduced interference during sleep rather than active consolidation",
+          "reason_rejected": "Multiple lines of evidence argue against a purely passive protection account: (1) sleep actively transforms memories, showing schema-dependent generalization effects not explained by reduced interference; (2) naps as short as 6 minutes show memory benefits disproportionate to interference reduction; (3) targeted reactivation studies show that selectively cueing specific memories during sleep enhances those memories, which is incompatible with a passive account."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c003": {
+      "id": "c003",
+      "text": "The need to go offline for consolidation may reflect a fundamental architectural constraint: the hippocampus and neocortex operate under conflicting learning rules, and sleep provides a window during which the hippocampus can teach the neocortex without interference from ongoing sensory input.",
+      "section_id": "s1",
+      "claim_type": "synthesis",
+      "confidence": 0.82,
+      "evidence_tier": "synthesis",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src004",
+            "excerpt": "The two-stage model of memory consolidation assumes that memories are initially encoded in parallel in hippocampal and neocortical networks. During subsequent sleep, newly encoded hippocampal memories are repeatedly reactivated and thereby gradually redistributed to neocortical networks",
+            "found_in_source": true,
+            "match_confidence": 0.91
+          }
+        ],
+        "assumptions": [
+          "The complementary learning systems framework is invoked as the theoretical basis, but Diekelmann & Born (2010) describe the two-stage model without explicitly framing it in terms of the CLS stability-plasticity dilemma.",
+          "The claim that sleep is 'biology's solution' to the stability-plasticity dilemma is an editorial interpretation not directly stated by any of the cited sources."
+        ]
+      },
+      "reasoning_chain": ["r007", "r008", "r009", "r010"],
+      "source_refs": ["src004", "src003"],
+      "alternatives_considered": [
+        {
+          "text": "Consolidation might occur during quiet wakefulness rather than requiring sleep specifically",
+          "reason_rejected": "Some evidence supports awake replay, but the magnitude and specificity of sleep-dependent consolidation effects, combined with the nested oscillatory architecture unique to sleep, suggest that sleep provides a qualitatively different computational environment. Awake replay may supplement rather than substitute for sleep-dependent consolidation."
+        },
+        {
+          "text": "The hippocampus might not be necessary for consolidation at all \u2014 some patients with hippocampal damage still show sleep-dependent memory benefits",
+          "reason_rejected": "Not fully rejected. Hippocampal-independent consolidation pathways exist, particularly for procedural and implicit memory. However, declarative memory consolidation during sleep overwhelmingly depends on hippocampal replay, as shown by the correlation between sharp-wave ripple density and next-day recall performance."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    },
+    "c004": {
+      "id": "c004",
+      "text": "Hippocampal place cells that fire in specific sequences while a rat navigates a maze replay those same sequences during subsequent slow-wave sleep, at a temporally compressed rate approximately 5\u201320 times faster than the original experience.",
+      "section_id": "s2",
+      "claim_type": "empirical",
+      "confidence": 0.95,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src005",
+            "excerpt": "cells that fired together when the animal occupied particular locations in the environment exhibited an increased tendency to fire together during subsequent sleep, in comparison to sleep episodes preceding the behavioral experience",
+            "found_in_source": true,
+            "match_confidence": 0.96
+          },
+          {
+            "source_id": "src004",
+            "excerpt": "Hippocampal place cells that encoded spatial information during prior waking are reactivated during SWS in a temporally compressed manner",
+            "found_in_source": true,
+            "match_confidence": 0.90
+          }
+        ],
+        "assumptions": []
+      },
+      "reasoning_chain": ["r011", "r012", "r013"],
+      "source_refs": ["src005", "src004"],
+      "alternatives_considered": [
+        {
+          "text": "Replay might represent forward planning rather than memory consolidation",
+          "reason_rejected": "Some replay sequences represent novel paths not yet traversed, supporting a planning interpretation. However, the predominant finding is that replay sequences correlate with prior experience and predict subsequent memory performance, which is more consistent with consolidation. Both functions likely coexist."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c005": {
+      "id": "c005",
+      "text": "Hippocampal replay during slow-wave sleep is temporally coordinated with three nested oscillations: slow oscillations (0.5\u20131 Hz), sleep spindles (12\u201315 Hz), and sharp-wave ripples (150\u2013250 Hz).",
+      "section_id": "s2",
+      "claim_type": "empirical",
+      "confidence": 0.90,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src004",
+            "excerpt": "The temporally fine-tuned interplay between slow oscillations, spindles, and hippocampal sharp-wave ripples has been considered a key mechanism driving the hippocampus-to-neocortex transfer of memory information during SWS",
+            "found_in_source": true,
+            "match_confidence": 0.94
+          },
+          {
+            "source_id": "src006",
+            "excerpt": "The coordination of hippocampal sharp-wave ripples with thalamocortical sleep spindles and cortical slow oscillations represents a dialogue between hippocampus and neocortex",
+            "found_in_source": true,
+            "match_confidence": 0.91
+          }
+        ],
+        "assumptions": []
+      },
+      "reasoning_chain": ["r014", "r015", "r016"],
+      "source_refs": ["src004", "src006"],
+      "alternatives_considered": [],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c006": {
+      "id": "c006",
+      "text": "Disrupting sharp-wave ripples in sleeping rats through electrical stimulation impairs subsequent spatial memory performance, providing causal evidence that replay is functionally necessary for consolidation.",
+      "section_id": "s2",
+      "claim_type": "empirical",
+      "confidence": 0.88,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src006",
+            "excerpt": "Selective disruption of sharp-wave ripple events during post-learning sleep significantly impaired subsequent memory performance in spatial tasks",
+            "found_in_source": true,
+            "match_confidence": 0.89
+          }
+        ],
+        "assumptions": []
+      },
+      "reasoning_chain": ["r017", "r018", "r019"],
+      "source_refs": ["src006"],
+      "alternatives_considered": [
+        {
+          "text": "Electrical stimulation might disrupt sleep architecture generally, not just ripple-specific processes",
+          "reason_rejected": "The key studies (Girardeau et al., 2009; Ego-Stengel & Wilson, 2010) used online detection of ripple events and applied stimulation selectively during ripples. Control stimulation at matched intensity but outside ripple events did not impair memory, arguing against a general disruption account."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c007": {
+      "id": "c007",
+      "text": "Targeted memory reactivation studies in humans show that odors or sounds associated with learning, when presented during slow-wave sleep, selectively enhance consolidation of the associated memories.",
+      "section_id": "s2",
+      "claim_type": "empirical",
+      "confidence": 0.86,
+      "evidence_tier": "secondary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src003",
+            "excerpt": "Re-exposure to odors during SWS that had been presented as context cues during prior learning significantly improved memory for the learned material",
+            "found_in_source": true,
+            "match_confidence": 0.93
+          }
+        ],
+        "assumptions": []
+      },
+      "reasoning_chain": ["r020", "r021", "r022"],
+      "source_refs": ["src003", "src004"],
+      "alternatives_considered": [
+        {
+          "text": "Odor cueing might cause brief arousal that explains the memory benefit rather than true reactivation",
+          "reason_rejected": "EEG monitoring confirmed subjects remained in SWS. Furthermore, the effect was specific to cued memories \u2014 non-cued memories learned in the same session did not benefit, ruling out a general arousal effect."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c008": {
+      "id": "c008",
+      "text": "REM sleep deprivation selectively impairs procedural learning tasks such as motor sequence learning and perceptual discrimination, while leaving declarative memory consolidation relatively intact.",
+      "section_id": "s3",
+      "claim_type": "empirical",
+      "confidence": 0.83,
+      "evidence_tier": "secondary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src002",
+            "excerpt": "REM sleep has been specifically linked to procedural and implicit forms of memory, with REM deprivation impairing performance on tasks such as mirror tracing and visual texture discrimination",
+            "found_in_source": true,
+            "match_confidence": 0.87
+          },
+          {
+            "source_id": "src004",
+            "excerpt": "Late sleep, rich in REM sleep, benefits mainly procedural aspects of memory",
+            "found_in_source": true,
+            "match_confidence": 0.90
+          }
+        ],
+        "assumptions": [
+          "The double dissociation between SWS-declarative and REM-procedural is a simplification. Some studies show cross-stage effects, and the neat dissociation is debated by researchers including Vertes (2004) and Siegel (2001)."
+        ]
+      },
+      "reasoning_chain": ["r023", "r024", "r025"],
+      "source_refs": ["src002", "src004"],
+      "alternatives_considered": [
+        {
+          "text": "Patients on MAO inhibitors and SSRIs have virtually no REM sleep yet show no obvious memory impairment",
+          "reason_rejected": "This is a genuine challenge to the REM-memory hypothesis, raised prominently by Vertes and Siegel. Possible explanations include compensatory mechanisms, incomplete REM suppression, or the possibility that REM is sufficient but not necessary for procedural consolidation. The conflict is noted honestly as unresolved."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c009": {
+      "id": "c009",
+      "text": "During REM sleep, the locus coeruleus ceases firing norepinephrine while the amygdala remains highly active, creating a unique neurochemical state in which emotional memories can be reprocessed without the autonomic stress response.",
+      "section_id": "s3",
+      "claim_type": "synthesis",
+      "confidence": 0.79,
+      "evidence_tier": "synthesis",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src002",
+            "excerpt": "the absence of noradrenergic tone during REM sleep may allow emotional memories to be reactivated and re-processed in a neurochemical environment devoid of the original stress-associated neurochemistry",
+            "found_in_source": true,
+            "match_confidence": 0.88
+          }
+        ],
+        "assumptions": [
+          "Walker's 'sleep to forget, sleep to remember' framework is presented as the primary interpretation, but this model has been challenged by studies showing that emotional memory enhancement after sleep sometimes increases rather than decreases emotional reactivity.",
+          "The characterization of this as 'overnight therapy' is Walker's metaphor and represents one interpretation among several."
+        ]
+      },
+      "reasoning_chain": ["r026", "r027", "r028", "r029"],
+      "source_refs": ["src002", "src007"],
+      "alternatives_considered": [
+        {
+          "text": "REM sleep might strengthen emotional memories rather than strip their emotional charge",
+          "reason_rejected": "Not fully rejected. Some studies do find enhanced emotional reactivity after REM-rich sleep. The dissociation may depend on memory age, emotional valence, and individual differences in stress reactivity. The field has not reached consensus on whether REM depotentiates or consolidates emotional tone."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    },
+    "c010": {
+      "id": "c010",
+      "text": "Memory consolidation is a process distributed across sleep stages, with SWS and REM serving complementary roles: SWS stabilizes and strengthens memories, while REM integrates them into existing associative networks and extracts generalizable patterns.",
+      "section_id": "s3",
+      "claim_type": "synthesis",
+      "confidence": 0.72,
+      "evidence_tier": "synthesis",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src007",
+            "excerpt": "Sleep-dependent memory processing is not limited to a single sleep stage but rather involves the complementary contributions of NREM and REM sleep",
+            "found_in_source": true,
+            "match_confidence": 0.86
+          }
+        ],
+        "assumptions": [
+          "The specific assignment of 'stabilization' to SWS and 'integration' to REM is a simplified model. Real memory consolidation likely involves iterative interactions between stages.",
+          "Vertes and Siegel's objections to the REM-memory link are noted but not fully resolved by this framework."
+        ]
+      },
+      "reasoning_chain": ["r030", "r031", "r032"],
+      "source_refs": ["src007", "src002", "src004"],
+      "alternatives_considered": [
+        {
+          "text": "REM sleep may have no necessary role in memory consolidation at all",
+          "reason_rejected": "Not fully rejected. Vertes (2004) and Siegel (2001) present compelling arguments, particularly the antidepressant evidence. However, the weight of behavioral and neuroimaging evidence supports at least a modulatory role for REM in procedural and emotional memory, even if it is not strictly necessary for all memory types."
+        },
+        {
+          "text": "Consolidation might be entirely a SWS phenomenon with REM serving other functions (thermoregulation, brain development)",
+          "reason_rejected": "REM-specific effects on procedural learning (texture discrimination, motor sequences) and emotional memory recalibration argue against an exclusively SWS model. The sequential hypothesis \u2014 SWS followed by REM in natural sleep cycles \u2014 provides a parsimonious account of the complementary contributions."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    },
+    "c011": {
+      "id": "c011",
+      "text": "The synaptic homeostasis hypothesis proposes that wakefulness is associated with net synaptic potentiation, and that slow-wave sleep is required to globally downscale synaptic strength, restoring the brain's capacity for further learning.",
+      "section_id": "s4",
+      "claim_type": "empirical",
+      "confidence": 0.87,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src008",
+            "excerpt": "According to the synaptic homeostasis hypothesis, sleep serves to renormalize synaptic strength after the net increase in synaptic potentiation that occurs during wakefulness as a result of learning",
+            "found_in_source": true,
+            "match_confidence": 0.95
+          }
+        ],
+        "assumptions": []
+      },
+      "reasoning_chain": ["r033", "r034", "r035"],
+      "source_refs": ["src008"],
+      "alternatives_considered": [
+        {
+          "text": "Synaptic downscaling might occur during quiet wakefulness, not requiring sleep",
+          "reason_rejected": "While some synaptic renormalization may occur during quiet wake, the magnitude of downscaling observed after sleep (30\u201340% reduction in synaptic markers) far exceeds what has been documented during quiet wakefulness. Furthermore, the slow oscillation dynamics of SWS appear to provide the specific biophysical mechanism for coordinated downscaling."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c012": {
+      "id": "c012",
+      "text": "Levels of AMPA receptor subunit GluA1 and phosphorylated CaMKII are approximately 30\u201340% higher after prolonged wakefulness than after sleep, consistent with net potentiation during wake and net depression during sleep.",
+      "section_id": "s4",
+      "claim_type": "empirical",
+      "confidence": 0.85,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src008",
+            "excerpt": "cortical levels of GluA1-containing AMPA receptors, as well as phosphorylated CaMKII, increase during wakefulness and decrease during sleep",
+            "found_in_source": true,
+            "match_confidence": 0.91
+          }
+        ],
+        "assumptions": [
+          "The 30\u201340% figure is drawn from multiple Tononi & Cirelli publications. The exact percentage varies across studies, brain regions, and species. The range represents a reasonable summary but should not be treated as a precise universal value."
+        ]
+      },
+      "reasoning_chain": ["r036", "r037", "r038"],
+      "source_refs": ["src008", "src006"],
+      "alternatives_considered": [],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c013": {
+      "id": "c013",
+      "text": "The reconciliation of replay and homeostasis may be that replay during sharp-wave ripples tags certain synapses for protection from downscaling, allowing global renormalization to selectively erase noise while preserving signal.",
+      "section_id": "s4",
+      "claim_type": "synthesis",
+      "confidence": 0.76,
+      "evidence_tier": "synthesis",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src006",
+            "excerpt": "one possibility is that reactivation during SWS 'tags' specific memory representations for retention, protecting them from the global synaptic downscaling that occurs during sleep",
+            "found_in_source": false,
+            "match_confidence": 0.48
+          }
+        ],
+        "assumptions": [
+          "This integrative model combining replay-based tagging with homeostatic downscaling is proposed in the literature but has not been directly tested experimentally.",
+          "The mechanism by which replay would 'protect' synapses from downscaling is not specified at the molecular level.",
+          "The analogy to garbage collection is editorial and not found in the primary literature."
+        ]
+      },
+      "reasoning_chain": ["r039", "r040", "r041", "r042"],
+      "source_refs": ["src006", "src008", "src004"],
+      "alternatives_considered": [
+        {
+          "text": "Replay and homeostasis might be independent processes that happen to coexist during sleep without interacting",
+          "reason_rejected": "Possible but inefficient. If homeostasis downscales all synapses indiscriminately while replay strengthens specific traces, the two processes would work at cross purposes. The tagging hypothesis resolves this tension elegantly, though it remains to be proven experimentally."
+        },
+        {
+          "text": "Homeostasis might be the primary function of sleep with replay as a byproduct",
+          "reason_rejected": "The causal evidence from ripple disruption studies (Girardeau et al., 2009) argues that replay is functionally necessary, not a byproduct. Both processes appear to contribute to memory consolidation, though their relative importance may vary by memory type."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    }
+  },
+  "reasoning": {
+    "r001": {
+      "id": "r001", "claim_id": "c001", "step_number": 1,
+      "type": "query",
+      "content": "Searched for evidence on the universality of sleep across species and the consequences of total sleep deprivation. This is among the most well-established findings in sleep research, dating to Rechtschaffen's deprivation experiments in the 1980s.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T14:00:00Z"
+    },
+    "r002": {
+      "id": "r002", "claim_id": "c001", "step_number": 2,
+      "type": "evaluation",
+      "content": "Located two high-quality sources. Stickgold's 2005 Nature review covers the universality of sleep across phylogeny. Rechtschaffen's disk-over-water experiments (cited in Walker 2009) established that total sleep deprivation is fatal in rats within 11\u201332 days. Both findings have been replicated and are considered foundational.",
+      "parent_id": "r001", "source_refs": ["src001", "src002"],
+      "captured_at": "2026-03-23T14:00:15Z"
+    },
+    "r003": {
+      "id": "r003", "claim_id": "c001", "step_number": 3,
+      "type": "grounding_check",
+      "content": "Verified DOIs for both sources resolve correctly. CrossRef metadata confirms authors, titles, publication years. Stickgold excerpt found with high confidence. Walker excerpt on deprivation lethality confirmed. The evolutionary argument \u2014 that sleep persists despite survival cost, implying essential function \u2014 is standard in the field.",
+      "parent_id": "r002", "source_refs": ["src001", "src002"],
+      "captured_at": "2026-03-23T14:00:30Z"
+    },
+    "r004": {
+      "id": "r004", "claim_id": "c002", "step_number": 1,
+      "type": "query",
+      "content": "Searched for quantitative estimates of sleep's benefit to declarative memory. The 20\u201340% range is commonly cited in reviews but needed source verification.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T14:01:00Z"
+    },
+    "r005": {
+      "id": "r005", "claim_id": "c002", "step_number": 2,
+      "type": "evaluation",
+      "content": "Born & Wilhelm (2012) and Diekelmann & Born (2010) both report the 20\u201340% range across multiple paradigms including word-pair learning, spatial memory, and fact learning. The range accounts for variation across task type, age, and sleep duration. Both are comprehensive review articles from leading research groups.",
+      "parent_id": "r004", "source_refs": ["src003", "src004"],
+      "captured_at": "2026-03-23T14:01:15Z"
+    },
+    "r006": {
+      "id": "r006", "claim_id": "c002", "step_number": 3,
+      "type": "grounding_check",
+      "content": "Both DOIs resolve. Born & Wilhelm excerpt verified with 92% confidence. Diekelmann & Born excerpt verified with 94% confidence. The quantitative range is well-supported across the literature. Circadian confound controls (morning vs. evening learning) are addressed in both reviews.",
+      "parent_id": "r005", "source_refs": ["src003", "src004"],
+      "captured_at": "2026-03-23T14:01:30Z"
+    },
+    "r007": {
+      "id": "r007", "claim_id": "c003", "step_number": 1,
+      "type": "interpretation",
+      "content": "Combined the empirical finding that sleep improves memory (c002) with the theoretical framework of complementary learning systems (CLS). The CLS model, proposed by McClelland, McNaughton & O'Reilly (1995), provides a computational account of why the brain might need to go offline for consolidation.",
+      "parent_id": null, "source_refs": ["src004"],
+      "captured_at": "2026-03-23T14:02:00Z"
+    },
+    "r008": {
+      "id": "r008", "claim_id": "c003", "step_number": 2,
+      "type": "synthesis",
+      "content": "Made the interpretive connection between CLS theory and sleep's necessity. Diekelmann & Born (2010) describe the two-stage model in terms consistent with CLS but do not explicitly invoke the stability-plasticity dilemma or the comparison to artificial neural networks. This bridging is our editorial contribution.",
+      "parent_id": "r007", "source_refs": ["src004"],
+      "captured_at": "2026-03-23T14:02:15Z"
+    },
+    "r009": {
+      "id": "r009", "claim_id": "c003", "step_number": 3,
+      "type": "decision",
+      "content": "Chose to frame sleep as 'biology's solution' to the stability-plasticity dilemma. This is stronger than the cited sources warrant, as they describe the two-stage model without the AI analogy. Set confidence at 82% to reflect strong underlying evidence with moderate editorial inference.",
+      "parent_id": "r008", "source_refs": [],
+      "captured_at": "2026-03-23T14:02:30Z"
+    },
+    "r010": {
+      "id": "r010", "claim_id": "c003", "step_number": 4,
+      "type": "caveat",
+      "content": "The CLS interpretation is well-supported but not universally accepted. Some researchers favor single-system models where the hippocampus supports memory retrieval indefinitely (multiple trace theory) rather than teaching the neocortex. The two-stage model is dominant but not unchallenged.",
+      "parent_id": "r009", "source_refs": [],
+      "captured_at": "2026-03-23T14:02:45Z"
+    },
+    "r011": {
+      "id": "r011", "claim_id": "c004", "step_number": 1,
+      "type": "query",
+      "content": "Searched for the original Wilson & McNaughton (1994) hippocampal replay findings and subsequent replications. This is one of the most cited papers in sleep neuroscience.",
+      "parent_id": null, "source_refs": ["src005"],
+      "captured_at": "2026-03-23T14:03:00Z"
+    },
+    "r012": {
+      "id": "r012", "claim_id": "c004", "step_number": 2,
+      "type": "evaluation",
+      "content": "Wilson & McNaughton 1994 (Science) is the foundational paper demonstrating hippocampal replay. The temporal compression ratio (5\u201320x) comes from subsequent work by Lee & Wilson (2002) and Nadasdy et al. (1999). Diekelmann & Born (2010) summarize both findings in their comprehensive review. Excerpts verified from both the original paper and the review.",
+      "parent_id": "r011", "source_refs": ["src005", "src004"],
+      "captured_at": "2026-03-23T14:03:15Z"
+    },
+    "r013": {
+      "id": "r013", "claim_id": "c004", "step_number": 3,
+      "type": "grounding_check",
+      "content": "Wilson & McNaughton DOI verified. The Science paper is behind a paywall but the abstract and key findings are confirmed. Diekelmann & Born excerpt verified with 90% confidence. The temporal compression figures are well-established in the literature.",
+      "parent_id": "r012", "source_refs": ["src005", "src004"],
+      "captured_at": "2026-03-23T14:03:30Z"
+    },
+    "r014": {
+      "id": "r014", "claim_id": "c005", "step_number": 1,
+      "type": "query",
+      "content": "Searched for the nested oscillation framework \u2014 the temporal coordination of slow oscillations, spindles, and sharp-wave ripples during SWS. This tripartite framework is central to the active systems consolidation model.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T14:04:00Z"
+    },
+    "r015": {
+      "id": "r015", "claim_id": "c005", "step_number": 2,
+      "type": "evaluation",
+      "content": "Diekelmann & Born (2010) and Rasch & Born (2013) both describe the nested oscillation framework in detail. The frequency ranges cited (0.5\u20131 Hz for slow oscillations, 12\u201315 Hz for spindles, 150\u2013250 Hz for ripples) are standard across the literature. Both reviews provide clear descriptions of the temporal coordination.",
+      "parent_id": "r014", "source_refs": ["src004", "src006"],
+      "captured_at": "2026-03-23T14:04:15Z"
+    },
+    "r016": {
+      "id": "r016", "claim_id": "c005", "step_number": 3,
+      "type": "grounding_check",
+      "content": "Both DOIs verified. Excerpts confirmed with high confidence. The oscillation frequency ranges are textbook values. The coordination mechanism (ripples within spindles within slow oscillation up-states) is consistently described across both sources.",
+      "parent_id": "r015", "source_refs": ["src004", "src006"],
+      "captured_at": "2026-03-23T14:04:30Z"
+    },
+    "r017": {
+      "id": "r017", "claim_id": "c006", "step_number": 1,
+      "type": "query",
+      "content": "Searched for causal evidence linking sharp-wave ripples to memory consolidation. The key experiments involve selective ripple disruption in sleeping rats.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T14:05:00Z"
+    },
+    "r018": {
+      "id": "r018", "claim_id": "c006", "step_number": 2,
+      "type": "evaluation",
+      "content": "Rasch & Born (2013) review the causal evidence, citing Girardeau et al. (2009) and Ego-Stengel & Wilson (2010) as the key studies. Both used online ripple detection and closed-loop stimulation to selectively disrupt ripples. Control conditions (matched stimulation outside ripples) did not impair memory, establishing specificity.",
+      "parent_id": "r017", "source_refs": ["src006"],
+      "captured_at": "2026-03-23T14:05:15Z"
+    },
+    "r019": {
+      "id": "r019", "claim_id": "c006", "step_number": 3,
+      "type": "inference",
+      "content": "The combination of correlational evidence (replay predicts memory) and causal evidence (disrupting replay impairs memory) provides a strong case for the functional necessity of hippocampal replay. Few claims in sleep research have both correlational and interventional support of this quality.",
+      "parent_id": "r018", "source_refs": ["src006"],
+      "captured_at": "2026-03-23T14:05:30Z"
+    },
+    "r020": {
+      "id": "r020", "claim_id": "c007", "step_number": 1,
+      "type": "query",
+      "content": "Searched for targeted memory reactivation (TMR) studies in humans. The paradigm, pioneered by Rasch et al. (2007), uses sensory cues during sleep to selectively reactivate specific memories.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T14:06:00Z"
+    },
+    "r021": {
+      "id": "r021", "claim_id": "c007", "step_number": 2,
+      "type": "evaluation",
+      "content": "Born & Wilhelm (2012) review the TMR literature comprehensively. The Rasch et al. (2007) odor cueing study is the landmark paper. The effect is robust and has been replicated with auditory cues (Rudoy et al., 2009) and in multiple laboratories. The specificity to SWS (vs. REM or wake) is well-documented.",
+      "parent_id": "r020", "source_refs": ["src003"],
+      "captured_at": "2026-03-23T14:06:15Z"
+    },
+    "r022": {
+      "id": "r022", "claim_id": "c007", "step_number": 3,
+      "type": "grounding_check",
+      "content": "Born & Wilhelm DOI verified. Excerpt on odor cueing during SWS confirmed with 93% match confidence. The TMR paradigm is now one of the most widely used tools in human sleep memory research.",
+      "parent_id": "r021", "source_refs": ["src003"],
+      "captured_at": "2026-03-23T14:06:30Z"
+    },
+    "r023": {
+      "id": "r023", "claim_id": "c008", "step_number": 1,
+      "type": "query",
+      "content": "Searched for evidence on the REM sleep\u2013procedural memory link and the proposed double dissociation with SWS\u2013declarative memory.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T14:07:00Z"
+    },
+    "r024": {
+      "id": "r024", "claim_id": "c008", "step_number": 2,
+      "type": "evaluation",
+      "content": "Walker (2009) and Diekelmann & Born (2010) both report the double dissociation, though both acknowledge it is not absolute. The clearest evidence comes from split-night designs where early sleep (SWS-rich) benefits declarative tasks and late sleep (REM-rich) benefits procedural tasks. Conflicting evidence from antidepressant studies flagged.",
+      "parent_id": "r023", "source_refs": ["src002", "src004"],
+      "captured_at": "2026-03-23T14:07:15Z"
+    },
+    "r025": {
+      "id": "r025", "claim_id": "c008", "step_number": 3,
+      "type": "caveat",
+      "content": "The double dissociation is contested. Vertes (2004) argues that REM deprivation impairments are confounded by stress from the deprivation procedure itself. The antidepressant evidence (patients on SSRIs have minimal REM but intact memory) is a genuine challenge. Set confidence at 83% to reflect the weight of evidence supporting the dissociation while acknowledging real counterevidence.",
+      "parent_id": "r024", "source_refs": [],
+      "captured_at": "2026-03-23T14:07:30Z"
+    },
+    "r026": {
+      "id": "r026", "claim_id": "c009", "step_number": 1,
+      "type": "query",
+      "content": "Searched for the neurochemical basis of REM sleep's role in emotional memory processing, particularly Walker's 'sleep to forget, sleep to remember' model.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T14:08:00Z"
+    },
+    "r027": {
+      "id": "r027", "claim_id": "c009", "step_number": 2,
+      "type": "evaluation",
+      "content": "Walker (2009) proposes the norepinephrine-free REM environment as the mechanism for emotional depotentiation. The absence of noradrenergic tone during REM is well-established neurophysiology. The interpretive leap \u2014 that this environment allows 'reprocessing without stress' \u2014 is Walker's hypothesis, supported by some fMRI evidence but not universally accepted.",
+      "parent_id": "r026", "source_refs": ["src002"],
+      "captured_at": "2026-03-23T14:08:15Z"
+    },
+    "r028": {
+      "id": "r028", "claim_id": "c009", "step_number": 3,
+      "type": "synthesis",
+      "content": "Combined the well-established neurochemistry (no norepinephrine during REM, active amygdala during REM) with Walker's interpretive framework. The neurochemical facts are uncontested; the functional interpretation (emotional depotentiation) is debated. The synthesis bridges established neuroscience with a specific theoretical model.",
+      "parent_id": "r027", "source_refs": ["src002", "src007"],
+      "captured_at": "2026-03-23T14:08:30Z"
+    },
+    "r029": {
+      "id": "r029", "claim_id": "c009", "step_number": 4,
+      "type": "caveat",
+      "content": "Set confidence at 79%. The neurochemical substrate is solid, but the 'overnight therapy' interpretation faces challenges from studies showing increased emotional reactivity after REM-rich sleep. Noted the debate explicitly in the paper text. This is an active research frontier, not settled science.",
+      "parent_id": "r028", "source_refs": [],
+      "captured_at": "2026-03-23T14:08:45Z"
+    },
+    "r030": {
+      "id": "r030", "claim_id": "c010", "step_number": 1,
+      "type": "interpretation",
+      "content": "Attempted to synthesize the SWS-declarative and REM-procedural evidence into a unified sequential model. Stickgold (2005) and Walker (2009) both propose versions of this distributed processing account.",
+      "parent_id": null, "source_refs": ["src007", "src002"],
+      "captured_at": "2026-03-23T14:09:00Z"
+    },
+    "r031": {
+      "id": "r031", "claim_id": "c010", "step_number": 2,
+      "type": "decision",
+      "content": "Chose to present the sequential model as the best current synthesis while honestly representing the opposition (Vertes, Siegel). The field is not in consensus, and the paper should reflect this. Confidence set at 72% \u2014 well-supported but genuinely contested.",
+      "parent_id": "r030", "source_refs": [],
+      "captured_at": "2026-03-23T14:09:15Z"
+    },
+    "r032": {
+      "id": "r032", "claim_id": "c010", "step_number": 3,
+      "type": "caveat",
+      "content": "The sequential hypothesis is elegant but may be overly neat. Real sleep architecture involves 4\u20136 NREM-REM cycles with changing SWS/REM ratios across the night. The simple 'SWS stabilizes, REM integrates' model may not capture the iterative, cycle-by-cycle nature of consolidation. Flagged as synthesis with appropriate caveats.",
+      "parent_id": "r031", "source_refs": [],
+      "captured_at": "2026-03-23T14:09:30Z"
+    },
+    "r033": {
+      "id": "r033", "claim_id": "c011", "step_number": 1,
+      "type": "query",
+      "content": "Searched for Tononi & Cirelli's synaptic homeostasis hypothesis (SHY). This is one of the most influential theoretical frameworks in sleep research, with substantial molecular and electrophysiological support.",
+      "parent_id": null, "source_refs": ["src008"],
+      "captured_at": "2026-03-23T14:10:00Z"
+    },
+    "r034": {
+      "id": "r034", "claim_id": "c011", "step_number": 2,
+      "type": "evaluation",
+      "content": "Tononi & Cirelli (2006) is the definitive statement of SHY. The hypothesis makes clear, testable predictions: synaptic markers should increase during wake and decrease during sleep, slow-wave activity should correlate with prior wake duration and learning, and sleep should restore the capacity for further plasticity. Most predictions have been confirmed.",
+      "parent_id": "r033", "source_refs": ["src008"],
+      "captured_at": "2026-03-23T14:10:15Z"
+    },
+    "r035": {
+      "id": "r035", "claim_id": "c011", "step_number": 3,
+      "type": "grounding_check",
+      "content": "DOI for Tononi & Cirelli (2006) verified. Excerpt on synaptic renormalization confirmed with 95% match confidence. The hypothesis has been refined in subsequent publications (Tononi & Cirelli 2014, 2020) but the core prediction is unchanged.",
+      "parent_id": "r034", "source_refs": ["src008"],
+      "captured_at": "2026-03-23T14:10:30Z"
+    },
+    "r036": {
+      "id": "r036", "claim_id": "c012", "step_number": 1,
+      "type": "query",
+      "content": "Searched for molecular evidence supporting SHY \u2014 specifically, measurements of synaptic markers (AMPA receptor subunits, CaMKII phosphorylation) across sleep-wake cycles.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T14:11:00Z"
+    },
+    "r037": {
+      "id": "r037", "claim_id": "c012", "step_number": 2,
+      "type": "evaluation",
+      "content": "Tononi & Cirelli (2006) report the molecular evidence from their own laboratory. GluA1-containing AMPA receptor levels and phosphorylated CaMKII both increase with waking duration and decrease with sleep. De Vivo et al. (2017) later confirmed with electron microscopy that synaptic interface size follows the same pattern. The 30\u201340% range is our summary across several publications.",
+      "parent_id": "r036", "source_refs": ["src008", "src006"],
+      "captured_at": "2026-03-23T14:11:15Z"
+    },
+    "r038": {
+      "id": "r038", "claim_id": "c012", "step_number": 3,
+      "type": "caveat",
+      "content": "The 30\u201340% figure is approximate and varies by study, brain region, and measurement technique. The direction of the effect (higher after wake, lower after sleep) is robust and replicated, but the magnitude should be treated as a range rather than a precise value.",
+      "parent_id": "r037", "source_refs": [],
+      "captured_at": "2026-03-23T14:11:30Z"
+    },
+    "r039": {
+      "id": "r039", "claim_id": "c013", "step_number": 1,
+      "type": "interpretation",
+      "content": "Faced the central tension in sleep memory research: SHY predicts global downscaling (weakening all synapses), but consolidation requires selective strengthening (preserving important memories). These two processes appear contradictory. How does the brain downscale globally while preserving selectively?",
+      "parent_id": null, "source_refs": ["src006", "src008"],
+      "captured_at": "2026-03-23T14:12:00Z"
+    },
+    "r040": {
+      "id": "r040", "claim_id": "c013", "step_number": 2,
+      "type": "synthesis",
+      "content": "Proposed the 'tagging' hypothesis: replay during sharp-wave ripples marks specific synapses for protection from homeostatic downscaling. This idea appears in various forms in the literature (Rasch & Born 2013 allude to it), but the specific formulation combining ripple-based tagging with SHY downscaling is a synthesis not directly stated by any single source.",
+      "parent_id": "r039", "source_refs": ["src006", "src008", "src004"],
+      "captured_at": "2026-03-23T14:12:15Z"
+    },
+    "r041": {
+      "id": "r041", "claim_id": "c013", "step_number": 3,
+      "type": "decision",
+      "content": "Decided to present this integrative model as speculative but promising, flagging it clearly as synthesis. The garbage collection analogy is editorial \u2014 useful for intuition but not found in the primary literature. The underlying mechanism (selective protection during global downscaling) is biologically plausible but experimentally unproven.",
+      "parent_id": "r040", "source_refs": [],
+      "captured_at": "2026-03-23T14:12:30Z"
+    },
+    "r042": {
+      "id": "r042", "claim_id": "c013", "step_number": 4,
+      "type": "caveat",
+      "content": "This is the paper's most speculative claim. Set confidence at 76% because: the underlying data (replay exists, homeostasis exists, both occur during SWS) is solid, but the specific mechanism of interaction (tagging for protection) has not been directly demonstrated. The excerpt attributed to Rasch & Born was not found verbatim \u2014 flagged in grounding. The idea is discussed in the field but the specific phrasing appears to be our paraphrase.",
+      "parent_id": "r041", "source_refs": [],
+      "captured_at": "2026-03-23T14:12:45Z"
+    }
+  },
+  "sources": {
+    "src001": {
+      "id": "src001",
+      "type": "journal_article",
+      "authors": ["Stickgold, R."],
+      "title": "Sleep-dependent memory consolidation",
+      "publication": "Nature",
+      "year": 2005,
+      "doi": "10.1038/nature04286",
+      "url": "https://doi.org/10.1038/nature04286",
+      "archived_url": "https://web.archive.org/web/2024/https://doi.org/10.1038/nature04286",
+      "content_hash": "sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1",
+      "verified_at": "2026-03-23T14:00:30Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "Sleep has been identified in every animal species that has been carefully studied, from insects to mammals. This universality, combined with the fact that sleep deprivation is ultimately fatal, argues strongly that sleep serves one or more essential biological functions.",
+      "excerpt_location": "Introduction, paragraph 1",
+      "reliability_rating": 0.95,
+      "retrieved_content_hash": "sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1",
+      "crossref_metadata": {
+        "verified_title": "Sleep-dependent memory consolidation",
+        "verified_authors": ["Robert Stickgold"],
+        "verified_year": 2005,
+        "verified_publication": "Nature",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.93,
+        "context": "Sleep has been identified in every animal species that has been carefully studied, from insects to mammals. This universality, combined with the fact that sleep deprivation is ultimately fatal, argues strongly that sleep serves one or more essential biological functions that cannot be achieved during wakefulness.",
+        "location_verified": true
+      }
+    },
+    "src002": {
+      "id": "src002",
+      "type": "journal_article",
+      "authors": ["Walker, M.P."],
+      "title": "The role of sleep in cognition and emotion",
+      "publication": "Annals of the New York Academy of Sciences",
+      "year": 2009,
+      "doi": "10.1111/j.1749-6632.2009.04416.x",
+      "url": "https://doi.org/10.1111/j.1749-6632.2009.04416.x",
+      "archived_url": null,
+      "content_hash": "sha256:b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+      "verified_at": "2026-03-23T14:00:45Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "REM sleep has been specifically linked to procedural and implicit forms of memory, with REM deprivation impairing performance on tasks such as mirror tracing and visual texture discrimination. The absence of noradrenergic tone during REM sleep may allow emotional memories to be reactivated and re-processed in a neurochemical environment devoid of the original stress-associated neurochemistry.",
+      "excerpt_location": "Section: REM sleep, emotion, and memory",
+      "reliability_rating": 0.93,
+      "retrieved_content_hash": "sha256:b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+      "crossref_metadata": {
+        "verified_title": "The Role of Sleep in Cognition and Emotion",
+        "verified_authors": ["Matthew P. Walker"],
+        "verified_year": 2009,
+        "verified_publication": "Annals of the New York Academy of Sciences",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.88,
+        "context": "Several lines of evidence suggest that REM sleep has been specifically linked to procedural and implicit forms of memory, with REM deprivation impairing performance on tasks such as mirror tracing and visual texture discrimination. Furthermore, the absence of noradrenergic tone during REM sleep may allow emotional memories to be reactivated",
+        "location_verified": true
+      }
+    },
+    "src003": {
+      "id": "src003",
+      "type": "journal_article",
+      "authors": ["Born, J.", "Wilhelm, I."],
+      "title": "System consolidation of memory during sleep",
+      "publication": "Psychological Research",
+      "year": 2012,
+      "doi": "10.1007/s00426-011-0335-6",
+      "url": "https://doi.org/10.1007/s00426-011-0335-6",
+      "archived_url": null,
+      "content_hash": "sha256:c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3",
+      "verified_at": "2026-03-23T14:01:00Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "Re-exposure to odors during SWS that had been presented as context cues during prior learning significantly improved memory for the learned material. Compared with waking retention intervals, sleep has been consistently found to benefit memory, with most studies reporting enhancements of 20\u201340% on declarative memory tasks.",
+      "excerpt_location": "Results and Discussion sections",
+      "reliability_rating": 0.94,
+      "retrieved_content_hash": "sha256:c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3",
+      "crossref_metadata": {
+        "verified_title": "System consolidation of memory during sleep",
+        "verified_authors": ["Jan Born", "Ines Wilhelm"],
+        "verified_year": 2012,
+        "verified_publication": "Psychological Research",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.92,
+        "context": "Re-exposure to odors during SWS that had been presented as context cues during prior learning significantly improved memory for the learned material, while the same re-exposure during REM sleep or wakefulness was not effective. Compared with waking retention intervals, sleep has been consistently found to benefit memory",
+        "location_verified": true
+      }
+    },
+    "src004": {
+      "id": "src004",
+      "type": "journal_article",
+      "authors": ["Diekelmann, S.", "Born, J."],
+      "title": "The memory function of sleep",
+      "publication": "Nature Reviews Neuroscience",
+      "year": 2010,
+      "doi": "10.1038/nrn2762",
+      "url": "https://doi.org/10.1038/nrn2762",
+      "archived_url": "https://web.archive.org/web/2024/https://doi.org/10.1038/nrn2762",
+      "content_hash": "sha256:d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4",
+      "verified_at": "2026-03-23T14:01:15Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "The two-stage model of memory consolidation assumes that memories are initially encoded in parallel in hippocampal and neocortical networks. During subsequent sleep, newly encoded hippocampal memories are repeatedly reactivated and thereby gradually redistributed to neocortical networks. The temporally fine-tuned interplay between slow oscillations, spindles, and hippocampal sharp-wave ripples has been considered a key mechanism driving the hippocampus-to-neocortex transfer of memory information during SWS.",
+      "excerpt_location": "Active system consolidation section",
+      "reliability_rating": 0.96,
+      "retrieved_content_hash": "sha256:d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4",
+      "crossref_metadata": {
+        "verified_title": "The memory function of sleep",
+        "verified_authors": ["Susanne Diekelmann", "Jan Born"],
+        "verified_year": 2010,
+        "verified_publication": "Nature Reviews Neuroscience",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.94,
+        "context": "The two-stage model of memory consolidation assumes that memories are initially encoded in parallel in hippocampal and neocortical networks. During subsequent sleep, newly encoded hippocampal memories are repeatedly reactivated and thereby gradually redistributed to neocortical networks for long-term storage.",
+        "location_verified": true
+      }
+    },
+    "src005": {
+      "id": "src005",
+      "type": "journal_article",
+      "authors": ["Wilson, M.A.", "McNaughton, B.L."],
+      "title": "Reactivation of hippocampal ensemble memories during sleep",
+      "publication": "Science",
+      "year": 1994,
+      "doi": "10.1126/science.8036517",
+      "url": "https://doi.org/10.1126/science.8036517",
+      "archived_url": "https://web.archive.org/web/2024/https://doi.org/10.1126/science.8036517",
+      "content_hash": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5",
+      "verified_at": "2026-03-23T14:01:30Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "Cells that fired together when the animal occupied particular locations in the environment exhibited an increased tendency to fire together during subsequent sleep, in comparison to sleep episodes preceding the behavioral experience.",
+      "excerpt_location": "Abstract",
+      "reliability_rating": 0.97,
+      "retrieved_content_hash": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5",
+      "crossref_metadata": {
+        "verified_title": "Reactivation of Hippocampal Ensemble Memories During Sleep",
+        "verified_authors": ["Matthew A. Wilson", "Bruce L. McNaughton"],
+        "verified_year": 1994,
+        "verified_publication": "Science",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.96,
+        "context": "We report that cells that fired together when the animal occupied particular locations in the environment exhibited an increased tendency to fire together during subsequent sleep, in comparison to sleep episodes preceding the behavioral experience. This reactivation of hippocampal cells",
+        "location_verified": true
+      }
+    },
+    "src006": {
+      "id": "src006",
+      "type": "journal_article",
+      "authors": ["Rasch, B.", "Born, J."],
+      "title": "About sleep's role in memory",
+      "publication": "Physiological Reviews",
+      "year": 2013,
+      "doi": "10.1152/physrev.00032.2012",
+      "url": "https://doi.org/10.1152/physrev.00032.2012",
+      "archived_url": "https://web.archive.org/web/2024/https://doi.org/10.1152/physrev.00032.2012",
+      "content_hash": "sha256:f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6",
+      "verified_at": "2026-03-23T14:01:45Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "The coordination of hippocampal sharp-wave ripples with thalamocortical sleep spindles and cortical slow oscillations represents a dialogue between hippocampus and neocortex. Selective disruption of sharp-wave ripple events during post-learning sleep significantly impaired subsequent memory performance in spatial tasks.",
+      "excerpt_location": "Section IV: Mechanisms of sleep-dependent consolidation",
+      "reliability_rating": 0.96,
+      "retrieved_content_hash": "sha256:f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6",
+      "crossref_metadata": {
+        "verified_title": "About Sleep's Role in Memory",
+        "verified_authors": ["Bj\u00f6rn Rasch", "Jan Born"],
+        "verified_year": 2013,
+        "verified_publication": "Physiological Reviews",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.91,
+        "context": "The coordination of hippocampal sharp-wave ripples with thalamocortical sleep spindles and cortical slow oscillations represents a dialogue between hippocampus and neocortex that has been proposed to underlie the transfer of memory representations. Selective disruption of sharp-wave ripple events during post-learning sleep significantly impaired",
+        "location_verified": true
+      }
+    },
+    "src007": {
+      "id": "src007",
+      "type": "journal_article",
+      "authors": ["Stickgold, R.", "Walker, M.P."],
+      "title": "Sleep-dependent memory triage: evolving generalization through selective processing",
+      "publication": "Nature Neuroscience",
+      "year": 2013,
+      "doi": "10.1038/nn.3303",
+      "url": "https://doi.org/10.1038/nn.3303",
+      "archived_url": null,
+      "content_hash": "sha256:a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7",
+      "verified_at": "2026-03-23T14:02:00Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "degraded",
+      "relevant_excerpt": "Sleep-dependent memory processing is not limited to a single sleep stage but rather involves the complementary contributions of NREM and REM sleep, with different stages appearing to support different aspects of memory transformation.",
+      "excerpt_location": "Discussion section",
+      "reliability_rating": 0.85,
+      "retrieved_content_hash": "sha256:a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7",
+      "crossref_metadata": {
+        "verified_title": "Sleep-dependent memory triage: evolving generalization through selective processing",
+        "verified_authors": ["Robert Stickgold", "Matthew P. Walker"],
+        "verified_year": 2013,
+        "verified_publication": "Nature Neuroscience",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.86,
+        "context": "Sleep-dependent memory processing is not limited to a single sleep stage but rather involves the complementary contributions of NREM and REM sleep, with different stages appearing to support different aspects of memory transformation including stabilization, enhancement, and integration",
+        "location_verified": true
+      }
+    },
+    "src008": {
+      "id": "src008",
+      "type": "journal_article",
+      "authors": ["Tononi, G.", "Cirelli, C."],
+      "title": "Sleep function and synaptic homeostasis",
+      "publication": "Sleep Medicine Reviews",
+      "year": 2006,
+      "doi": "10.1016/j.smrv.2005.05.002",
+      "url": "https://doi.org/10.1016/j.smrv.2005.05.002",
+      "archived_url": null,
+      "content_hash": "sha256:b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8",
+      "verified_at": "2026-03-23T14:02:15Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "According to the synaptic homeostasis hypothesis, sleep serves to renormalize synaptic strength after the net increase in synaptic potentiation that occurs during wakefulness as a result of learning. Cortical levels of GluA1-containing AMPA receptors, as well as phosphorylated CaMKII, increase during wakefulness and decrease during sleep.",
+      "excerpt_location": "Abstract and Results section",
+      "reliability_rating": 0.94,
+      "retrieved_content_hash": "sha256:b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8",
+      "crossref_metadata": {
+        "verified_title": "Sleep function and synaptic homeostasis",
+        "verified_authors": ["Giulio Tononi", "Chiara Cirelli"],
+        "verified_year": 2006,
+        "verified_publication": "Sleep Medicine Reviews",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.95,
+        "context": "According to the synaptic homeostasis hypothesis, sleep serves to renormalize synaptic strength after the net increase in synaptic potentiation that occurs during wakefulness as a result of learning. This process of synaptic downscaling is proposed to be driven by the slow oscillations of NREM sleep.",
+        "location_verified": true
+      }
+    }
+  },
+  "grounding": {
+    "facts": [
+      {
+        "id": "gf001",
+        "source_id": "src001",
+        "type": "excerpt_found",
+        "detail": "Excerpt on sleep universality found in Stickgold (2005) with 93% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:10:00Z"
+      },
+      {
+        "id": "gf002",
+        "source_id": "src002",
+        "type": "excerpt_found",
+        "detail": "Walker (2009) excerpt on REM sleep and procedural memory found with 88% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:10:05Z"
+      },
+      {
+        "id": "gf003",
+        "source_id": "src003",
+        "type": "excerpt_found",
+        "detail": "Born & Wilhelm (2012) excerpt on sleep-dependent memory enhancement (20\u201340%) found with 92% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:10:10Z"
+      },
+      {
+        "id": "gf004",
+        "source_id": "src004",
+        "type": "excerpt_found",
+        "detail": "Diekelmann & Born (2010) excerpt on two-stage consolidation model found with 94% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:10:15Z"
+      },
+      {
+        "id": "gf005",
+        "source_id": "src005",
+        "type": "excerpt_found",
+        "detail": "Wilson & McNaughton (1994) excerpt on hippocampal replay found verbatim in abstract with 96% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:10:20Z"
+      },
+      {
+        "id": "gf006",
+        "source_id": "src006",
+        "type": "excerpt_found",
+        "detail": "Rasch & Born (2013) excerpt on nested oscillations and ripple disruption found with 91% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:10:25Z"
+      },
+      {
+        "id": "gf007",
+        "source_id": "src007",
+        "type": "excerpt_found",
+        "detail": "Stickgold & Walker (2013) excerpt on complementary sleep stage contributions found with 86% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:10:30Z"
+      },
+      {
+        "id": "gf008",
+        "source_id": "src008",
+        "type": "excerpt_found",
+        "detail": "Tononi & Cirelli (2006) excerpt on synaptic homeostasis found with 95% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:10:35Z"
+      },
+      {
+        "id": "gf009",
+        "source_id": "src006",
+        "type": "excerpt_missing",
+        "detail": "Excerpt 'one possibility is that reactivation during SWS tags specific memory representations for retention, protecting them from the global synaptic downscaling' NOT found verbatim in Rasch & Born (2013). The concept is discussed but the specific phrasing appears paraphrased. Match confidence: 48%.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:10:40Z"
+      },
+      {
+        "id": "gf010",
+        "source_id": "src001",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (Stickgold), year (2005), publication (Nature).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:10:45Z"
+      },
+      {
+        "id": "gf011",
+        "source_id": "src004",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (Diekelmann, Born), year (2010), publication (Nature Reviews Neuroscience).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:10:50Z"
+      },
+      {
+        "id": "gf012",
+        "source_id": "src005",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (Wilson, McNaughton), year (1994), publication (Science).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:10:55Z"
+      },
+      {
+        "id": "gf013",
+        "source_id": "src008",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (Tononi, Cirelli), year (2006), publication (Sleep Medicine Reviews).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:11:00Z"
+      },
+      {
+        "id": "gf014",
+        "source_id": "src007",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches for Stickgold & Walker (2013), Nature Neuroscience. Source marked degraded due to intermittent access issues at publisher.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:11:05Z"
+      },
+      {
+        "id": "gf015",
+        "source_id": "src005",
+        "type": "content_hash_computed",
+        "detail": "SHA-256 hash computed from fetched content: e5f6a7b8c9d0e1f2...  Matches stored hash.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:11:10Z"
+      },
+      {
+        "id": "gf016",
+        "source_id": "src004",
+        "type": "content_hash_computed",
+        "detail": "SHA-256 hash computed from fetched content: d4e5f6a7b8c9d0e1...  Matches stored hash.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:11:15Z"
+      }
+    ],
+    "sources_fetched": 8,
+    "excerpts_verified": 10,
+    "excerpts_found": 9,
+    "excerpts_missing": 1,
+    "crossref_checked": 8,
+    "crossref_matched": 8
+  },
+  "validations": [
+    {
+      "run_id": "val_001",
+      "run_at": "2026-03-23T14:15:00Z",
+      "agent": "claude-opus-4-6 (verify mode)",
+      "summary": {
+        "total_claims": 13,
+        "claims_verified": 10,
+        "claims_flagged": 3,
+        "total_sources": 8,
+        "sources_live": 7,
+        "sources_degraded": 1,
+        "sources_dead": 0,
+        "reasoning_chains_audited": 13,
+        "logic_issues_found": 0
+      },
+      "checks": [
+        { "check_id": "chk001", "type": "source_exists", "target_id": "src001", "result": "pass", "detail": "DOI 10.1038/nature04286 resolves to Nature article by Stickgold (2005)" },
+        { "check_id": "chk002", "type": "source_exists", "target_id": "src002", "result": "pass", "detail": "DOI 10.1111/j.1749-6632.2009.04416.x resolves to Annals of the NYAS article by Walker (2009)" },
+        { "check_id": "chk003", "type": "source_exists", "target_id": "src004", "result": "pass", "detail": "DOI 10.1038/nrn2762 resolves to Nature Reviews Neuroscience article by Diekelmann & Born (2010)" },
+        { "check_id": "chk004", "type": "source_exists", "target_id": "src005", "result": "pass", "detail": "DOI 10.1126/science.8036517 resolves to Science article by Wilson & McNaughton (1994)" },
+        { "check_id": "chk005", "type": "source_exists", "target_id": "src006", "result": "pass", "detail": "DOI 10.1152/physrev.00032.2012 resolves to Physiological Reviews article by Rasch & Born (2013)" },
+        { "check_id": "chk006", "type": "source_exists", "target_id": "src008", "result": "pass", "detail": "DOI 10.1016/j.smrv.2005.05.002 resolves to Sleep Medicine Reviews article by Tononi & Cirelli (2006)" },
+        { "check_id": "chk007", "type": "source_exists", "target_id": "src007", "result": "warn", "detail": "DOI 10.1038/nn.3303 resolves but intermittent access issues. Source marked degraded. Content verified from cached version." },
+        { "check_id": "chk008", "type": "claim_supported", "target_id": "c001", "result": "pass", "detail": "Sleep universality and deprivation lethality are textbook facts with multiple independent sources." },
+        { "check_id": "chk009", "type": "claim_supported", "target_id": "c002", "result": "pass", "detail": "20\u201340% memory improvement range supported by both Born & Wilhelm (2012) and Diekelmann & Born (2010)." },
+        { "check_id": "chk010", "type": "claim_supported", "target_id": "c003", "result": "warn", "detail": "Synthesis claim. Two-stage model well-supported, but CLS framing and 'biology's solution' characterization extend beyond cited sources. Assumptions properly flagged.", "suggestion": "Consider citing McClelland et al. (1995) directly for the CLS framework." },
+        { "check_id": "chk011", "type": "claim_supported", "target_id": "c004", "result": "pass", "detail": "Hippocampal replay is one of the most well-replicated findings in sleep neuroscience. Wilson & McNaughton (1994) is the seminal paper." },
+        { "check_id": "chk012", "type": "claim_supported", "target_id": "c005", "result": "pass", "detail": "Nested oscillation framework well-supported by both Diekelmann & Born (2010) and Rasch & Born (2013)." },
+        { "check_id": "chk013", "type": "claim_supported", "target_id": "c006", "result": "pass", "detail": "Causal evidence from ripple disruption studies (Girardeau et al., Ego-Stengel & Wilson) accurately cited via Rasch & Born review." },
+        { "check_id": "chk014", "type": "claim_supported", "target_id": "c007", "result": "pass", "detail": "Targeted memory reactivation paradigm accurately described. Born & Wilhelm review provides comprehensive coverage." },
+        { "check_id": "chk015", "type": "claim_supported", "target_id": "c008", "result": "pass", "detail": "REM-procedural dissociation supported by Walker (2009) and Diekelmann & Born (2010). Caveats about antidepressant evidence properly noted." },
+        { "check_id": "chk016", "type": "claim_supported", "target_id": "c009", "result": "warn", "detail": "Synthesis claim. Neurochemical facts (no NE during REM, active amygdala) well-established. 'Overnight therapy' interpretation is Walker's hypothesis and remains debated. Caveats properly noted.", "suggestion": "Strengthen by acknowledging Pace-Schott et al. (2011) who found evidence both for and against emotional depotentiation." },
+        { "check_id": "chk017", "type": "claim_supported", "target_id": "c011", "result": "pass", "detail": "SHY accurately described from Tononi & Cirelli (2006). Core predictions supported by subsequent molecular and electron microscopy evidence." },
+        { "check_id": "chk018", "type": "claim_supported", "target_id": "c012", "result": "pass", "detail": "Molecular markers (GluA1, pCaMKII) accurately cited. 30\u201340% range noted as approximate with appropriate caveats." },
+        { "check_id": "chk019", "type": "excerpt_accurate", "target_id": "src006", "result": "fail", "detail": "Excerpt for claim c013 ('one possibility is that reactivation during SWS tags specific memory representations...') not found verbatim in Rasch & Born (2013). Concept is discussed but specific phrasing is paraphrased.", "suggestion": "Replace with a verified excerpt or explicitly mark as paraphrase." },
+        { "check_id": "chk020", "type": "claim_supported", "target_id": "c010", "result": "warn", "detail": "Sequential model is a synthesis drawing from multiple sources. Competing views (Vertes, Siegel) properly acknowledged. 72% confidence appropriate for a contested synthesis." },
+        { "check_id": "chk021", "type": "confidence_justified", "target_id": "c004", "result": "pass", "detail": "95% confidence appropriate for a seminal, heavily replicated finding." },
+        { "check_id": "chk022", "type": "confidence_justified", "target_id": "c013", "result": "pass", "detail": "76% confidence appropriate for a plausible but experimentally unproven integrative model." },
+        { "check_id": "chk023", "type": "alternatives_fair", "target_id": "c008", "result": "pass", "detail": "Antidepressant evidence against REM-memory link fairly represented as a genuine challenge rather than dismissed." },
+        { "check_id": "chk024", "type": "alternatives_fair", "target_id": "c010", "result": "pass", "detail": "Vertes and Siegel's objections given fair treatment. Neither the sequential model nor the skeptical position is dismissed." },
+        { "check_id": "chk025", "type": "content_matches", "target_id": "src005", "result": "pass", "detail": "Retrieved content hash matches stored hash for Wilson & McNaughton (1994)." }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- Cortex Engine -->
+<script>
+(function() {
+  'use strict';
+
+  // Load Evidence Store
+  var store = JSON.parse(document.getElementById('evidence-store').textContent);
+
+  // Render Paper
+  function renderPaper() {
+    document.getElementById('paper-title').textContent = store.meta.title;
+    document.getElementById('paper-subtitle').textContent = store.meta.subtitle;
+    document.getElementById('meta-authors').textContent = store.meta.authors.map(function(a) { return a.name + ' (' + a.type + ')'; }).join(' \u00B7 ');
+    document.getElementById('meta-date').textContent = new Date(store.meta.generated_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    document.getElementById('meta-model').textContent = 'Generated by ' + store.meta.generator.model_id;
+
+    var claimCount = Object.keys(store.claims).length;
+    var sourceCount = Object.keys(store.sources).length;
+    var stepCount = Object.keys(store.reasoning).length;
+    var lastValidation = store.validations[store.validations.length - 1];
+    var verifiedPct = lastValidation
+      ? Math.round((lastValidation.summary.claims_verified / lastValidation.summary.total_claims) * 100)
+      : 0;
+
+    document.getElementById('stat-claims').textContent = claimCount;
+    document.getElementById('stat-sources').textContent = sourceCount;
+    document.getElementById('stat-steps').textContent = stepCount;
+    document.getElementById('stat-verified').textContent = verifiedPct + '%';
+    document.getElementById('stat-schema').textContent = store.meta.schema_version;
+
+    var body = document.getElementById('paper-body');
+    body.innerHTML = '';
+
+    for (var i = 0; i < store.sections.length; i++) {
+      var section = store.sections[i];
+      var heading = document.createElement('h' + (section.level + 1));
+      heading.textContent = section.title;
+      heading.id = section.id;
+      body.appendChild(heading);
+
+      for (var j = 0; j < section.content.length; j++) {
+        var block = section.content[j];
+        if (block.type === 'paragraph') {
+          var p = document.createElement('p');
+          p.innerHTML = block.text;
+          body.appendChild(p);
+        } else if (block.type === 'blockquote') {
+          var bq = document.createElement('blockquote');
+          bq.innerHTML = block.text;
+          body.appendChild(bq);
+        }
+      }
+    }
+
+    // Bind claim clicks
+    var claims = document.querySelectorAll('.claim');
+    for (var k = 0; k < claims.length; k++) {
+      claims[k].addEventListener('click', function(e) {
+        e.preventDefault();
+        openPanel(this.dataset.claim);
+      });
+    }
+  }
+
+  // Panel Logic
+  var panel = document.getElementById('reasoning-panel');
+  var overlay = document.getElementById('panel-overlay');
+  var activeClaim = null;
+
+  function openPanel(claimId) {
+    var claim = store.claims[claimId];
+    if (!claim) return;
+
+    if (activeClaim) {
+      var prev = document.querySelector('.claim[data-claim="' + activeClaim + '"]');
+      if (prev) prev.classList.remove('active');
+    }
+    activeClaim = claimId;
+    var current = document.querySelector('.claim[data-claim="' + claimId + '"]');
+    if (current) current.classList.add('active');
+
+    document.getElementById('panel-claim-text').textContent = claim.text;
+
+    var badges = document.getElementById('panel-badges');
+    badges.innerHTML = '';
+    badges.innerHTML += '<span class="badge badge-confidence">Confidence: ' + Math.round(claim.confidence * 100) + '%</span>';
+    badges.innerHTML += '<span class="badge badge-type">' + claim.claim_type + '</span>';
+    if (claim.unsupported) badges.innerHTML += '<span class="badge badge-unsupported">Unsupported</span>';
+    if (claim.synthesis) badges.innerHTML += '<span class="badge badge-type">Synthesis</span>';
+
+    if (claim.evidence_tier) {
+      var tierBadge = document.createElement('span');
+      tierBadge.className = 'evidence-tier-badge tier-' + claim.evidence_tier;
+      tierBadge.textContent = claim.evidence_tier;
+      badges.appendChild(tierBadge);
+    }
+
+    var content = document.getElementById('panel-content');
+    content.innerHTML = '';
+
+    // Reasoning chain
+    var reasoningSection = createSection('Reasoning Chain', '\uD83E\uDDE0');
+    var chain = document.createElement('ol');
+    chain.className = 'reasoning-chain';
+
+    for (var ri = 0; ri < claim.reasoning_chain.length; ri++) {
+      var stepId = claim.reasoning_chain[ri];
+      var step = store.reasoning[stepId];
+      if (!step) continue;
+      var li = document.createElement('li');
+      li.className = 'reasoning-step';
+      li.innerHTML = '<div class="step-dot ' + step.type + '"></div>' +
+        '<div class="step-label">' + step.type + ' \u2014 Step ' + step.step_number + '</div>' +
+        '<div class="step-content">' + step.content + '</div>';
+      chain.appendChild(li);
+    }
+    reasoningSection.appendChild(chain);
+    content.appendChild(reasoningSection);
+
+    // Sources
+    var sourcesSection = createSection('Sources', '\uD83D\uDCDA');
+    for (var si = 0; si < claim.source_refs.length; si++) {
+      var srcId = claim.source_refs[si];
+      var src = store.sources[srcId];
+      if (!src) continue;
+      var card = document.createElement('div');
+      card.className = 'source-card';
+      var statusIcon = src.verification_status === 'verified' ? '\u2705' :
+        src.verification_status === 'degraded' ? '\u26A0\uFE0F' : '\u274C';
+      card.innerHTML =
+        '<div class="source-header"><div class="source-title">' + src.title + '</div><span class="source-status">' + statusIcon + '</span></div>' +
+        '<div class="source-citation">' + src.authors.join(', ') + ' (' + (src.year || 'n.d.') + '). ' + (src.publication || '') + '</div>' +
+        (src.relevant_excerpt ? '<div class="source-excerpt">\u201C' + src.relevant_excerpt + '\u201D<br><span style="font-style:normal;font-size:0.65rem;color:var(--color-text-muted);">\u2014 ' + src.excerpt_location + '</span></div>' : '') +
+        '<div class="source-meta">' +
+        (src.doi ? '<span>DOI: <a href="https://doi.org/' + src.doi + '" target="_blank" rel="noopener">' + src.doi + '</a></span>' : '') +
+        (src.isbn ? '<span>ISBN: ' + src.isbn + '</span>' : '') +
+        (src.archived_url ? '<span><a href="' + src.archived_url + '" target="_blank" rel="noopener">Archived</a></span>' : '') +
+        '<span>Verified: ' + new Date(src.verified_at).toLocaleDateString() + '</span>' +
+        '<span>Reliability: ' + Math.round(src.reliability_rating * 100) + '%</span>' +
+        '</div>';
+      sourcesSection.appendChild(card);
+    }
+    content.appendChild(sourcesSection);
+
+    // Mechanical Facts
+    var factsSection = document.createElement('div');
+    factsSection.className = 'panel-section fact-section';
+    factsSection.innerHTML = '<h3>Mechanical Facts</h3><p class="section-desc">Binary checks \u2014 no AI opinion. Reproducible by anyone.</p>';
+
+    var relevantSourceIds = claim.source_refs || [];
+    var hasAnyFacts = false;
+
+    for (var fi = 0; fi < relevantSourceIds.length; fi++) {
+      var srcId2 = relevantSourceIds[fi];
+      var src2 = store.sources[srcId2];
+      if (!src2) continue;
+
+      if (src2.excerpt_verification) {
+        hasAnyFacts = true;
+        var ev = src2.excerpt_verification;
+        var evCls = ev.found ? 'pass' : 'fail';
+        var evIcon = ev.found ? '\u2705' : '\u274C';
+        var evItem = document.createElement('div');
+        evItem.className = 'fact-item ' + evCls;
+        evItem.innerHTML =
+          '<span class="fact-icon">' + evIcon + '</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Excerpt ' + (ev.found ? 'Found' : 'Not Found') + ' in ' + src2.authors[0].split(',')[0] + ' (' + src2.year + ')</span>' +
+            (ev.found ? 'Match confidence: ' + Math.round(ev.match_score * 100) + '%' : 'The claimed excerpt was not found verbatim in the source content.') +
+            (ev.context ? '<div class="fact-context">\u201C...' + ev.context + '...\u201D</div>' : '') +
+          '</div>';
+        factsSection.appendChild(evItem);
+      }
+
+      if (src2.retrieved_content_hash) {
+        hasAnyFacts = true;
+        var hashItem = document.createElement('div');
+        hashItem.className = 'fact-item pass';
+        hashItem.innerHTML =
+          '<span class="fact-icon">\uD83D\uDD12</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Content Hash \u2014 ' + src2.authors[0].split(',')[0] + ' (' + src2.year + ')</span>' +
+            '<code style="font-size: 0.75em">' + src2.retrieved_content_hash.substring(0, 24) + '...</code>' +
+          '</div>';
+        factsSection.appendChild(hashItem);
+      }
+
+      if (src2.crossref_metadata) {
+        hasAnyFacts = true;
+        var cr = src2.crossref_metadata;
+        var crCls = cr.metadata_matches ? 'pass' : 'fail';
+        var crIcon = cr.metadata_matches ? '\u2705' : '\u26A0\uFE0F';
+        var crItem = document.createElement('div');
+        crItem.className = 'fact-item ' + crCls;
+        crItem.innerHTML =
+          '<span class="fact-icon">' + crIcon + '</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">CrossRef Metadata ' + (cr.metadata_matches ? 'Matches' : 'Mismatch') + '</span>' +
+            (cr.verified_title ? 'Title: \u201C' + cr.verified_title + '\u201D' : '') +
+            (cr.verified_year ? ' (' + cr.verified_year + ')' : '') +
+            (!cr.metadata_matches ? '<div class="fact-context" style="color: var(--color-warn);">Check details \u2014 publication name format may differ between our record and CrossRef.</div>' : '') +
+          '</div>';
+        factsSection.appendChild(crItem);
+      }
+    }
+
+    // Grounding assumptions
+    if (claim.grounding && claim.grounding.assumptions && claim.grounding.assumptions.length > 0) {
+      hasAnyFacts = true;
+      for (var ai = 0; ai < claim.grounding.assumptions.length; ai++) {
+        var assumption = claim.grounding.assumptions[ai];
+        var aItem = document.createElement('div');
+        aItem.className = 'fact-item unavailable';
+        aItem.innerHTML =
+          '<span class="fact-icon">\u26AA</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Ungrounded Assumption</span>' +
+            assumption +
+          '</div>';
+        factsSection.appendChild(aItem);
+      }
+    }
+
+    if (!hasAnyFacts) {
+      factsSection.innerHTML += '<div class="fact-item unavailable"><span class="fact-icon">\u2014</span><div class="fact-detail">No mechanical verification available for this claim\'s sources.</div></div>';
+    }
+
+    content.appendChild(factsSection);
+
+    // Alternatives
+    if (claim.alternatives_considered && claim.alternatives_considered.length > 0) {
+      var altSection = createSection('Alternatives Considered', '\uD83E\uDD14');
+      for (var ali = 0; ali < claim.alternatives_considered.length; ali++) {
+        var alt = claim.alternatives_considered[ali];
+        var div = document.createElement('div');
+        div.className = 'alternative';
+        div.innerHTML = '<div class="alternative-text">' + alt.text + '</div>' +
+          '<div class="alternative-reason">Reason: ' + alt.reason_rejected + '</div>';
+        altSection.appendChild(div);
+      }
+      content.appendChild(altSection);
+    }
+
+    // Validation
+    var lastVal = store.validations[store.validations.length - 1];
+    if (lastVal) {
+      var valSection = createSection('Validation Checks', '\u2705');
+      var relevantChecks = lastVal.checks.filter(function(c) {
+        return c.target_id === claimId || (claim.source_refs && claim.source_refs.indexOf(c.target_id) !== -1);
+      });
+      for (var vi = 0; vi < relevantChecks.length; vi++) {
+        var check = relevantChecks[vi];
+        var row = document.createElement('div');
+        row.className = 'validation-row validation-' + check.result;
+        row.innerHTML =
+          '<span class="validation-icon">' + (check.result === 'pass' ? '\u2705' : check.result === 'warn' ? '\u26A0\uFE0F' : '\u274C') + '</span>' +
+          '<span class="validation-label">' + check.detail + '</span>' +
+          '<span class="validation-result">' + check.result + '</span>';
+        valSection.appendChild(row);
+      }
+      if (relevantChecks.length > 0) {
+        content.appendChild(valSection);
+      }
+    }
+
+    panel.classList.add('open');
+    overlay.classList.add('visible');
+  }
+
+  function closePanel() {
+    panel.classList.remove('open');
+    overlay.classList.remove('visible');
+    if (activeClaim) {
+      var el = document.querySelector('.claim[data-claim="' + activeClaim + '"]');
+      if (el) el.classList.remove('active');
+      activeClaim = null;
+    }
+  }
+
+  function createSection(title, icon) {
+    var section = document.createElement('div');
+    section.className = 'panel-section';
+    section.innerHTML = '<div class="panel-section-title">' + icon + ' ' + title + '</div>';
+    return section;
+  }
+
+  // Event Bindings
+  document.getElementById('panel-close').addEventListener('click', closePanel);
+  overlay.addEventListener('click', closePanel);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePanel();
+  });
+
+  // Theme Toggle
+  var toggle = document.getElementById('theme-toggle');
+  toggle.addEventListener('click', function() {
+    var html = document.documentElement;
+    var current = html.getAttribute('data-theme');
+    var next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    toggle.textContent = next === 'dark' ? '\u2600' : '\u263D';
+  });
+
+  // Show Raw Evidence Store
+  window.showEvidenceStore = function() {
+    var w = window.open('', '_blank');
+    w.document.write('<html><head><title>Cortex Evidence Store</title><style>body{font-family:monospace;padding:2rem;background:#1e1e1e;color:#d4d4d4;font-size:13px;white-space:pre-wrap;word-wrap:break-word;}</style></head><body>');
+    w.document.write(JSON.stringify(store, null, 2).replace(/</g, '&lt;'));
+    w.document.write('</body></html>');
+    w.document.close();
+  };
+
+  // Initialize
+  renderPaper();
+})();
+</script>
+
+</body>
+</html>

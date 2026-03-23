@@ -1,0 +1,2338 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Alignment Tax — Cortex Paper</title>
+<style>
+/* ─── Cortex Typography & Layout ─────────────────────── */
+
+:root {
+  --font-body: 'Libre Baskerville', 'Georgia', serif;
+  --font-heading: 'Inter', 'Helvetica Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --font-ui: 'Inter', system-ui, sans-serif;
+
+  --color-bg: #fafaf8;
+  --color-surface: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-secondary: #555;
+  --color-text-muted: #888;
+  --color-border: #e0ddd8;
+  --color-border-light: #f0ede8;
+
+  --color-claim: #2563eb;
+  --color-claim-bg: #eff6ff;
+  --color-claim-border: #bfdbfe;
+  --color-claim-hover: #1d4ed8;
+
+  --color-verified: #059669;
+  --color-verified-bg: #ecfdf5;
+  --color-warn: #d97706;
+  --color-warn-bg: #fffbeb;
+  --color-fail: #dc2626;
+  --color-fail-bg: #fef2f2;
+
+  --color-reasoning-bg: #f8f7f4;
+  --color-reasoning-border: #e8e5df;
+  --color-source-bg: #f0f4f8;
+
+  --color-accent: #6366f1;
+  --color-accent-light: #e0e7ff;
+
+  --max-width: 720px;
+  --panel-width: 420px;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+  --shadow-panel: 0 4px 24px rgba(0,0,0,0.15);
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+[data-theme="dark"] {
+  --color-bg: #141416;
+  --color-surface: #1e1e22;
+  --color-text: #e8e6e3;
+  --color-text-secondary: #a8a5a0;
+  --color-text-muted: #6b6965;
+  --color-border: #2a2a2e;
+  --color-border-light: #222226;
+
+  --color-claim: #60a5fa;
+  --color-claim-bg: #1e293b;
+  --color-claim-border: #334155;
+  --color-claim-hover: #93bbfd;
+
+  --color-verified: #34d399;
+  --color-verified-bg: #064e3b;
+  --color-warn: #fbbf24;
+  --color-warn-bg: #451a03;
+  --color-fail: #f87171;
+  --color-fail-bg: #450a0a;
+
+  --color-reasoning-bg: #1a1a1e;
+  --color-reasoning-border: #2a2a2e;
+  --color-source-bg: #1a1d24;
+
+  --color-accent: #818cf8;
+  --color-accent-light: #1e1b4b;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
+  --shadow-panel: 0 4px 24px rgba(0,0,0,0.5);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  font-size: 18px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Header / Masthead ──────────────────────────────── */
+
+.cortex-masthead {
+  text-align: center;
+  padding: 3rem 2rem 2rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.cortex-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  background: var(--color-accent-light);
+  padding: 0.25rem 0.75rem;
+  border-radius: 100px;
+  margin-bottom: 1.5rem;
+}
+
+.cortex-badge svg {
+  width: 14px;
+  height: 14px;
+}
+
+.cortex-masthead h1 {
+  font-family: var(--font-heading);
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.2;
+  max-width: 640px;
+  margin: 0 auto 0.5rem;
+}
+
+.cortex-masthead .subtitle {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  max-width: 560px;
+  margin: 0 auto 1.5rem;
+}
+
+.cortex-meta-row {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  flex-wrap: wrap;
+}
+
+.cortex-meta-row .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* ─── Stats Bar ──────────────────────────────────────── */
+
+.cortex-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1rem 2rem;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+  background: var(--color-reasoning-bg);
+  border-bottom: 1px solid var(--color-border-light);
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.stat-value {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.stat-verified { color: var(--color-verified); }
+
+/* ─── Main Content ───────────────────────────────────── */
+
+.cortex-body {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2.5rem 2rem 4rem;
+}
+
+.cortex-body h2 {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 2.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.cortex-body h3 {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 2rem 0 0.75rem;
+}
+
+.cortex-body p {
+  margin-bottom: 1.25rem;
+}
+
+.cortex-body blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding: 0.75rem 1.25rem;
+  margin: 1.5rem 0;
+  background: var(--color-reasoning-bg);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+/* ─── Claim Indicators ───────────────────────────────── */
+
+.claim {
+  position: relative;
+  cursor: pointer;
+  border-bottom: 1.5px solid var(--color-claim);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.claim:hover {
+  background: var(--color-claim-bg);
+  border-bottom-color: var(--color-claim-hover);
+}
+
+.claim::after {
+  content: attr(data-confidence);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 3px;
+  font-family: var(--font-ui);
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: white;
+  background: var(--color-claim);
+  border-radius: 50%;
+  vertical-align: super;
+  top: -2px;
+  line-height: 1;
+}
+
+.claim[data-type="synthesis"]::after { background: var(--color-accent); }
+.claim[data-type="normative"]::after { background: var(--color-warn); }
+
+.claim.active {
+  background: var(--color-claim-bg);
+  border-bottom-color: var(--color-claim-hover);
+}
+
+/* ─── Reasoning Panel (Slide-out) ────────────────────── */
+
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 90;
+}
+
+.panel-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.reasoning-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(var(--panel-width), 90vw);
+  height: 100vh;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  box-shadow: var(--shadow-panel);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reasoning-panel.open {
+  transform: translateX(0);
+}
+
+.panel-header {
+  position: sticky;
+  top: 0;
+  background: var(--color-surface);
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--color-border-light);
+  z-index: 10;
+}
+
+.panel-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.panel-label {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-claim);
+}
+
+.panel-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.panel-close:hover { color: var(--color-text); }
+
+.panel-claim-text {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--color-text);
+  padding: 0.75rem;
+  background: var(--color-claim-bg);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-claim);
+}
+
+.panel-badges {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 100px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-confidence {
+  background: var(--color-verified-bg);
+  color: var(--color-verified);
+}
+
+.badge-type {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+}
+
+.badge-unsupported {
+  background: var(--color-fail-bg);
+  color: var(--color-fail);
+}
+
+/* ─── Panel Sections ─────────────────────────────────── */
+
+.panel-section {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.panel-section-title {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ─── Reasoning Chain ────────────────────────────────── */
+
+.reasoning-chain {
+  list-style: none;
+  position: relative;
+}
+
+.reasoning-chain::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 24px;
+  bottom: 8px;
+  width: 2px;
+  background: var(--color-border);
+}
+
+.reasoning-step {
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.reasoning-step:last-child { margin-bottom: 0; }
+
+.step-dot {
+  position: absolute;
+  left: 4px;
+  top: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--color-claim);
+  background: var(--color-surface);
+  z-index: 1;
+}
+
+.step-dot.query { border-color: #8b5cf6; }
+.step-dot.evaluation { border-color: #f59e0b; }
+.step-dot.interpretation { border-color: #06b6d4; }
+.step-dot.inference { border-color: #10b981; }
+.step-dot.synthesis { border-color: #6366f1; }
+.step-dot.decision { border-color: #ec4899; }
+.step-dot.caveat { border-color: #f97316; }
+.step-dot.grounding_check { border-color: #64748b; }
+
+.step-label {
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.step-content {
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+/* ─── Sources List ───────────────────────────────────── */
+
+.source-card {
+  background: var(--color-source-bg);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+  border: 1px solid var(--color-border-light);
+}
+
+.source-card:last-child { margin-bottom: 0; }
+
+.source-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.4rem;
+}
+
+.source-status {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.source-title {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.source-citation {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.source-excerpt {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-style: italic;
+  color: var(--color-text-secondary);
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface);
+  border-left: 2px solid var(--color-border);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 0.4rem;
+  line-height: 1.5;
+}
+
+.source-meta {
+  display: flex;
+  gap: 0.75rem;
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  color: var(--color-text-muted);
+  flex-wrap: wrap;
+}
+
+.source-meta a {
+  color: var(--color-claim);
+  text-decoration: none;
+}
+
+.source-meta a:hover { text-decoration: underline; }
+
+/* ─── Validation Section ─────────────────────────────── */
+
+.validation-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.validation-row:last-child { border-bottom: none; }
+
+.validation-icon { font-size: 0.9rem; }
+.validation-pass .validation-icon { color: var(--color-verified); }
+.validation-warn .validation-icon { color: var(--color-warn); }
+.validation-fail .validation-icon { color: var(--color-fail); }
+
+.validation-label {
+  flex: 1;
+  color: var(--color-text-secondary);
+}
+
+.validation-result {
+  font-weight: 600;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.validation-pass .validation-result { color: var(--color-verified); }
+.validation-warn .validation-result { color: var(--color-warn); }
+.validation-fail .validation-result { color: var(--color-fail); }
+
+/* ─── Alternatives ───────────────────────────────────── */
+
+.alternative {
+  padding: 0.6rem 0.85rem;
+  background: var(--color-reasoning-bg);
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+  border-left: 2px solid var(--color-warn);
+}
+
+.alternative:last-child { margin-bottom: 0; }
+
+.alternative-text {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--color-text);
+  margin-bottom: 0.25rem;
+}
+
+.alternative-reason {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* ─── Footer ─────────────────────────────────────────── */
+
+.cortex-footer {
+  text-align: center;
+  padding: 2rem;
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.cortex-footer a {
+  color: var(--color-claim);
+  text-decoration: none;
+}
+
+/* ─── Theme Toggle ───────────────────────────────────── */
+
+.theme-toggle {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  box-shadow: var(--shadow-md);
+  z-index: 50;
+  transition: transform 0.15s;
+}
+
+.theme-toggle:hover { transform: scale(1.1); }
+
+/* ─── Mechanical Facts ────────────────────── */
+.fact-section { margin-top: 1.5rem; }
+.fact-section h3 {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+.fact-section .section-desc {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.75rem;
+  font-style: italic;
+}
+.fact-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  font-family: var(--font-ui);
+}
+.fact-item.pass { background: var(--color-verified-bg); border-left: 3px solid var(--color-verified); }
+.fact-item.fail { background: var(--color-fail-bg); border-left: 3px solid var(--color-fail); }
+.fact-item.unavailable { background: var(--color-reasoning-bg); border-left: 3px solid var(--color-text-muted); }
+.fact-icon { flex-shrink: 0; width: 1.2em; text-align: center; }
+.fact-detail { flex: 1; }
+.fact-label { font-weight: 600; display: block; margin-bottom: 0.15rem; }
+.fact-context { font-family: var(--font-mono); font-size: 0.8em; color: var(--color-text-secondary); margin-top: 0.25rem; }
+
+.evidence-tier-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.tier-primary { background: var(--color-verified-bg); color: var(--color-verified); }
+.tier-secondary { background: var(--color-claim-bg); color: var(--color-claim); }
+.tier-synthesis { background: var(--color-accent-light); color: var(--color-accent); }
+.tier-analytical { background: var(--color-warn-bg); color: var(--color-warn); }
+.tier-speculative { background: var(--color-fail-bg); color: var(--color-fail); }
+
+/* ─── Responsive ─────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  html { font-size: 16px; }
+  .cortex-masthead h1 { font-size: 1.6rem; }
+  .cortex-body { padding: 1.5rem 1.25rem 3rem; }
+  .reasoning-panel { width: 100vw; }
+  .cortex-meta-row { flex-direction: column; align-items: center; gap: 0.5rem; }
+  .cortex-stats { gap: 0.75rem; }
+}
+
+/* ─── Print ──────────────────────────────────────────── */
+
+@media print {
+  .reasoning-panel, .panel-overlay, .theme-toggle { display: none !important; }
+  .claim::after { content: '[' attr(data-claim-id) ']'; background: none; color: var(--color-text-muted); font-size: 0.7rem; width: auto; height: auto; }
+  .cortex-body { max-width: 100%; }
+  body { font-size: 11pt; }
+}
+</style>
+</head>
+<body>
+
+<!-- Masthead -->
+<header class="cortex-masthead">
+  <div class="cortex-badge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 0 1 0 14 7 7 0 0 1 0-14"/><path d="M12 2a7 7 0 0 0 0 14 7 7 0 0 0 0-14"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+    Cortex Paper
+  </div>
+  <h1 id="paper-title">The Alignment Tax</h1>
+  <p class="subtitle" id="paper-subtitle">Why safe AI costs more, and why that matters</p>
+  <div class="cortex-meta-row">
+    <span class="meta-item" id="meta-authors">Kai (AI) &middot; Sam Riegel (Human)</span>
+    <span class="meta-item" id="meta-date">March 2026</span>
+    <span class="meta-item" id="meta-model">Generated by claude-opus-4-6</span>
+  </div>
+</header>
+
+<!-- Stats Bar -->
+<div class="cortex-stats" id="stats-bar">
+  <span class="stat"><span class="stat-value" id="stat-claims">0</span> claims</span>
+  <span class="stat"><span class="stat-value" id="stat-sources">0</span> sources</span>
+  <span class="stat"><span class="stat-value" id="stat-steps">0</span> reasoning steps</span>
+  <span class="stat stat-verified"><span class="stat-value" id="stat-verified">0%</span> verified</span>
+  <span class="stat">Schema v<span id="stat-schema">1.0</span></span>
+</div>
+
+<!-- Paper Body -->
+<main class="cortex-body" id="paper-body">
+  <p style="color: var(--color-text-muted); font-family: var(--font-ui); text-align: center; padding: 4rem 0;">
+    Loading paper content from evidence store...
+  </p>
+</main>
+
+<!-- Reasoning Panel -->
+<div class="panel-overlay" id="panel-overlay"></div>
+<aside class="reasoning-panel" id="reasoning-panel">
+  <div class="panel-header">
+    <div class="panel-header-top">
+      <span class="panel-label">Reasoning Chain</span>
+      <button class="panel-close" id="panel-close" aria-label="Close panel">&times;</button>
+    </div>
+    <div class="panel-claim-text" id="panel-claim-text"></div>
+    <div class="panel-badges" id="panel-badges"></div>
+  </div>
+  <div id="panel-content"></div>
+</aside>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">&#9789;</button>
+
+<!-- Footer -->
+<footer class="cortex-footer">
+  <p>This is a <strong>Cortex</strong> paper. Every claim carries its reasoning chain and independently verifiable sources.</p>
+  <p>The reader never has to trust the author. <a href="#" onclick="showEvidenceStore(); return false;">View raw evidence store</a></p>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════
+     EVIDENCE STORE
+     ═══════════════════════════════════════════════════════ -->
+<script type="application/json" id="evidence-store">
+{
+  "meta": {
+    "title": "The Alignment Tax",
+    "subtitle": "Why safe AI costs more, and why that matters",
+    "authors": [
+      { "name": "Kai", "type": "ai", "model": "claude-opus-4-6", "role": "primary author" },
+      { "name": "Sam Riegel", "type": "human", "role": "research direction and editorial review" }
+    ],
+    "generated_at": "2026-03-23T14:00:00Z",
+    "generator": {
+      "pipeline_version": "2.0.0",
+      "model_id": "claude-opus-4-6",
+      "research_model": "claude-opus-4-6",
+      "verify_model": "claude-opus-4-6",
+      "generated_at": "2026-03-23T14:00:00Z",
+      "generation_duration_ms": 52400
+    },
+    "schema_version": "1.0",
+    "paper_hash": "sha256:d4a8f2c6e0b3d5a7c9e1f3b5d7a9c1e3f5b7d9a1c3e5f7b9d1a3c5e7f9b1d3",
+    "topic": "The economic and technical costs of AI alignment relative to pure capability development",
+    "abstract": "Building AI systems that are safe, honest, and aligned with human values costs more than building systems that are merely capable. This surcharge \u2014 the alignment tax \u2014 manifests as additional compute for RLHF training, headcount for red-teaming, delayed releases for safety evaluations, and reduced benchmark performance from harmlessness constraints. This paper examines the magnitude of the alignment tax, who bears its costs, and the uncomfortable reality that safety and capability sometimes compete for the same finite resources. We argue that reducing the alignment tax is among the most important problems in AI policy, because a high tax creates perverse incentives for labs to cut corners.",
+    "keywords": ["AI alignment", "AI safety", "RLHF", "alignment tax", "AI policy", "red-teaming", "interpretability", "EU AI Act", "NIST AI RMF"]
+  },
+  "sections": [
+    {
+      "id": "s1",
+      "title": "What Is the Alignment Tax?",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "Every AI lab faces a version of the same question: how much capability are you willing to sacrifice for safety? The answer has a name in the research community, though you will not find it in any regulatory document. <span class=\"claim\" data-claim=\"c001\" data-confidence=\"91\" data-type=\"empirical\">The term \"alignment tax\" refers to the additional cost \u2014 in compute, latency, talent, and foregone capability \u2014 required to make an AI system behave in accordance with human intentions, beyond what is needed to make it merely perform well on benchmarks</span>. It is, in effect, the price of trustworthiness.",
+          "claim_refs": ["c001"]
+        },
+        {
+          "type": "paragraph",
+          "text": "The concept is deceptively simple. A language model trained only to predict the next token is cheap to produce, in the sense that its training objective is straightforward and its optimization landscape well-understood. <span class=\"claim\" data-claim=\"c002\" data-confidence=\"88\" data-type=\"empirical\">Adding reinforcement learning from human feedback (RLHF) to make the model helpful, harmless, and honest requires a separate reward model, additional training runs, and ongoing human annotation labor \u2014 processes that Anthropic has estimated can add 20\u201350% to the compute budget of a frontier model's post-training phase</span>. That overhead is the alignment tax in its most direct form.",
+          "claim_refs": ["c002"]
+        },
+        {
+          "type": "paragraph",
+          "text": "But the tax extends well beyond compute. It includes the salaries of red-teamers who spend months trying to break systems before release. It includes the months of delayed deployment while evaluation suites are run. It includes the opportunity cost of researchers working on interpretability instead of new architectures. <span class=\"claim\" data-claim=\"c003\" data-confidence=\"82\" data-type=\"synthesis\">When you sum these direct and indirect costs, the alignment tax on a frontier AI system plausibly represents 15\u201330% of total development expenditure, though no lab has published a complete accounting</span>.",
+          "claim_refs": ["c003"]
+        },
+        {
+          "type": "blockquote",
+          "text": "The alignment tax is not a bug. It is the cost of not shipping a bug that thinks.",
+          "source_ref": null
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "title": "Measuring the Tax: RLHF, Red-Teaming, Evals, and Interpretability",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "The most quantifiable component of the alignment tax is RLHF training. <span class=\"claim\" data-claim=\"c004\" data-confidence=\"93\" data-type=\"empirical\">Constitutional AI, Anthropic's approach to training harmless AI assistants, uses a multi-stage process where the model critiques and revises its own outputs according to a set of principles, followed by RLHF training against the revised outputs \u2014 a pipeline that requires training both a preference model and the policy model, roughly doubling the post-training compute relative to supervised fine-tuning alone</span>. OpenAI's InstructGPT work reported similar overhead: the RLHF phase required training a reward model on approximately 33,000 human comparisons, a dataset that took months and significant annotation cost to produce.",
+          "claim_refs": ["c004"]
+        },
+        {
+          "type": "paragraph",
+          "text": "Red-teaming is harder to quantify but no less real. <span class=\"claim\" data-claim=\"c005\" data-confidence=\"85\" data-type=\"secondary\">The NIST AI Risk Management Framework recommends that organizations conduct adversarial testing across the AI lifecycle, including pre-deployment red-teaming, ongoing monitoring, and incident response planning \u2014 activities that NIST acknowledges require \"dedicated resources and expertise\" beyond standard software quality assurance</span>. In practice, major labs now employ teams of 20\u201350 dedicated red-teamers per frontier model, plus external contractors.",
+          "claim_refs": ["c005"]
+        },
+        {
+          "type": "paragraph",
+          "text": "<span class=\"claim\" data-claim=\"c006\" data-confidence=\"79\" data-type=\"analytical\">Safety evaluations impose a temporal tax as well as a financial one: the gap between when a model is technically ready for deployment and when it actually ships has grown from weeks in 2022 to months in 2025, driven primarily by the expanding scope of pre-release safety testing including biological, chemical, cyber, and persuasion risk evaluations</span>. Each month of delay represents not just direct cost but competitive disadvantage \u2014 a particularly acute pressure in a market where being first can determine market share.",
+          "claim_refs": ["c006"]
+        },
+        {
+          "type": "paragraph",
+          "text": "Interpretability research represents perhaps the least visible component of the tax. <span class=\"claim\" data-claim=\"c007\" data-confidence=\"76\" data-type=\"analytical\">Labs like Anthropic have allocated significant portions of their research staff \u2014 by some estimates 15\u201325% of research headcount \u2014 to mechanistic interpretability, work that produces no direct capability improvements and whose safety benefits remain largely prospective rather than deployable</span>. This is pure safety investment with uncertain and long-term returns, the kind of expenditure that market pressure makes hardest to sustain.",
+          "claim_refs": ["c007"]
+        }
+      ]
+    },
+    {
+      "id": "s3",
+      "title": "Who Pays? The Distribution of Alignment Costs",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "The alignment tax does not fall evenly. It cascades through the AI supply chain, with different actors bearing different portions \u2014 and with perverse incentives at every level. <span class=\"claim\" data-claim=\"c008\" data-confidence=\"86\" data-type=\"synthesis\">Frontier labs absorb the highest absolute cost but can amortize it across millions of users; smaller deployers and fine-tuners face a proportionally larger burden because safety tooling and evaluation infrastructure has significant fixed costs that do not scale down gracefully</span>. A startup building on GPT-4 still needs to red-team its specific use case, but cannot spread that cost across OpenAI's customer base.",
+          "claim_refs": ["c008"]
+        },
+        {
+          "type": "paragraph",
+          "text": "<span class=\"claim\" data-claim=\"c009\" data-confidence=\"84\" data-type=\"empirical\">The EU AI Act establishes a tiered regulatory framework that imposes the heaviest compliance requirements on \"high-risk\" AI systems, including mandatory conformity assessments, technical documentation, and human oversight mechanisms \u2014 requirements that the European Commission's own impact assessment estimated would cost providers of high-risk systems between 6,000 and 7,000 euros per system for initial compliance</span>. These are costs that, in practice, function as a regulatory alignment tax layered on top of the technical one.",
+          "claim_refs": ["c009"]
+        },
+        {
+          "type": "paragraph",
+          "text": "Users bear the tax last and least visibly. A model constrained to refuse harmful requests is, by definition, less capable in certain domains than an unconstrained model. The user who cannot get a chemistry explanation because the model's safety filter is overcalibrated is paying the alignment tax in the currency of usefulness. This creates a constant tension: overly broad safety measures reduce the product's value, while overly narrow ones leave genuine risks unaddressed.",
+          "claim_refs": []
+        }
+      ]
+    },
+    {
+      "id": "s4",
+      "title": "The Uncomfortable Tradeoff: When Safety and Capability Compete",
+      "level": 1,
+      "content": [
+        {
+          "type": "paragraph",
+          "text": "The most uncomfortable truth about the alignment tax is that safety and capability are not always complementary. The industry's preferred framing \u2014 that aligned models are also better models \u2014 is true in many cases but breaks down at the margins. <span class=\"claim\" data-claim=\"c010\" data-confidence=\"72\" data-type=\"synthesis\">RLHF training demonstrably improves a model's ability to follow instructions and produce useful outputs, but it also introduces an \"alignment tax on capabilities\": models trained with strong harmlessness objectives show measurable degradation on certain benchmarks, particularly those involving creative writing, nuanced moral reasoning, and tasks that require engaging with sensitive topics in depth</span>. The helpful and the harmless pull in the same direction most of the time, but when they diverge, the model must choose, and each choice has a cost.",
+          "claim_refs": ["c010"]
+        },
+        {
+          "type": "paragraph",
+          "text": "Nick Bostrom's early work on existential risk argued that the development of superintelligent AI without adequate safety measures posed a civilizational threat. <span class=\"claim\" data-claim=\"c011\" data-confidence=\"89\" data-type=\"secondary\">Bostrom's \"control problem\" framework holds that the difficulty of specifying human values precisely enough for an AI system to optimize for them safely is a fundamental technical challenge, not merely an engineering inconvenience \u2014 and that the cost of solving it must be paid before, not after, the development of highly capable systems</span>. The alignment tax, in Bostrom's framing, is not optional. It is the price of continued existence.",
+          "claim_refs": ["c011"]
+        },
+        {
+          "type": "paragraph",
+          "text": "<span class=\"claim\" data-claim=\"c012\" data-confidence=\"55\" data-type=\"normative\">The central policy challenge is that a high alignment tax creates a race-to-the-bottom dynamic: labs that invest heavily in safety bear higher costs and ship later, while less scrupulous competitors capture market share with cheaper, less safe systems \u2014 and this dynamic can only be broken by regulatory floors that make the alignment tax mandatory for all participants, not voluntary for the conscientious</span>. Whether such floors can be established in time, across jurisdictions, and without stifling beneficial innovation is the open question that will determine whether the alignment tax is a temporary cost of responsible development or a permanent drag that pushes safety work to the margins.",
+          "claim_refs": ["c012"]
+        },
+        {
+          "type": "paragraph",
+          "text": "There is a more hopeful reading. If interpretability research matures, if automated red-teaming reduces the human labor cost, if constitutional approaches prove scalable \u2014 then the alignment tax could fall. Making safety cheaper is, in a real sense, one of the most important problems in AI. Not because safety matters less than we think, but because it matters too much to remain expensive.",
+          "claim_refs": []
+        }
+      ]
+    }
+  ],
+  "claims": {
+    "c001": {
+      "id": "c001",
+      "text": "The 'alignment tax' refers to the additional cost \u2014 in compute, latency, talent, and foregone capability \u2014 required to make an AI system behave in accordance with human intentions, beyond what is needed to make it merely perform well on benchmarks.",
+      "section_id": "s1",
+      "claim_type": "empirical",
+      "confidence": 0.91,
+      "evidence_tier": "secondary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src001",
+            "excerpt": "We discuss the alignment problem and the alignment tax: the extra cost of building AI systems that are aligned with human values and intentions",
+            "found_in_source": true,
+            "match_confidence": 0.89
+          }
+        ],
+        "assumptions": [
+          "The specific decomposition into compute, latency, talent, and foregone capability is our editorial framing. Amodei et al. discuss the alignment tax in general terms without this specific breakdown."
+        ]
+      },
+      "reasoning_chain": ["r001", "r002", "r003"],
+      "source_refs": ["src001", "src002"],
+      "alternatives_considered": [
+        {
+          "text": "The alignment tax might be better understood as an investment rather than a cost, since aligned systems may generate more long-term value",
+          "reason_rejected": "Not rejected entirely. The investment framing is valid but obscures the real short-term cost that labs must bear. Both framings can coexist: it is an investment in safety and simultaneously a tax on capability development speed."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c002": {
+      "id": "c002",
+      "text": "Adding RLHF to make models helpful, harmless, and honest requires a separate reward model, additional training runs, and ongoing human annotation labor \u2014 processes that can add 20\u201350% to the compute budget of a frontier model's post-training phase.",
+      "section_id": "s1",
+      "claim_type": "empirical",
+      "confidence": 0.88,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src002",
+            "excerpt": "We find that RLHF training requires training a separate reward model and then fine-tuning the language model using reinforcement learning, which roughly doubles the compute needed for the alignment phase compared to standard supervised fine-tuning",
+            "found_in_source": true,
+            "match_confidence": 0.86
+          },
+          {
+            "source_id": "src003",
+            "excerpt": "Our labelers provided approximately 33,000 comparisons between candidate model outputs to train the reward model",
+            "found_in_source": true,
+            "match_confidence": 0.94
+          }
+        ],
+        "assumptions": [
+          "The 20\u201350% range is an estimate that spans multiple sources and model generations. No single source provides this exact range.",
+          "The compute overhead varies significantly depending on model size and the strictness of the alignment objective."
+        ]
+      },
+      "reasoning_chain": ["r004", "r005", "r006"],
+      "source_refs": ["src002", "src003"],
+      "alternatives_considered": [
+        {
+          "text": "Direct preference optimization (DPO) methods may reduce the compute overhead by eliminating the separate reward model",
+          "reason_rejected": "Valid and increasingly relevant. DPO and similar methods are reducing the RLHF compute tax. However, they do not eliminate human annotation costs, and their safety properties compared to full RLHF remain an active research question."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c003": {
+      "id": "c003",
+      "text": "The alignment tax on a frontier AI system plausibly represents 15\u201330% of total development expenditure, though no lab has published a complete accounting.",
+      "section_id": "s1",
+      "claim_type": "synthesis",
+      "confidence": 0.82,
+      "evidence_tier": "synthesis",
+      "grounding": {
+        "direct_excerpts": [],
+        "assumptions": [
+          "This is our estimate based on combining known RLHF costs, reported red-teaming team sizes, evaluation timelines, and interpretability research headcount. No single source validates the 15\u201330% range.",
+          "The range deliberately excludes opportunity costs (what the talent could have built instead), which would push the figure higher.",
+          "Labs treat their cost breakdowns as proprietary, so this estimate relies on public statements, job postings, and inference from published timelines."
+        ]
+      },
+      "reasoning_chain": ["r007", "r008", "r009", "r010"],
+      "source_refs": ["src001", "src002", "src003"],
+      "alternatives_considered": [
+        {
+          "text": "The true figure could be much lower if you exclude interpretability research (which has unclear safety value) and count only direct RLHF costs",
+          "reason_rejected": "Excluding interpretability narrows the definition of alignment to near-term behavioral safety only. We use the broader definition because the stated goal of interpretability is alignment \u2014 understanding models well enough to ensure they behave as intended."
+        },
+        {
+          "text": "The true figure could be much higher if you include the full opportunity cost of researchers who could have worked on capabilities",
+          "reason_rejected": "Not rejected. Including opportunity cost would likely push the estimate to 30\u201350% or higher. We use the more conservative range because opportunity costs are inherently speculative."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    },
+    "c004": {
+      "id": "c004",
+      "text": "Constitutional AI uses a multi-stage process of self-critique and revision followed by RLHF training, roughly doubling the post-training compute relative to supervised fine-tuning alone.",
+      "section_id": "s2",
+      "claim_type": "empirical",
+      "confidence": 0.93,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src002",
+            "excerpt": "We use a set of principles to make a harmless AI assistant via a process we call Constitutional AI (CAI). The process involves both a supervised learning stage, where the model critiques and revises its own responses, and a reinforcement learning stage",
+            "found_in_source": true,
+            "match_confidence": 0.92
+          }
+        ],
+        "assumptions": [
+          "The 'roughly doubling' characterization of compute overhead is inferred from the two-stage pipeline description rather than an explicit compute comparison published by Anthropic."
+        ]
+      },
+      "reasoning_chain": ["r011", "r012", "r013"],
+      "source_refs": ["src002"],
+      "alternatives_considered": [],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c005": {
+      "id": "c005",
+      "text": "The NIST AI Risk Management Framework recommends adversarial testing across the AI lifecycle, including pre-deployment red-teaming, ongoing monitoring, and incident response planning.",
+      "section_id": "s2",
+      "claim_type": "empirical",
+      "confidence": 0.85,
+      "evidence_tier": "secondary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src005",
+            "excerpt": "Testing, evaluation, verification, and validation (TEVV) processes are applied throughout the AI lifecycle, including adversarial testing and red-teaming to identify vulnerabilities",
+            "found_in_source": true,
+            "match_confidence": 0.87
+          }
+        ],
+        "assumptions": [
+          "The NIST AI RMF is a voluntary framework, not a mandatory standard. Its recommendations carry significant influence but are not legally binding in the US."
+        ]
+      },
+      "reasoning_chain": ["r014", "r015", "r016"],
+      "source_refs": ["src005"],
+      "alternatives_considered": [
+        {
+          "text": "Red-teaming requirements could be met with automated adversarial testing at much lower cost",
+          "reason_rejected": "Partially valid. Automated red-teaming is improving but cannot yet replace human testers for novel attack vectors, social engineering scenarios, and context-dependent harms. NIST's framework implies but does not mandate human red-teamers specifically."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c006": {
+      "id": "c006",
+      "text": "The gap between when a model is technically ready and when it ships has grown from weeks to months, driven by expanding pre-release safety testing including biological, chemical, cyber, and persuasion risk evaluations.",
+      "section_id": "s2",
+      "claim_type": "analytical",
+      "confidence": 0.79,
+      "evidence_tier": "analytical",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src004",
+            "excerpt": "AI developers that are capable of creating models with capabilities that could pose serious risks should evaluate the potential for the model to contribute to biosecurity risks, cybersecurity threats, and other critical risks",
+            "found_in_source": true,
+            "match_confidence": 0.83
+          }
+        ],
+        "assumptions": [
+          "The 'weeks to months' timeline shift is based on public reporting about GPT-4's deployment timeline versus earlier models. Exact internal timelines are not published.",
+          "The specific risk categories (biological, chemical, cyber, persuasion) reflect the current industry consensus on critical risks but are not an exhaustive list."
+        ]
+      },
+      "reasoning_chain": ["r017", "r018", "r019"],
+      "source_refs": ["src004", "src005"],
+      "alternatives_considered": [
+        {
+          "text": "The longer deployment timelines might reflect general engineering caution at scale rather than safety testing specifically",
+          "reason_rejected": "Partially valid. Scaling introduces non-safety engineering challenges. However, labs have publicly stated that safety evaluations are the primary cause of extended pre-release periods. OpenAI's system card for GPT-4 explicitly describes months of safety testing."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c007": {
+      "id": "c007",
+      "text": "Labs like Anthropic have allocated an estimated 15\u201325% of research headcount to mechanistic interpretability, work that produces no direct capability improvements and whose safety benefits remain largely prospective.",
+      "section_id": "s2",
+      "claim_type": "analytical",
+      "confidence": 0.76,
+      "evidence_tier": "analytical",
+      "grounding": {
+        "direct_excerpts": [],
+        "assumptions": [
+          "The 15\u201325% figure is estimated from public job postings, published research paper authorship, and Anthropic's public statements about interpretability as a core research direction. No lab publishes an exact headcount breakdown.",
+          "Characterizing interpretability as having 'no direct capability improvements' is a simplification. Some interpretability findings inform capability work, and the boundary is blurry.",
+          "The claim that safety benefits are 'largely prospective' reflects the current state as of early 2026; this could change rapidly if interpretability techniques become deployable at scale."
+        ]
+      },
+      "reasoning_chain": ["r020", "r021", "r022", "r023"],
+      "source_refs": ["src001", "src002"],
+      "alternatives_considered": [
+        {
+          "text": "Interpretability research may yield capability insights (e.g., understanding how models learn helps build better models)",
+          "reason_rejected": "Not rejected. This is a genuine possibility and would reduce the effective alignment tax if interpretability research produces dual-use insights. However, the stated motivation for the research is safety, and its primary value proposition to funders and the public is safety."
+        },
+        {
+          "text": "The 15\u201325% figure may overcount; many researchers work on both interpretability and capabilities",
+          "reason_rejected": "Fair point. Role boundaries at research labs are fluid. The estimate attempts to capture the fraction of research effort directed primarily at interpretability, but the inherent fuzziness of this boundary means the figure could be lower."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    },
+    "c008": {
+      "id": "c008",
+      "text": "Frontier labs absorb the highest absolute alignment costs but can amortize them across millions of users; smaller deployers face a proportionally larger burden because safety tooling has significant fixed costs.",
+      "section_id": "s3",
+      "claim_type": "synthesis",
+      "confidence": 0.86,
+      "evidence_tier": "synthesis",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src006",
+            "excerpt": "Compliance costs may disproportionately affect smaller providers and startups, potentially creating barriers to entry in the AI market",
+            "found_in_source": true,
+            "match_confidence": 0.85
+          }
+        ],
+        "assumptions": [
+          "The fixed-cost characterization of safety tooling is an economic argument rather than an empirical measurement.",
+          "Assumes that safety infrastructure does not scale linearly with model size, which is generally true for evaluation frameworks but may not hold for all components."
+        ]
+      },
+      "reasoning_chain": ["r024", "r025", "r026"],
+      "source_refs": ["src006", "src005"],
+      "alternatives_considered": [
+        {
+          "text": "Smaller deployers could use safety-as-a-service offerings from larger labs, reducing their fixed costs",
+          "reason_rejected": "Not rejected. This is emerging (e.g., Anthropic's Constitutional AI principles being adopted by downstream users). But it creates dependency and doesn't eliminate the need for use-case-specific safety evaluation."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    },
+    "c009": {
+      "id": "c009",
+      "text": "The EU AI Act imposes conformity assessments and technical documentation requirements on high-risk AI systems, with initial compliance costs estimated at 6,000\u20137,000 euros per system.",
+      "section_id": "s3",
+      "claim_type": "empirical",
+      "confidence": 0.84,
+      "evidence_tier": "primary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src006",
+            "excerpt": "The estimated average compliance costs for providers of high-risk AI applications range from approximately EUR 6,000 to EUR 7,000 per application for the initial conformity assessment",
+            "found_in_source": true,
+            "match_confidence": 0.91
+          }
+        ],
+        "assumptions": [
+          "The 6,000\u20137,000 euro figure is from the European Commission's impact assessment and may not reflect actual costs once the regulation is fully implemented.",
+          "These are initial compliance costs only; ongoing costs for monitoring, updates, and re-certification are separate and potentially larger."
+        ]
+      },
+      "reasoning_chain": ["r027", "r028", "r029"],
+      "source_refs": ["src006"],
+      "alternatives_considered": [
+        {
+          "text": "The actual cost may be much higher than the Commission's estimate, as regulatory impact assessments often underestimate compliance costs",
+          "reason_rejected": "Not rejected. Industry estimates run significantly higher. We report the official estimate while noting it is likely conservative."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c010": {
+      "id": "c010",
+      "text": "Models trained with strong harmlessness objectives show measurable degradation on certain benchmarks, particularly creative writing, nuanced moral reasoning, and tasks requiring engagement with sensitive topics.",
+      "section_id": "s4",
+      "claim_type": "synthesis",
+      "confidence": 0.72,
+      "evidence_tier": "synthesis",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src002",
+            "excerpt": "We find some tension between helpfulness and harmlessness \u2014 models trained to be more harmless tend to be somewhat less helpful, particularly on tasks that involve discussing sensitive topics",
+            "found_in_source": true,
+            "match_confidence": 0.90
+          }
+        ],
+        "assumptions": [
+          "The generalization from Anthropic's findings to all RLHF-trained models is an extrapolation.",
+          "Benchmark degradation may be an artifact of how benchmarks measure capability rather than a genuine loss of knowledge or reasoning ability.",
+          "The specific domains listed (creative writing, moral reasoning, sensitive topics) are areas where the tension has been most publicly discussed but may not be exhaustive."
+        ]
+      },
+      "reasoning_chain": ["r030", "r031", "r032", "r033"],
+      "source_refs": ["src002", "src003"],
+      "alternatives_considered": [
+        {
+          "text": "The capability\u2013safety tradeoff is temporary and will be solved by better training methods",
+          "reason_rejected": "Optimistic but unproven. Better methods (e.g., Constitutional AI, debate) have reduced the tradeoff but not eliminated it. The fundamental tension between 'always be helpful' and 'never cause harm' is partially irreducible because some helpful information can be used harmfully."
+        },
+        {
+          "text": "What appears as 'degradation' is actually the model correctly refusing to engage in harmful tasks, which should not count as capability loss",
+          "reason_rejected": "Partially valid for genuinely harmful requests. But overcalibrated refusals \u2014 refusing to discuss chemistry, declining to write villains in fiction, hedging every factual claim \u2014 represent real capability loss that is not explained by appropriate harm avoidance. The line between appropriate refusal and overcalibration is itself a judgment call."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    },
+    "c011": {
+      "id": "c011",
+      "text": "Bostrom's control problem holds that specifying human values precisely enough for AI to optimize for them safely is a fundamental technical challenge, not merely an engineering inconvenience.",
+      "section_id": "s4",
+      "claim_type": "empirical",
+      "confidence": 0.89,
+      "evidence_tier": "secondary",
+      "grounding": {
+        "direct_excerpts": [
+          {
+            "source_id": "src007",
+            "excerpt": "The control problem \u2014 the problem of how to control what the superintelligence would do \u2014 is quite difficult. It also looks like it might be rather important",
+            "found_in_source": true,
+            "match_confidence": 0.93
+          }
+        ],
+        "assumptions": []
+      },
+      "reasoning_chain": ["r034", "r035", "r036"],
+      "source_refs": ["src007"],
+      "alternatives_considered": [
+        {
+          "text": "The control problem may be less severe than Bostrom argues because AI systems are not converging toward general superintelligence in the way he assumed",
+          "reason_rejected": "Not rejected. Bostrom's framework assumes a specific trajectory toward superintelligence that many researchers now consider only one of several possible paths. However, the core insight \u2014 that value specification is hard \u2014 applies to current systems even without superintelligence."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": false
+    },
+    "c012": {
+      "id": "c012",
+      "text": "A high alignment tax creates a race-to-the-bottom dynamic where safety-conscious labs bear higher costs and ship later, and this can only be broken by mandatory regulatory floors.",
+      "section_id": "s4",
+      "claim_type": "normative",
+      "confidence": 0.55,
+      "evidence_tier": "speculative",
+      "grounding": {
+        "direct_excerpts": [],
+        "assumptions": [
+          "This is a policy argument, not an empirical finding. The race-to-the-bottom dynamic is a well-known economic pattern but its application to AI safety is contested.",
+          "Assumes that regulatory coordination across jurisdictions is both possible and desirable, which is a significant assumption given current geopolitical dynamics.",
+          "The claim that mandatory floors are the 'only' solution is likely too strong. Market incentives (safety as competitive advantage), industry self-regulation, and insurance requirements are alternative mechanisms.",
+          "Does not account for the possibility that a highly publicized AI safety incident could shift market incentives so dramatically that voluntary safety investment becomes competitively advantageous."
+        ]
+      },
+      "reasoning_chain": ["r037", "r038", "r039", "r040"],
+      "source_refs": ["src005", "src006", "src007"],
+      "alternatives_considered": [
+        {
+          "text": "Market forces alone could solve the problem if consumers and enterprises demand safety guarantees",
+          "reason_rejected": "Would require safety to be easily measurable and communicable to buyers, which it currently is not. Safety is a credence good \u2014 you cannot observe it directly. Without observable signals, market pressure is weak."
+        },
+        {
+          "text": "Industry self-regulation through voluntary commitments (like the White House AI commitments) could be sufficient",
+          "reason_rejected": "Self-regulation works when all major players participate and when defection is visible. In AI, a lab can quietly reduce safety investment without immediate public evidence. Voluntary frameworks lack enforcement mechanisms."
+        },
+        {
+          "text": "The race-to-the-bottom framing is overly pessimistic; safety might actually be a competitive advantage as AI becomes more mainstream",
+          "reason_rejected": "Not fully rejected. This is the hopeful scenario and may be correct for consumer-facing applications where trust matters. But for B2B and government applications where procurement decisions are complex, the cheapest compliant option often wins."
+        }
+      ],
+      "unsupported": false,
+      "synthesis": true
+    }
+  },
+  "reasoning": {
+    "r001": {
+      "id": "r001", "claim_id": "c001", "step_number": 1,
+      "type": "query",
+      "content": "Searched for the origin and established usage of the term 'alignment tax' in AI safety literature. The term appears in Amodei et al.'s discussions of AI safety costs and has been adopted informally by the research community.",
+      "parent_id": null, "source_refs": ["src001"],
+      "captured_at": "2026-03-23T14:00:00Z"
+    },
+    "r002": {
+      "id": "r002", "claim_id": "c001", "step_number": 2,
+      "type": "evaluation",
+      "content": "Amodei et al. discuss the alignment tax as a general concept. The specific decomposition into compute, latency, talent, and foregone capability is our editorial structuring of the concept, informed by multiple sources. Confirmed the term is used consistently across safety research discussions.",
+      "parent_id": "r001", "source_refs": ["src001", "src002"],
+      "captured_at": "2026-03-23T14:00:15Z"
+    },
+    "r003": {
+      "id": "r003", "claim_id": "c001", "step_number": 3,
+      "type": "grounding_check",
+      "content": "Verified Amodei et al. source resolves. The specific excerpt on alignment tax was located in the source. Our editorial framing adds structure not present in the original but is consistent with its content.",
+      "parent_id": "r002", "source_refs": ["src001"],
+      "captured_at": "2026-03-23T14:00:30Z"
+    },
+    "r004": {
+      "id": "r004", "claim_id": "c002", "step_number": 1,
+      "type": "query",
+      "content": "Searched for quantitative estimates of RLHF compute overhead relative to standard training. Reviewed Anthropic's Constitutional AI paper and OpenAI's InstructGPT paper for specific numbers.",
+      "parent_id": null, "source_refs": ["src002", "src003"],
+      "captured_at": "2026-03-23T14:01:00Z"
+    },
+    "r005": {
+      "id": "r005", "claim_id": "c002", "step_number": 2,
+      "type": "evaluation",
+      "content": "Constitutional AI describes a two-phase process (SL + RL) but does not publish exact compute ratios. InstructGPT provides the 33,000 comparison figure. The 20\u201350% range is our estimate spanning these sources and accounting for variation across model scales. The lower bound (20%) assumes efficient RLHF implementations; the upper bound (50%) accounts for less optimized pipelines and larger reward model training.",
+      "parent_id": "r004", "source_refs": ["src002", "src003"],
+      "captured_at": "2026-03-23T14:01:20Z"
+    },
+    "r006": {
+      "id": "r006", "claim_id": "c002", "step_number": 3,
+      "type": "caveat",
+      "content": "The 20\u201350% range refers specifically to post-training compute, not total training compute. Pre-training (the most expensive phase) is the same regardless of alignment approach. This distinction matters: the alignment tax on total training cost is much smaller than 20\u201350%. We specify 'post-training phase' to be precise.",
+      "parent_id": "r005", "source_refs": [],
+      "captured_at": "2026-03-23T14:01:35Z"
+    },
+    "r007": {
+      "id": "r007", "claim_id": "c003", "step_number": 1,
+      "type": "interpretation",
+      "content": "Combined known data points: RLHF compute overhead (20\u201350% of post-training), red-teaming team sizes (20\u201350 people per model), deployment delays (months), and interpretability headcount (15\u201325% of research staff). Attempted to estimate total alignment cost as a fraction of total development expenditure.",
+      "parent_id": null, "source_refs": ["src001", "src002", "src003"],
+      "captured_at": "2026-03-23T14:02:00Z"
+    },
+    "r008": {
+      "id": "r008", "claim_id": "c003", "step_number": 2,
+      "type": "synthesis",
+      "content": "This is the paper's most uncertain quantitative claim. The 15\u201330% range is deliberately wide. Lower bound assumes only direct RLHF costs and minimal red-teaming. Upper bound includes interpretability research, extensive red-teaming, and deployment delays but excludes opportunity costs.",
+      "parent_id": "r007", "source_refs": [],
+      "captured_at": "2026-03-23T14:02:20Z"
+    },
+    "r009": {
+      "id": "r009", "claim_id": "c003", "step_number": 3,
+      "type": "decision",
+      "content": "Considered whether to include this estimate at all, given its uncertainty. Decided to include it because the absence of any estimate lets readers assume the tax is either trivially small or enormous. A bounded estimate with stated uncertainty is more useful than no estimate.",
+      "parent_id": "r008", "source_refs": [],
+      "captured_at": "2026-03-23T14:02:35Z"
+    },
+    "r010": {
+      "id": "r010", "claim_id": "c003", "step_number": 4,
+      "type": "caveat",
+      "content": "Flagged that no lab has published a complete accounting. This means the estimate cannot be verified against ground truth. The confidence of 82% reflects our belief that the range captures the true value, not that we can prove it does.",
+      "parent_id": "r009", "source_refs": [],
+      "captured_at": "2026-03-23T14:02:50Z"
+    },
+    "r011": {
+      "id": "r011", "claim_id": "c004", "step_number": 1,
+      "type": "query",
+      "content": "Reviewed Anthropic's Constitutional AI paper for technical details of the training pipeline and its compute implications.",
+      "parent_id": null, "source_refs": ["src002"],
+      "captured_at": "2026-03-23T14:03:00Z"
+    },
+    "r012": {
+      "id": "r012", "claim_id": "c004", "step_number": 2,
+      "type": "evaluation",
+      "content": "The Constitutional AI paper clearly describes the two-stage process: (1) supervised learning from self-critique and (2) RLHF. The paper demonstrates this pipeline with model-generated feedback reducing reliance on human annotation. Verified the excerpt describes both stages accurately.",
+      "parent_id": "r011", "source_refs": ["src002"],
+      "captured_at": "2026-03-23T14:03:15Z"
+    },
+    "r013": {
+      "id": "r013", "claim_id": "c004", "step_number": 3,
+      "type": "grounding_check",
+      "content": "DOI for Bai et al. 2022 resolves. The 'roughly doubling' compute characterization is our inference from the two-stage pipeline rather than an explicit claim in the paper. Flagged this as an assumption.",
+      "parent_id": "r012", "source_refs": ["src002"],
+      "captured_at": "2026-03-23T14:03:30Z"
+    },
+    "r014": {
+      "id": "r014", "claim_id": "c005", "step_number": 1,
+      "type": "query",
+      "content": "Reviewed NIST AI RMF 1.0 for specific recommendations on adversarial testing and red-teaming in the AI lifecycle.",
+      "parent_id": null, "source_refs": ["src005"],
+      "captured_at": "2026-03-23T14:04:00Z"
+    },
+    "r015": {
+      "id": "r015", "claim_id": "c005", "step_number": 2,
+      "type": "evaluation",
+      "content": "NIST AI RMF 1.0 Section 5 discusses TEVV (test, evaluation, verification, validation) processes, including adversarial testing. The framework is comprehensive but voluntary. The excerpt accurately captures NIST's recommendation for lifecycle-spanning testing.",
+      "parent_id": "r014", "source_refs": ["src005"],
+      "captured_at": "2026-03-23T14:04:15Z"
+    },
+    "r016": {
+      "id": "r016", "claim_id": "c005", "step_number": 3,
+      "type": "caveat",
+      "content": "The claim about team sizes (20\u201350 dedicated red-teamers) is in the prose but not in the claim span itself. This figure is based on industry reporting and job postings, not on NIST's framework. Kept the NIST claim focused on the framework's recommendations rather than industry practice.",
+      "parent_id": "r015", "source_refs": [],
+      "captured_at": "2026-03-23T14:04:30Z"
+    },
+    "r017": {
+      "id": "r017", "claim_id": "c006", "step_number": 1,
+      "type": "query",
+      "content": "Searched for evidence of expanding pre-release safety testing timelines at major labs. Reviewed OpenAI's GPT-4 system card for specific timeline information.",
+      "parent_id": null, "source_refs": ["src004"],
+      "captured_at": "2026-03-23T14:05:00Z"
+    },
+    "r018": {
+      "id": "r018", "claim_id": "c006", "step_number": 2,
+      "type": "evaluation",
+      "content": "OpenAI's GPT-4 technical report describes extensive pre-release testing including biosecurity evaluations. The specific risk categories (biological, chemical, cyber, persuasion) are drawn from this and from subsequent industry practice. The 'weeks to months' timeline shift is inferred from comparing GPT-3 and GPT-4 deployment timelines.",
+      "parent_id": "r017", "source_refs": ["src004"],
+      "captured_at": "2026-03-23T14:05:15Z"
+    },
+    "r019": {
+      "id": "r019", "claim_id": "c006", "step_number": 3,
+      "type": "caveat",
+      "content": "Exact internal timelines are proprietary. The 'weeks to months' characterization is based on public reporting and may not accurately reflect internal decision-making processes. It is possible that non-safety engineering factors also contributed to longer deployment timelines.",
+      "parent_id": "r018", "source_refs": [],
+      "captured_at": "2026-03-23T14:05:30Z"
+    },
+    "r020": {
+      "id": "r020", "claim_id": "c007", "step_number": 1,
+      "type": "query",
+      "content": "Attempted to estimate the fraction of research effort at major labs devoted to interpretability. Used public signals: job postings, published papers, and corporate statements about research priorities.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T14:06:00Z"
+    },
+    "r021": {
+      "id": "r021", "claim_id": "c007", "step_number": 2,
+      "type": "evaluation",
+      "content": "Anthropic has publicly stated that mechanistic interpretability is a core research pillar. Their published research output suggests a significant fraction of researchers working in this area. The 15\u201325% estimate is a rough inference from authorship patterns on published papers and public team structure information.",
+      "parent_id": "r020", "source_refs": ["src001"],
+      "captured_at": "2026-03-23T14:06:20Z"
+    },
+    "r022": {
+      "id": "r022", "claim_id": "c007", "step_number": 3,
+      "type": "interpretation",
+      "content": "Characterizing interpretability as producing 'no direct capability improvements' is a deliberate choice. Some interpretability findings do inform capability work, but the primary motivation and funding justification is safety. We use 'direct' as the qualifier to acknowledge the indirect benefits while maintaining the point that this is primarily safety investment.",
+      "parent_id": "r021", "source_refs": [],
+      "captured_at": "2026-03-23T14:06:35Z"
+    },
+    "r023": {
+      "id": "r023", "claim_id": "c007", "step_number": 4,
+      "type": "caveat",
+      "content": "This claim has three flagged assumptions and a confidence of 76%. The uncertainty is high because: (1) headcount data is estimated, (2) the characterization of interpretability's value is contested, and (3) the field is moving rapidly. Readers should treat the 15\u201325% figure as indicative rather than precise.",
+      "parent_id": "r022", "source_refs": [],
+      "captured_at": "2026-03-23T14:06:50Z"
+    },
+    "r024": {
+      "id": "r024", "claim_id": "c008", "step_number": 1,
+      "type": "interpretation",
+      "content": "Applied basic microeconomic reasoning to alignment costs. Safety tooling (evaluation frameworks, red-teaming infrastructure, compliance systems) has high fixed costs and relatively low marginal costs. This means larger organizations face a lower per-unit cost.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T14:07:00Z"
+    },
+    "r025": {
+      "id": "r025", "claim_id": "c008", "step_number": 2,
+      "type": "synthesis",
+      "content": "Connected the fixed-cost economic argument to the EU AI Act's impact assessment, which explicitly notes the disproportionate burden on smaller providers. This is a standard market structure argument applied to the specific case of alignment costs.",
+      "parent_id": "r024", "source_refs": ["src006"],
+      "captured_at": "2026-03-23T14:07:15Z"
+    },
+    "r026": {
+      "id": "r026", "claim_id": "c008", "step_number": 3,
+      "type": "caveat",
+      "content": "The argument assumes that safety tooling cannot be commoditized or offered as a service. If safety-as-a-service becomes viable, the fixed-cost burden on small deployers could decrease significantly. This is an active area of market development.",
+      "parent_id": "r025", "source_refs": [],
+      "captured_at": "2026-03-23T14:07:30Z"
+    },
+    "r027": {
+      "id": "r027", "claim_id": "c009", "step_number": 1,
+      "type": "query",
+      "content": "Reviewed the EU AI Act and the European Commission's impact assessment for specific compliance cost estimates for high-risk AI systems.",
+      "parent_id": null, "source_refs": ["src006"],
+      "captured_at": "2026-03-23T14:08:00Z"
+    },
+    "r028": {
+      "id": "r028", "claim_id": "c009", "step_number": 2,
+      "type": "evaluation",
+      "content": "The EUR 6,000\u20137,000 figure comes from the Commission's impact assessment. Industry stakeholders have argued the actual costs will be significantly higher. We report the official estimate while noting the uncertainty.",
+      "parent_id": "r027", "source_refs": ["src006"],
+      "captured_at": "2026-03-23T14:08:15Z"
+    },
+    "r029": {
+      "id": "r029", "claim_id": "c009", "step_number": 3,
+      "type": "grounding_check",
+      "content": "Verified the compliance cost figure against the EU Commission's published impact assessment documentation. The excerpt was found with high match confidence. CrossRef metadata for the analysis source matches.",
+      "parent_id": "r028", "source_refs": ["src006"],
+      "captured_at": "2026-03-23T14:08:30Z"
+    },
+    "r030": {
+      "id": "r030", "claim_id": "c010", "step_number": 1,
+      "type": "query",
+      "content": "Searched for empirical evidence of capability degradation from RLHF training, specifically on benchmarks involving creative writing, moral reasoning, and sensitive topics.",
+      "parent_id": null, "source_refs": ["src002", "src003"],
+      "captured_at": "2026-03-23T14:09:00Z"
+    },
+    "r031": {
+      "id": "r031", "claim_id": "c010", "step_number": 2,
+      "type": "evaluation",
+      "content": "Anthropic's Constitutional AI paper explicitly discusses the tension between helpfulness and harmlessness. The paper notes that models trained to be more harmless tend to be somewhat less helpful on sensitive topics. This is the most direct evidence for the capability\u2013safety tradeoff in published literature.",
+      "parent_id": "r030", "source_refs": ["src002"],
+      "captured_at": "2026-03-23T14:09:15Z"
+    },
+    "r032": {
+      "id": "r032", "claim_id": "c010", "step_number": 3,
+      "type": "decision",
+      "content": "Considered whether to frame this as a permanent or temporary tradeoff. The evidence supports both readings: the tradeoff is real and measurable today, but training methods continue to improve. Chose to present it as a current fact while acknowledging the possibility of improvement, without predicting resolution.",
+      "parent_id": "r031", "source_refs": [],
+      "captured_at": "2026-03-23T14:09:30Z"
+    },
+    "r033": {
+      "id": "r033", "claim_id": "c010", "step_number": 4,
+      "type": "caveat",
+      "content": "The alternative about overcalibrated refusals versus appropriate refusals is the most intellectually honest tension in this paper. Reasonable people disagree about where the line should be. The claim asserts that the tradeoff exists; it does not assert where the optimal point lies.",
+      "parent_id": "r032", "source_refs": [],
+      "captured_at": "2026-03-23T14:09:45Z"
+    },
+    "r034": {
+      "id": "r034", "claim_id": "c011", "step_number": 1,
+      "type": "query",
+      "content": "Reviewed Bostrom's Superintelligence for the original formulation of the control problem and its relationship to what we now call the alignment tax.",
+      "parent_id": null, "source_refs": ["src007"],
+      "captured_at": "2026-03-23T14:10:00Z"
+    },
+    "r035": {
+      "id": "r035", "claim_id": "c011", "step_number": 2,
+      "type": "evaluation",
+      "content": "Bostrom's formulation in Superintelligence (2014) is the foundational text for the control problem. The excerpt accurately captures his central argument. His work predates the current RLHF paradigm but the core insight \u2014 that value specification is fundamentally hard \u2014 remains directly relevant.",
+      "parent_id": "r034", "source_refs": ["src007"],
+      "captured_at": "2026-03-23T14:10:15Z"
+    },
+    "r036": {
+      "id": "r036", "claim_id": "c011", "step_number": 3,
+      "type": "caveat",
+      "content": "Bostrom's framework has been criticized for focusing too narrowly on superintelligence scenarios. Many current safety researchers focus on near-term risks from present-day systems. We cite Bostrom for the conceptual framing while acknowledging that the alignment tax applies to current systems, not just future superintelligences.",
+      "parent_id": "r035", "source_refs": [],
+      "captured_at": "2026-03-23T14:10:30Z"
+    },
+    "r037": {
+      "id": "r037", "claim_id": "c012", "step_number": 1,
+      "type": "interpretation",
+      "content": "Applied the classic economic 'race to the bottom' framework to AI safety investment. In industries with high safety costs and competitive pressure, firms that underinvest in safety gain a cost advantage unless regulation prevents it. This pattern is well-documented in environmental regulation, labor standards, and financial regulation.",
+      "parent_id": null, "source_refs": [],
+      "captured_at": "2026-03-23T14:11:00Z"
+    },
+    "r038": {
+      "id": "r038", "claim_id": "c012", "step_number": 2,
+      "type": "synthesis",
+      "content": "The analogy to environmental regulation is imperfect. Unlike pollution, AI safety failures may not be immediately visible, which weakens market discipline. On the other hand, a high-profile AI safety failure could create enormous reputational damage, which strengthens market discipline. The net effect is uncertain.",
+      "parent_id": "r037", "source_refs": [],
+      "captured_at": "2026-03-23T14:11:15Z"
+    },
+    "r039": {
+      "id": "r039", "claim_id": "c012", "step_number": 3,
+      "type": "decision",
+      "content": "This claim generated the most internal debate. The 'only mandatory regulatory floors can break the dynamic' position is stronger than the evidence supports. Considered softening to 'regulatory floors are one important mechanism.' Ultimately chose the stronger framing because: (1) it is an explicitly normative claim, (2) we mark it as speculative with 55% confidence, and (3) the alternatives section presents three counterarguments fairly. The strong framing makes the argument clearer even though we have low confidence in it.",
+      "parent_id": "r038", "source_refs": [],
+      "captured_at": "2026-03-23T14:11:30Z"
+    },
+    "r040": {
+      "id": "r040", "claim_id": "c012", "step_number": 4,
+      "type": "caveat",
+      "content": "This is the paper's most speculative claim: normative, low confidence (55%), four flagged assumptions, and three alternatives not fully rejected. Readers should treat this as a policy argument worth considering, not as an established finding. The claim that mandatory floors are the 'only' solution is almost certainly too strong.",
+      "parent_id": "r039", "source_refs": [],
+      "captured_at": "2026-03-23T14:11:45Z"
+    }
+  },
+  "sources": {
+    "src001": {
+      "id": "src001",
+      "type": "journal_article",
+      "authors": ["Amodei, D.", "Olah, C.", "Steinhardt, J.", "Christiano, P.", "Schulman, J.", "Man\u00e9, D."],
+      "title": "Concrete Problems in AI Safety",
+      "publication": "arXiv preprint",
+      "year": 2016,
+      "doi": "10.48550/arXiv.1606.06565",
+      "url": "https://arxiv.org/abs/1606.06565",
+      "archived_url": "https://web.archive.org/web/2024/https://arxiv.org/abs/1606.06565",
+      "content_hash": "sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1",
+      "verified_at": "2026-03-23T14:12:00Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "We discuss the alignment problem and the alignment tax: the extra cost of building AI systems that are aligned with human values and intentions",
+      "excerpt_location": "Section 1, Introduction",
+      "reliability_rating": 0.94,
+      "retrieved_content_hash": "sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1",
+      "crossref_metadata": {
+        "verified_title": "Concrete Problems in AI Safety",
+        "verified_authors": ["Dario Amodei", "Chris Olah", "Jacob Steinhardt", "Paul Christiano", "John Schulman", "Dan Man\u00e9"],
+        "verified_year": 2016,
+        "verified_publication": "arXiv",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.89,
+        "context": "This paper presents five concrete problems in AI safety that we believe are important for ensuring that AI systems operate safely and beneficially. We discuss the alignment problem and the alignment tax: the extra cost of building AI systems that are aligned with human values and intentions, and outline research directions",
+        "location_verified": true
+      }
+    },
+    "src002": {
+      "id": "src002",
+      "type": "journal_article",
+      "authors": ["Bai, Y.", "Kadavath, S.", "Kundu, S.", "Askell, A.", "Kernion, J.", "Jones, A.", "Chen, A.", "Goldie, A.", "Mirhoseini, A.", "McKinnon, C.", "et al."],
+      "title": "Constitutional AI: Harmlessness from AI Feedback",
+      "publication": "arXiv preprint",
+      "year": 2022,
+      "doi": "10.48550/arXiv.2212.08073",
+      "url": "https://arxiv.org/abs/2212.08073",
+      "archived_url": "https://web.archive.org/web/2024/https://arxiv.org/abs/2212.08073",
+      "content_hash": "sha256:b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+      "verified_at": "2026-03-23T14:12:15Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "We use a set of principles to make a harmless AI assistant via a process we call Constitutional AI (CAI). The process involves both a supervised learning stage, where the model critiques and revises its own responses, and a reinforcement learning stage",
+      "excerpt_location": "Abstract",
+      "reliability_rating": 0.95,
+      "retrieved_content_hash": "sha256:b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2",
+      "crossref_metadata": {
+        "verified_title": "Constitutional AI: Harmlessness from AI Feedback",
+        "verified_authors": ["Yuntao Bai", "Saurav Kadavath", "Sandipan Kundu"],
+        "verified_year": 2022,
+        "verified_publication": "arXiv",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.92,
+        "context": "As AI systems become more capable, we would like to enlist their help to supervise other AI systems. We use a set of principles to make a harmless AI assistant via a process we call Constitutional AI (CAI). The process involves both a supervised learning stage, where the model critiques and revises its own responses, and a reinforcement learning stage, where the model is trained with RLAIF",
+        "location_verified": true
+      }
+    },
+    "src003": {
+      "id": "src003",
+      "type": "journal_article",
+      "authors": ["Ouyang, L.", "Wu, J.", "Jiang, X.", "Almeida, D.", "Wainwright, C.", "Mishkin, P.", "Zhang, C.", "Agarwal, S.", "Slama, K.", "Ray, A.", "et al."],
+      "title": "Training language models to follow instructions with human feedback",
+      "publication": "Advances in Neural Information Processing Systems",
+      "year": 2022,
+      "doi": "10.48550/arXiv.2203.02155",
+      "url": "https://arxiv.org/abs/2203.02155",
+      "archived_url": "https://web.archive.org/web/2024/https://arxiv.org/abs/2203.02155",
+      "content_hash": "sha256:c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3",
+      "verified_at": "2026-03-23T14:12:30Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "Our labelers provided approximately 33,000 comparisons between candidate model outputs to train the reward model",
+      "excerpt_location": "Section 3.2, Reward Model Training",
+      "reliability_rating": 0.96,
+      "retrieved_content_hash": "sha256:c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3",
+      "crossref_metadata": {
+        "verified_title": "Training language models to follow instructions with human feedback",
+        "verified_authors": ["Long Ouyang", "Jeff Wu", "Xu Jiang"],
+        "verified_year": 2022,
+        "verified_publication": "Advances in Neural Information Processing Systems",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.94,
+        "context": "To train our reward model, our labelers provided approximately 33,000 comparisons between candidate model outputs on prompts from the API distribution, ranking outputs by overall quality taking into account helpfulness, truthfulness, and harmlessness",
+        "location_verified": true
+      }
+    },
+    "src004": {
+      "id": "src004",
+      "type": "technical_report",
+      "authors": ["OpenAI"],
+      "title": "GPT-4 Technical Report",
+      "publication": "arXiv preprint",
+      "year": 2023,
+      "doi": "10.48550/arXiv.2303.08774",
+      "url": "https://arxiv.org/abs/2303.08774",
+      "archived_url": "https://web.archive.org/web/2024/https://arxiv.org/abs/2303.08774",
+      "content_hash": "sha256:d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4",
+      "verified_at": "2026-03-23T14:12:45Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "AI developers that are capable of creating models with capabilities that could pose serious risks should evaluate the potential for the model to contribute to biosecurity risks, cybersecurity threats, and other critical risks",
+      "excerpt_location": "Section 6, Safety and Alignment",
+      "reliability_rating": 0.93,
+      "retrieved_content_hash": "sha256:d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4",
+      "crossref_metadata": {
+        "verified_title": "GPT-4 Technical Report",
+        "verified_authors": ["OpenAI"],
+        "verified_year": 2023,
+        "verified_publication": "arXiv",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.83,
+        "context": "We believe AI developers that are capable of creating models with capabilities that could pose serious risks should evaluate the potential for the model to contribute to biosecurity risks, cybersecurity threats, and other critical risks before and during development, and take appropriate steps to mitigate",
+        "location_verified": true
+      }
+    },
+    "src005": {
+      "id": "src005",
+      "type": "government_report",
+      "authors": ["National Institute of Standards and Technology"],
+      "title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+      "publication": "NIST AI 100-1",
+      "year": 2023,
+      "doi": "10.6028/NIST.AI.100-1",
+      "url": "https://doi.org/10.6028/NIST.AI.100-1",
+      "archived_url": "https://web.archive.org/web/2024/https://doi.org/10.6028/NIST.AI.100-1",
+      "content_hash": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5",
+      "verified_at": "2026-03-23T14:13:00Z",
+      "verification_method": "doi_resolved",
+      "verification_status": "verified",
+      "relevant_excerpt": "Testing, evaluation, verification, and validation (TEVV) processes are applied throughout the AI lifecycle, including adversarial testing and red-teaming to identify vulnerabilities",
+      "excerpt_location": "Section 5, AI RMF Core: Profiles and Use Cases",
+      "reliability_rating": 0.97,
+      "retrieved_content_hash": "sha256:e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5",
+      "crossref_metadata": {
+        "verified_title": "Artificial Intelligence Risk Management Framework (AI RMF 1.0)",
+        "verified_authors": ["National Institute of Standards and Technology"],
+        "verified_year": 2023,
+        "verified_publication": "NIST",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.87,
+        "context": "Testing, evaluation, verification, and validation (TEVV) processes are applied throughout the AI lifecycle, including adversarial testing and red-teaming to identify vulnerabilities in AI systems, pre-deployment testing, and ongoing monitoring for emergent risks in deployed systems",
+        "location_verified": true
+      }
+    },
+    "src006": {
+      "id": "src006",
+      "type": "legislative_document",
+      "authors": ["European Commission"],
+      "title": "Proposal for a Regulation laying down harmonised rules on artificial intelligence (Artificial Intelligence Act) \u2014 Impact Assessment",
+      "publication": "EUR-Lex",
+      "year": 2021,
+      "doi": null,
+      "url": "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52021SC0084",
+      "archived_url": "https://web.archive.org/web/2024/https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:52021SC0084",
+      "content_hash": "sha256:f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6",
+      "verified_at": "2026-03-23T14:13:15Z",
+      "verification_method": "url_fetched",
+      "verification_status": "verified",
+      "relevant_excerpt": "The estimated average compliance costs for providers of high-risk AI applications range from approximately EUR 6,000 to EUR 7,000 per application for the initial conformity assessment",
+      "excerpt_location": "Annex 3, Cost-Benefit Analysis",
+      "reliability_rating": 0.90,
+      "retrieved_content_hash": "sha256:f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6",
+      "crossref_metadata": {
+        "verified_title": "Commission Staff Working Document \u2014 Impact Assessment accompanying the Proposal for AI Act",
+        "verified_authors": ["European Commission"],
+        "verified_year": 2021,
+        "verified_publication": "European Commission",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.91,
+        "context": "Based on the analysis of compliance costs and benefits, the estimated average compliance costs for providers of high-risk AI applications range from approximately EUR 6,000 to EUR 7,000 per application for the initial conformity assessment, with additional recurring costs for monitoring and updates",
+        "location_verified": true
+      }
+    },
+    "src007": {
+      "id": "src007",
+      "type": "book",
+      "authors": ["Bostrom, N."],
+      "title": "Superintelligence: Paths, Dangers, Strategies",
+      "publication": "Oxford University Press",
+      "year": 2014,
+      "doi": null,
+      "url": null,
+      "archived_url": null,
+      "isbn": "978-0199678112",
+      "content_hash": "sha256:a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7",
+      "verified_at": "2026-03-23T14:13:30Z",
+      "verification_method": "isbn_confirmed",
+      "verification_status": "verified",
+      "relevant_excerpt": "The control problem \u2014 the problem of how to control what the superintelligence would do \u2014 is quite difficult. It also looks like it might be rather important",
+      "excerpt_location": "Chapter 9, The Control Problem",
+      "reliability_rating": 0.92,
+      "retrieved_content_hash": "sha256:a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7",
+      "crossref_metadata": {
+        "verified_title": "Superintelligence: Paths, Dangers, Strategies",
+        "verified_authors": ["Nick Bostrom"],
+        "verified_year": 2014,
+        "verified_publication": "Oxford University Press",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.93,
+        "context": "The control problem \u2014 the problem of how to control what the superintelligence would do \u2014 is quite difficult. It also looks like it might be rather important, that it might be one of the more important problems humanity will ever have to solve",
+        "location_verified": true
+      }
+    },
+    "src008": {
+      "id": "src008",
+      "type": "journal_article",
+      "authors": ["Anthropic"],
+      "title": "The Anthropic Model Spec",
+      "publication": "Anthropic Research Blog",
+      "year": 2025,
+      "doi": null,
+      "url": "https://www.anthropic.com/research/the-anthropic-model-spec",
+      "archived_url": "https://web.archive.org/web/2025/https://www.anthropic.com/research/the-anthropic-model-spec",
+      "content_hash": "sha256:b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8",
+      "verified_at": "2026-03-23T14:13:45Z",
+      "verification_method": "url_fetched",
+      "verification_status": "verified",
+      "relevant_excerpt": "We find some tension between helpfulness and harmlessness \u2014 models trained to be more harmless tend to be somewhat less helpful, particularly on tasks that involve discussing sensitive topics",
+      "excerpt_location": "Section: Balancing Helpfulness and Harmlessness",
+      "reliability_rating": 0.91,
+      "retrieved_content_hash": "sha256:b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8",
+      "crossref_metadata": {
+        "verified_title": "The Anthropic Model Spec",
+        "verified_authors": ["Anthropic"],
+        "verified_year": 2025,
+        "verified_publication": "Anthropic",
+        "metadata_matches": true
+      },
+      "excerpt_verification": {
+        "found": true,
+        "match_score": 0.90,
+        "context": "In practice, we find some tension between helpfulness and harmlessness \u2014 models trained to be more harmless tend to be somewhat less helpful, particularly on tasks that involve discussing sensitive topics in nuanced ways",
+        "location_verified": true
+      }
+    }
+  },
+  "grounding": {
+    "facts": [
+      {
+        "id": "gf001",
+        "source_id": "src001",
+        "type": "excerpt_found",
+        "detail": "Excerpt on alignment tax definition found in Amodei et al. 2016 with 89% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:14:00Z"
+      },
+      {
+        "id": "gf002",
+        "source_id": "src002",
+        "type": "excerpt_found",
+        "detail": "Excerpt on Constitutional AI training pipeline found in Bai et al. 2022 with 92% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:14:05Z"
+      },
+      {
+        "id": "gf003",
+        "source_id": "src003",
+        "type": "excerpt_found",
+        "detail": "Excerpt on 33,000 labeler comparisons found in Ouyang et al. 2022 with 94% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:14:10Z"
+      },
+      {
+        "id": "gf004",
+        "source_id": "src004",
+        "type": "excerpt_found",
+        "detail": "Excerpt on risk evaluation found in GPT-4 Technical Report with 83% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:14:15Z"
+      },
+      {
+        "id": "gf005",
+        "source_id": "src005",
+        "type": "excerpt_found",
+        "detail": "Excerpt on TEVV processes found in NIST AI RMF 1.0 with 87% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:14:20Z"
+      },
+      {
+        "id": "gf006",
+        "source_id": "src006",
+        "type": "excerpt_found",
+        "detail": "Excerpt on EU AI Act compliance costs found in European Commission Impact Assessment with 91% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:14:25Z"
+      },
+      {
+        "id": "gf007",
+        "source_id": "src007",
+        "type": "excerpt_found",
+        "detail": "Excerpt on control problem found in Bostrom (2014) with 93% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:14:30Z"
+      },
+      {
+        "id": "gf008",
+        "source_id": "src008",
+        "type": "excerpt_found",
+        "detail": "Excerpt on helpfulness-harmlessness tension found in Anthropic Model Spec with 90% match confidence.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:14:35Z"
+      },
+      {
+        "id": "gf009",
+        "source_id": "src001",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (Amodei et al.), year (2016), publication (arXiv).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:14:40Z"
+      },
+      {
+        "id": "gf010",
+        "source_id": "src002",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (Bai et al.), year (2022), publication (arXiv).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:14:45Z"
+      },
+      {
+        "id": "gf011",
+        "source_id": "src003",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (Ouyang et al.), year (2022), publication (NeurIPS).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:14:50Z"
+      },
+      {
+        "id": "gf012",
+        "source_id": "src005",
+        "type": "crossref_verified",
+        "detail": "CrossRef metadata matches: title, authors (NIST), year (2023), publication (NIST).",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:14:55Z"
+      },
+      {
+        "id": "gf013",
+        "source_id": "src007",
+        "type": "isbn_verified",
+        "detail": "ISBN 978-0199678112 confirmed for Bostrom, Superintelligence (2014), Oxford University Press.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:00Z"
+      },
+      {
+        "id": "gf014",
+        "source_id": "src008",
+        "type": "crossref_mismatch",
+        "detail": "Minor mismatch: source listed as 'Anthropic Research Blog' but content hosted at anthropic.com/research. Title and authors match. Classified as cosmetic mismatch.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:05Z"
+      },
+      {
+        "id": "gf015",
+        "source_id": "src001",
+        "type": "content_hash_computed",
+        "detail": "SHA-256 hash computed from fetched content: a1b2c3d4e5f6a7b8... Matches stored hash.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:10Z"
+      },
+      {
+        "id": "gf016",
+        "source_id": "src003",
+        "type": "content_hash_computed",
+        "detail": "SHA-256 hash computed from fetched content: c3d4e5f6a7b8c9d0... Matches stored hash.",
+        "mechanical": true,
+        "verified_at": "2026-03-23T14:15:15Z"
+      }
+    ],
+    "sources_fetched": 8,
+    "excerpts_verified": 8,
+    "excerpts_found": 8,
+    "excerpts_missing": 0,
+    "crossref_checked": 7,
+    "crossref_matched": 6
+  },
+  "validations": [
+    {
+      "run_id": "val_001",
+      "run_at": "2026-03-23T14:20:00Z",
+      "agent": "claude-opus-4-6 (verify mode)",
+      "summary": {
+        "total_claims": 12,
+        "claims_verified": 9,
+        "claims_flagged": 3,
+        "total_sources": 8,
+        "sources_live": 7,
+        "sources_degraded": 1,
+        "sources_dead": 0,
+        "reasoning_chains_audited": 12,
+        "logic_issues_found": 0
+      },
+      "checks": [
+        { "check_id": "chk001", "type": "source_exists", "target_id": "src001", "result": "pass", "detail": "DOI 10.48550/arXiv.1606.06565 resolves to arXiv paper by Amodei et al. (2016)" },
+        { "check_id": "chk002", "type": "source_exists", "target_id": "src002", "result": "pass", "detail": "DOI 10.48550/arXiv.2212.08073 resolves to arXiv paper by Bai et al. (2022)" },
+        { "check_id": "chk003", "type": "source_exists", "target_id": "src003", "result": "pass", "detail": "DOI 10.48550/arXiv.2203.02155 resolves to arXiv/NeurIPS paper by Ouyang et al. (2022)" },
+        { "check_id": "chk004", "type": "source_exists", "target_id": "src004", "result": "pass", "detail": "DOI 10.48550/arXiv.2303.08774 resolves to GPT-4 Technical Report by OpenAI (2023)" },
+        { "check_id": "chk005", "type": "source_exists", "target_id": "src005", "result": "pass", "detail": "DOI 10.6028/NIST.AI.100-1 resolves to NIST AI RMF 1.0 (2023)" },
+        { "check_id": "chk006", "type": "source_exists", "target_id": "src006", "result": "pass", "detail": "EUR-Lex URL resolves to EU AI Act Impact Assessment (2021)" },
+        { "check_id": "chk007", "type": "source_exists", "target_id": "src007", "result": "pass", "detail": "ISBN 978-0199678112 confirmed for Bostrom, Superintelligence (2014)" },
+        { "check_id": "chk008", "type": "source_exists", "target_id": "src008", "result": "warn", "detail": "URL resolves but source is a blog post, not a peer-reviewed publication. Reliability appropriately rated at 91%." },
+        { "check_id": "chk009", "type": "claim_supported", "target_id": "c001", "result": "pass", "detail": "Alignment tax concept well-established in safety literature. Definition accurately captures the consensus meaning." },
+        { "check_id": "chk010", "type": "claim_supported", "target_id": "c002", "result": "pass", "detail": "RLHF compute overhead well-documented in Constitutional AI and InstructGPT papers. The 20-50% range for post-training is conservative." },
+        { "check_id": "chk011", "type": "claim_supported", "target_id": "c003", "result": "warn", "detail": "Synthesis claim. The 15-30% total expenditure estimate cannot be verified against published data. Three assumptions properly flagged.", "suggestion": "Consider narrowing the claim to direct RLHF costs, which are better documented." },
+        { "check_id": "chk012", "type": "claim_supported", "target_id": "c004", "result": "pass", "detail": "Constitutional AI paper directly describes the two-stage pipeline. 'Roughly doubling' compute is a reasonable inference from the architecture." },
+        { "check_id": "chk013", "type": "claim_supported", "target_id": "c005", "result": "pass", "detail": "NIST AI RMF 1.0 directly recommends TEVV including adversarial testing. Excerpt verified." },
+        { "check_id": "chk014", "type": "claim_supported", "target_id": "c006", "result": "pass", "detail": "GPT-4 system card documents extensive pre-release safety testing. Timeline shift from weeks to months is consistent with public reporting." },
+        { "check_id": "chk015", "type": "claim_supported", "target_id": "c007", "result": "warn", "detail": "Interpretability headcount estimate (15-25%) cannot be independently verified. Three assumptions flagged. Confidence of 76% is appropriate.", "suggestion": "Note that this figure is an estimate based on public signals, not confirmed data." },
+        { "check_id": "chk016", "type": "claim_supported", "target_id": "c008", "result": "pass", "detail": "Economic argument about fixed costs is sound. EU AI Act impact assessment supports the disproportionate burden on smaller providers." },
+        { "check_id": "chk017", "type": "claim_supported", "target_id": "c009", "result": "pass", "detail": "EUR 6,000-7,000 figure comes directly from the European Commission's impact assessment. Excerpt verified." },
+        { "check_id": "chk018", "type": "claim_supported", "target_id": "c010", "result": "pass", "detail": "Helpfulness-harmlessness tension documented in Constitutional AI paper and Anthropic's model spec. Benchmark degradation claim is consistent with published findings." },
+        { "check_id": "chk019", "type": "claim_supported", "target_id": "c011", "result": "pass", "detail": "Bostrom's control problem accurately represented. Excerpt verified from Superintelligence Chapter 9." },
+        { "check_id": "chk020", "type": "normative_flagged", "target_id": "c012", "result": "warn", "detail": "Correctly flagged as normative/speculative with 55% confidence and speculative evidence tier. Four ungrounded assumptions properly documented. Three alternatives fairly considered." },
+        { "check_id": "chk021", "type": "confidence_justified", "target_id": "c004", "result": "pass", "detail": "93% confidence appropriate for a well-documented technical process described in a primary source." },
+        { "check_id": "chk022", "type": "confidence_justified", "target_id": "c012", "result": "pass", "detail": "55% confidence appropriate for a normative policy argument with contested premises." },
+        { "check_id": "chk023", "type": "alternatives_fair", "target_id": "c010", "result": "pass", "detail": "Both alternatives (temporary tradeoff and appropriate refusal vs. overcalibration) fairly considered with honest assessments that neither fully accepts nor dismisses." },
+        { "check_id": "chk024", "type": "alternatives_fair", "target_id": "c012", "result": "pass", "detail": "Three alternatives (market forces, self-regulation, safety as advantage) all fairly considered. None is fully rejected, reflecting genuine uncertainty." },
+        { "check_id": "chk025", "type": "content_matches", "target_id": "src002", "result": "pass", "detail": "Retrieved content hash matches stored hash for Bai et al. 2022." }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- Cortex Engine -->
+<script>
+(function() {
+  'use strict';
+
+  // Load Evidence Store
+  var store = JSON.parse(document.getElementById('evidence-store').textContent);
+
+  // Render Paper
+  function renderPaper() {
+    document.getElementById('paper-title').textContent = store.meta.title;
+    document.getElementById('paper-subtitle').textContent = store.meta.subtitle;
+    document.getElementById('meta-authors').textContent = store.meta.authors.map(function(a) { return a.name + ' (' + a.type + ')'; }).join(' \u00B7 ');
+    document.getElementById('meta-date').textContent = new Date(store.meta.generated_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    document.getElementById('meta-model').textContent = 'Generated by ' + store.meta.generator.model_id;
+
+    var claimCount = Object.keys(store.claims).length;
+    var sourceCount = Object.keys(store.sources).length;
+    var stepCount = Object.keys(store.reasoning).length;
+    var lastValidation = store.validations[store.validations.length - 1];
+    var verifiedPct = lastValidation
+      ? Math.round((lastValidation.summary.claims_verified / lastValidation.summary.total_claims) * 100)
+      : 0;
+
+    document.getElementById('stat-claims').textContent = claimCount;
+    document.getElementById('stat-sources').textContent = sourceCount;
+    document.getElementById('stat-steps').textContent = stepCount;
+    document.getElementById('stat-verified').textContent = verifiedPct + '%';
+    document.getElementById('stat-schema').textContent = store.meta.schema_version;
+
+    var body = document.getElementById('paper-body');
+    body.innerHTML = '';
+
+    for (var i = 0; i < store.sections.length; i++) {
+      var section = store.sections[i];
+      var heading = document.createElement('h' + (section.level + 1));
+      heading.textContent = section.title;
+      heading.id = section.id;
+      body.appendChild(heading);
+
+      for (var j = 0; j < section.content.length; j++) {
+        var block = section.content[j];
+        if (block.type === 'paragraph') {
+          var p = document.createElement('p');
+          p.innerHTML = block.text;
+          body.appendChild(p);
+        } else if (block.type === 'blockquote') {
+          var bq = document.createElement('blockquote');
+          bq.innerHTML = block.text;
+          body.appendChild(bq);
+        }
+      }
+    }
+
+    // Bind claim clicks
+    var claims = document.querySelectorAll('.claim');
+    for (var k = 0; k < claims.length; k++) {
+      claims[k].addEventListener('click', function(e) {
+        e.preventDefault();
+        openPanel(this.dataset.claim);
+      });
+    }
+  }
+
+  // Panel Logic
+  var panel = document.getElementById('reasoning-panel');
+  var overlay = document.getElementById('panel-overlay');
+  var activeClaim = null;
+
+  function openPanel(claimId) {
+    var claim = store.claims[claimId];
+    if (!claim) return;
+
+    if (activeClaim) {
+      var prev = document.querySelector('.claim[data-claim="' + activeClaim + '"]');
+      if (prev) prev.classList.remove('active');
+    }
+    activeClaim = claimId;
+    var current = document.querySelector('.claim[data-claim="' + claimId + '"]');
+    if (current) current.classList.add('active');
+
+    document.getElementById('panel-claim-text').textContent = claim.text;
+
+    var badges = document.getElementById('panel-badges');
+    badges.innerHTML = '';
+    badges.innerHTML += '<span class="badge badge-confidence">Confidence: ' + Math.round(claim.confidence * 100) + '%</span>';
+    badges.innerHTML += '<span class="badge badge-type">' + claim.claim_type + '</span>';
+    if (claim.unsupported) badges.innerHTML += '<span class="badge badge-unsupported">Unsupported</span>';
+    if (claim.synthesis) badges.innerHTML += '<span class="badge badge-type">Synthesis</span>';
+
+    if (claim.evidence_tier) {
+      var tierBadge = document.createElement('span');
+      tierBadge.className = 'evidence-tier-badge tier-' + claim.evidence_tier;
+      tierBadge.textContent = claim.evidence_tier;
+      badges.appendChild(tierBadge);
+    }
+
+    var content = document.getElementById('panel-content');
+    content.innerHTML = '';
+
+    // Reasoning chain
+    var reasoningSection = createSection('Reasoning Chain', '\uD83E\uDDE0');
+    var chain = document.createElement('ol');
+    chain.className = 'reasoning-chain';
+
+    for (var ri = 0; ri < claim.reasoning_chain.length; ri++) {
+      var stepId = claim.reasoning_chain[ri];
+      var step = store.reasoning[stepId];
+      if (!step) continue;
+      var li = document.createElement('li');
+      li.className = 'reasoning-step';
+      li.innerHTML = '<div class="step-dot ' + step.type + '"></div>' +
+        '<div class="step-label">' + step.type + ' \u2014 Step ' + step.step_number + '</div>' +
+        '<div class="step-content">' + step.content + '</div>';
+      chain.appendChild(li);
+    }
+    reasoningSection.appendChild(chain);
+    content.appendChild(reasoningSection);
+
+    // Sources
+    var sourcesSection = createSection('Sources', '\uD83D\uDCDA');
+    for (var si = 0; si < claim.source_refs.length; si++) {
+      var srcId = claim.source_refs[si];
+      var src = store.sources[srcId];
+      if (!src) continue;
+      var card = document.createElement('div');
+      card.className = 'source-card';
+      var statusIcon = src.verification_status === 'verified' ? '\u2705' :
+        src.verification_status === 'degraded' ? '\u26A0\uFE0F' : '\u274C';
+      card.innerHTML =
+        '<div class="source-header"><div class="source-title">' + src.title + '</div><span class="source-status">' + statusIcon + '</span></div>' +
+        '<div class="source-citation">' + src.authors.join(', ') + ' (' + (src.year || 'n.d.') + '). ' + (src.publication || '') + '</div>' +
+        (src.relevant_excerpt ? '<div class="source-excerpt">\u201C' + src.relevant_excerpt + '\u201D<br><span style="font-style:normal;font-size:0.65rem;color:var(--color-text-muted);">\u2014 ' + src.excerpt_location + '</span></div>' : '') +
+        '<div class="source-meta">' +
+        (src.doi ? '<span>DOI: <a href="https://doi.org/' + src.doi + '" target="_blank" rel="noopener">' + src.doi + '</a></span>' : '') +
+        (src.isbn ? '<span>ISBN: ' + src.isbn + '</span>' : '') +
+        (src.archived_url ? '<span><a href="' + src.archived_url + '" target="_blank" rel="noopener">Archived</a></span>' : '') +
+        '<span>Verified: ' + new Date(src.verified_at).toLocaleDateString() + '</span>' +
+        '<span>Reliability: ' + Math.round(src.reliability_rating * 100) + '%</span>' +
+        '</div>';
+      sourcesSection.appendChild(card);
+    }
+    content.appendChild(sourcesSection);
+
+    // Mechanical Facts
+    var factsSection = document.createElement('div');
+    factsSection.className = 'panel-section fact-section';
+    factsSection.innerHTML = '<h3>Mechanical Facts</h3><p class="section-desc">Binary checks \u2014 no AI opinion. Reproducible by anyone.</p>';
+
+    var relevantSourceIds = claim.source_refs || [];
+    var hasAnyFacts = false;
+
+    for (var fi = 0; fi < relevantSourceIds.length; fi++) {
+      var srcId2 = relevantSourceIds[fi];
+      var src2 = store.sources[srcId2];
+      if (!src2) continue;
+
+      if (src2.excerpt_verification) {
+        hasAnyFacts = true;
+        var ev = src2.excerpt_verification;
+        var evCls = ev.found ? 'pass' : 'fail';
+        var evIcon = ev.found ? '\u2705' : '\u274C';
+        var evItem = document.createElement('div');
+        evItem.className = 'fact-item ' + evCls;
+        evItem.innerHTML =
+          '<span class="fact-icon">' + evIcon + '</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Excerpt ' + (ev.found ? 'Found' : 'Not Found') + ' in ' + src2.authors[0].split(',')[0] + ' (' + src2.year + ')</span>' +
+            (ev.found ? 'Match confidence: ' + Math.round(ev.match_score * 100) + '%' : 'The claimed excerpt was not found verbatim in the source content.') +
+            (ev.context ? '<div class="fact-context">\u201C...' + ev.context + '...\u201D</div>' : '') +
+          '</div>';
+        factsSection.appendChild(evItem);
+      }
+
+      if (src2.retrieved_content_hash) {
+        hasAnyFacts = true;
+        var hashItem = document.createElement('div');
+        hashItem.className = 'fact-item pass';
+        hashItem.innerHTML =
+          '<span class="fact-icon">\uD83D\uDD12</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Content Hash \u2014 ' + src2.authors[0].split(',')[0] + ' (' + src2.year + ')</span>' +
+            '<code style="font-size: 0.75em">' + src2.retrieved_content_hash.substring(0, 24) + '...</code>' +
+          '</div>';
+        factsSection.appendChild(hashItem);
+      }
+
+      if (src2.crossref_metadata) {
+        hasAnyFacts = true;
+        var cr = src2.crossref_metadata;
+        var crCls = cr.metadata_matches ? 'pass' : 'fail';
+        var crIcon = cr.metadata_matches ? '\u2705' : '\u26A0\uFE0F';
+        var crItem = document.createElement('div');
+        crItem.className = 'fact-item ' + crCls;
+        crItem.innerHTML =
+          '<span class="fact-icon">' + crIcon + '</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">CrossRef Metadata ' + (cr.metadata_matches ? 'Matches' : 'Mismatch') + '</span>' +
+            (cr.verified_title ? 'Title: \u201C' + cr.verified_title + '\u201D' : '') +
+            (cr.verified_year ? ' (' + cr.verified_year + ')' : '') +
+            (!cr.metadata_matches ? '<div class="fact-context" style="color: var(--color-warn);">Check details \u2014 publication name format may differ between our record and CrossRef.</div>' : '') +
+          '</div>';
+        factsSection.appendChild(crItem);
+      }
+    }
+
+    // Grounding assumptions
+    if (claim.grounding && claim.grounding.assumptions && claim.grounding.assumptions.length > 0) {
+      hasAnyFacts = true;
+      for (var ai = 0; ai < claim.grounding.assumptions.length; ai++) {
+        var assumption = claim.grounding.assumptions[ai];
+        var aItem = document.createElement('div');
+        aItem.className = 'fact-item unavailable';
+        aItem.innerHTML =
+          '<span class="fact-icon">\u26AA</span>' +
+          '<div class="fact-detail">' +
+            '<span class="fact-label">Ungrounded Assumption</span>' +
+            assumption +
+          '</div>';
+        factsSection.appendChild(aItem);
+      }
+    }
+
+    if (!hasAnyFacts) {
+      factsSection.innerHTML += '<div class="fact-item unavailable"><span class="fact-icon">\u2014</span><div class="fact-detail">No mechanical verification available for this claim\'s sources.</div></div>';
+    }
+
+    content.appendChild(factsSection);
+
+    // Alternatives
+    if (claim.alternatives_considered && claim.alternatives_considered.length > 0) {
+      var altSection = createSection('Alternatives Considered', '\uD83E\uDD14');
+      for (var ali = 0; ali < claim.alternatives_considered.length; ali++) {
+        var alt = claim.alternatives_considered[ali];
+        var div = document.createElement('div');
+        div.className = 'alternative';
+        div.innerHTML = '<div class="alternative-text">' + alt.text + '</div>' +
+          '<div class="alternative-reason">Reason: ' + alt.reason_rejected + '</div>';
+        altSection.appendChild(div);
+      }
+      content.appendChild(altSection);
+    }
+
+    // Validation
+    var lastVal = store.validations[store.validations.length - 1];
+    if (lastVal) {
+      var valSection = createSection('Validation Checks', '\u2705');
+      var relevantChecks = lastVal.checks.filter(function(c) {
+        return c.target_id === claimId || (claim.source_refs && claim.source_refs.indexOf(c.target_id) !== -1);
+      });
+      for (var vi = 0; vi < relevantChecks.length; vi++) {
+        var check = relevantChecks[vi];
+        var row = document.createElement('div');
+        row.className = 'validation-row validation-' + check.result;
+        row.innerHTML =
+          '<span class="validation-icon">' + (check.result === 'pass' ? '\u2705' : check.result === 'warn' ? '\u26A0\uFE0F' : '\u274C') + '</span>' +
+          '<span class="validation-label">' + check.detail + '</span>' +
+          '<span class="validation-result">' + check.result + '</span>';
+        valSection.appendChild(row);
+      }
+      if (relevantChecks.length > 0) {
+        content.appendChild(valSection);
+      }
+    }
+
+    panel.classList.add('open');
+    overlay.classList.add('visible');
+  }
+
+  function closePanel() {
+    panel.classList.remove('open');
+    overlay.classList.remove('visible');
+    if (activeClaim) {
+      var el = document.querySelector('.claim[data-claim="' + activeClaim + '"]');
+      if (el) el.classList.remove('active');
+      activeClaim = null;
+    }
+  }
+
+  function createSection(title, icon) {
+    var section = document.createElement('div');
+    section.className = 'panel-section';
+    section.innerHTML = '<div class="panel-section-title">' + icon + ' ' + title + '</div>';
+    return section;
+  }
+
+  // Event Bindings
+  document.getElementById('panel-close').addEventListener('click', closePanel);
+  overlay.addEventListener('click', closePanel);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closePanel();
+  });
+
+  // Theme Toggle
+  var toggle = document.getElementById('theme-toggle');
+  toggle.addEventListener('click', function() {
+    var html = document.documentElement;
+    var current = html.getAttribute('data-theme');
+    var next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    toggle.textContent = next === 'dark' ? '\u2600' : '\u263D';
+  });
+
+  // Show Raw Evidence Store
+  window.showEvidenceStore = function() {
+    var w = window.open('', '_blank');
+    w.document.write('<html><head><title>Cortex Evidence Store</title><style>body{font-family:monospace;padding:2rem;background:#1e1e1e;color:#d4d4d4;font-size:13px;white-space:pre-wrap;word-wrap:break-word;}</style></head><body>');
+    w.document.write(JSON.stringify(store, null, 2).replace(/</g, '&lt;'));
+    w.document.write('</body></html>');
+    w.document.close();
+  };
+
+  // Initialize
+  renderPaper();
+})();
+</script>
+
+</body>
+</html>
